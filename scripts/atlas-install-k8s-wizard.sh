@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-WIZARD_VERSION="3.0.0-r4"
+WIZARD_VERSION="3.0.0-r6"
 DEFAULT_REPO="desalvo/atlas-install-server"
 DEFAULT_REF="main"
 DEFAULT_NAMESPACE="atlas-install"
@@ -29,6 +29,9 @@ DEFAULT_EMAIL="no-reply@localhost"
 DEFAULT_INFOSYS="lcg-bdii.cern.ch"
 DEFAULT_ACTIVITY_PERIOD="3 DAY"
 DEFAULT_DEBUG="0"
+DEFAULT_AUTO_UPDATE_WIZARD="no"
+DEFAULT_NODE_SELECTOR_ENABLED="no"
+DEFAULT_NODE_SELECTOR=""
 
 STATE_ROOT="${XDG_CONFIG_HOME:-$HOME/.config}/atlas-install-server"
 STATE_FILE="$STATE_ROOT/k8s-wizard.env"
@@ -39,6 +42,8 @@ APPLY_MANIFESTS=""
 MANAGE_SECRETS=""
 NON_INTERACTIVE=0
 TLS_SECRET_CHANGED=0
+SELF_UPDATE_OVERRIDE=""
+ORIGINAL_ARGS=("$@")
 
 usage() {
   cat <<USAGE
@@ -52,6 +57,8 @@ Options:
   --apply                Render/apply manifests and manage secrets
   --non-interactive      Use stored/default values; existing secrets are kept unless explicitly requested
   --reset-state          Forget stored non-secret wizard choices
+  --self-update          Enable wizard self-update for this and future runs
+  --no-self-update       Disable wizard self-update for this and future runs
   -h, --help             Show this help
 
 Optional environment variables for automation:
@@ -63,6 +70,8 @@ Optional environment variables for automation:
   ATLAS_DB_BROKER_PASSWORD            Bootstrap broker database password
   ATLAS_TLS_CERT_FILE                 Host certificate/full-chain PEM path
   ATLAS_TLS_KEY_FILE                  Host private-key PEM path
+  ATLAS_WIZARD_AUTO_UPDATE=1           Enable self-update in non-interactive mode
+  ATLAS_NODE_SELECTOR                   Optional comma-separated key=value node selector(s)
 USAGE
 }
 
@@ -153,6 +162,9 @@ save_state() {
     printf 'ATLAS_DEBUG_VALUE=%q\n' "$ATLAS_DEBUG_VALUE"
     printf 'TLS_CERT_PATH=%q\n' "$TLS_CERT_PATH"
     printf 'TLS_KEY_PATH=%q\n' "$TLS_KEY_PATH"
+    printf 'AUTO_UPDATE_WIZARD=%q\n' "$AUTO_UPDATE_WIZARD"
+    printf 'NODE_SELECTOR_ENABLED=%q\n' "$NODE_SELECTOR_ENABLED"
+    printf 'NODE_SELECTOR=%q\n' "$NODE_SELECTOR"
     printf 'OUTPUT_DIR=%q\n' "$OUTPUT_DIR"
   } > "$tmp"
   chmod 600 "$tmp"
@@ -174,6 +186,88 @@ load_state() {
 
 validate_dns_label() { [[ "$1" =~ ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$ ]] || die "invalid Kubernetes name: $1"; }
 validate_repo() { [[ "$1" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]] || die "GitHub repository must be owner/repository"; }
+
+
+validate_node_selector() {
+  local spec="$1" item key value
+  [[ -z "$spec" ]] && return 0
+  IFS=',' read -r -a _selectors <<< "$spec"
+  for item in "${_selectors[@]}"; do
+    [[ "$item" == *=* ]] || die "invalid nodeSelector entry '$item' (expected key=value)"
+    key="${item%%=*}"; value="${item#*=}"
+    [[ -n "$key" && -n "$value" ]] || die "invalid nodeSelector entry '$item'"
+    [[ "$key" =~ ^([A-Za-z0-9]([A-Za-z0-9._-]*[A-Za-z0-9])?)(/[A-Za-z0-9]([A-Za-z0-9._-]*[A-Za-z0-9])?)?$ ]] || die "invalid nodeSelector key: $key"
+    [[ "$value" =~ ^[A-Za-z0-9]([A-Za-z0-9._-]*[A-Za-z0-9])?$ ]] || die "invalid nodeSelector value for $key: $value"
+  done
+}
+
+yaml_dquote() {
+  local v="$1"
+  v="${v//\\/\\\\}"
+  v="${v//\"/\\\"}"
+  printf '"%s"' "$v"
+}
+
+render_node_selector_block() {
+  local spec="$1" item key value
+  validate_node_selector "$spec"
+  printf '      nodeSelector:\n'
+  IFS=',' read -r -a _selectors <<< "$spec"
+  for item in "${_selectors[@]}"; do
+    key="${item%%=*}"; value="${item#*=}"
+    printf '        %s: %s\n' "$key" "$(yaml_dquote "$value")"
+  done
+}
+
+self_script_path() {
+  local src="${BASH_SOURCE[0]}"
+  if command -v readlink >/dev/null 2>&1; then
+    readlink -f "$src" 2>/dev/null || printf '%s' "$src"
+  else
+    printf '%s' "$src"
+  fi
+}
+
+maybe_self_update() {
+  [[ "$AUTO_UPDATE_WIZARD" == yes ]] || return 0
+  [[ "${ATLAS_WIZARD_SKIP_SELF_UPDATE:-0}" != 1 ]] || return 0
+  local self remote_script remote_sum url_base tmp_script tmp_sum expected actual auth=()
+  self="$(self_script_path)"
+  [[ -f "$self" ]] || { log "WARNING: cannot self-update: current script path is not a regular file: $self"; return 0; }
+  [[ -w "$self" ]] || { log "WARNING: cannot self-update: script is not writable: $self"; return 0; }
+  url_base="https://raw.githubusercontent.com/${GITHUB_REPO}/${GITHUB_REF}/scripts"
+  remote_script="$url_base/atlas-install-k8s-wizard.sh"
+  remote_sum="$url_base/atlas-install-k8s-wizard.sh.sha256"
+  tmp_script="$(mktemp)"; tmp_sum="$(mktemp)"
+  [[ -n "${GITHUB_TOKEN:-}" ]] && auth=(-H "Authorization: Bearer ${GITHUB_TOKEN}")
+  if ! curl --fail --location --silent --show-error "${auth[@]}" "$remote_script" -o "$tmp_script"; then
+    rm -f "$tmp_script" "$tmp_sum"
+    log "WARNING: wizard auto-update check failed; continuing with local copy."
+    return 0
+  fi
+  if ! curl --fail --location --silent --show-error "${auth[@]}" "$remote_sum" -o "$tmp_sum"; then
+    rm -f "$tmp_script" "$tmp_sum"
+    log "WARNING: remote wizard checksum is unavailable; refusing self-update."
+    return 0
+  fi
+  expected="$(awk 'NF {print $1; exit}' "$tmp_sum")"
+  actual="$(sha256sum "$tmp_script" | awk '{print $1}')"
+  if [[ ! "$expected" =~ ^[0-9a-fA-F]{64}$ || "${expected,,}" != "$actual" ]]; then
+    rm -f "$tmp_script" "$tmp_sum"
+    log "WARNING: remote wizard checksum verification failed; refusing self-update."
+    return 0
+  fi
+  if cmp -s "$self" "$tmp_script"; then
+    rm -f "$tmp_script" "$tmp_sum"
+    log "Wizard is already current."
+    return 0
+  fi
+  chmod --reference="$self" "$tmp_script" 2>/dev/null || chmod 0755 "$tmp_script"
+  mv -f "$tmp_script" "$self"
+  rm -f "$tmp_sum"
+  log "Wizard updated from GitHub: $GITHUB_REPO@$GITHUB_REF"
+  log "The updated wizard will be used on the next execution."
+}
 
 fetch_template() {
   local remote_path="$1" local_path="$2" url tmp auth=()
@@ -200,9 +294,17 @@ fetch_template() {
 }
 
 render_template() {
-  local src="$1" dst="$2" content storage_block tmp
+  local src="$1" dst="$2" content storage_block node_selector_block maintenance_resource_block tmp
   content="$(cat "$src")"
   [[ -n "$STORAGE_CLASS" ]] && storage_block="  storageClassName: ${STORAGE_CLASS}"$'\n' || storage_block=""
+  node_selector_block=""
+  if [[ "$NODE_SELECTOR_ENABLED" == yes && -n "$NODE_SELECTOR" ]]; then
+    node_selector_block="$(render_node_selector_block "$NODE_SELECTOR")"
+  fi
+  maintenance_resource_block=""
+  if [[ "$ENABLE_MAINTENANCE" == yes ]]; then
+    maintenance_resource_block="  - 50-maintenance-cronjobs.yaml"
+  fi
   content="${content//\{\{NAMESPACE\}\}/$NAMESPACE}"
   content="${content//\{\{APP_NAME\}\}/$APP_NAME}"
   content="${content//\{\{IMAGE\}\}/$IMAGE}"
@@ -217,6 +319,8 @@ render_template() {
   content="${content//\{\{CPU_LIMIT\}\}/$CPU_LIMIT}"
   content="${content//\{\{MEMORY_LIMIT\}\}/$MEMORY_LIMIT}"
   content="${content//\{\{REPLICAS\}\}/$REPLICAS}"
+  content="${content//\{\{NODE_SELECTOR_BLOCK\}\}/$node_selector_block}"
+  content="${content//\{\{MAINTENANCE_RESOURCE_BLOCK\}\}/$maintenance_resource_block}"
   content="${content//\{\{PLOTS_SCHEDULE\}\}/$PLOTS_SCHEDULE}"
   content="${content//\{\{CLEANUP_SCHEDULE\}\}/$CLEANUP_SCHEDULE}"
   grep -q '{{[A-Z0-9_]*}}' <<<"$content" && die "unresolved placeholder while rendering $src"
@@ -455,6 +559,8 @@ while (($#)); do
     --apply) APPLY_MANIFESTS="yes"; MANAGE_SECRETS="yes"; shift ;;
     --non-interactive) NON_INTERACTIVE=1; shift ;;
     --reset-state) rm -f "$STATE_FILE"; shift ;;
+    --self-update) SELF_UPDATE_OVERRIDE=yes; shift ;;
+    --no-self-update) SELF_UPDATE_OVERRIDE=no; shift ;;
     -h|--help) usage; exit 0 ;;
     *) die "unknown option: $1" ;;
   esac
@@ -501,6 +607,9 @@ ATLAS_ACTIVITY_PERIOD_VALUE="${ATLAS_ACTIVITY_PERIOD_VALUE:-$DEFAULT_ACTIVITY_PE
 ATLAS_DEBUG_VALUE="${ATLAS_DEBUG_VALUE:-$DEFAULT_DEBUG}"
 TLS_CERT_PATH="${TLS_CERT_PATH:-}"
 TLS_KEY_PATH="${TLS_KEY_PATH:-}"
+AUTO_UPDATE_WIZARD="${AUTO_UPDATE_WIZARD:-$DEFAULT_AUTO_UPDATE_WIZARD}"
+NODE_SELECTOR_ENABLED="${NODE_SELECTOR_ENABLED:-$DEFAULT_NODE_SELECTOR_ENABLED}"
+NODE_SELECTOR="${NODE_SELECTOR:-$DEFAULT_NODE_SELECTOR}"
 OUTPUT_DIR="${CLI_OUTPUT_DIR:-${OUTPUT_DIR:-${PWD}/atlas-install-kubernetes}}"
 
 log "ATLAS Installation Server Kubernetes wizard $WIZARD_VERSION"
@@ -515,6 +624,18 @@ else
   validate_repo "$GITHUB_REPO"
 fi
 GITHUB_REF="$(prompt 'GitHub ref/branch/tag for Kubernetes templates' "$GITHUB_REF")"
+if [[ -n "$SELF_UPDATE_OVERRIDE" ]]; then
+  AUTO_UPDATE_WIZARD="$SELF_UPDATE_OVERRIDE"
+elif truthy "${ATLAS_WIZARD_AUTO_UPDATE:-0}"; then
+  AUTO_UPDATE_WIZARD=yes
+elif (( ! NON_INTERACTIVE )); then
+  if yesno "Automatically update this wizard from GitHub on future runs?" "$([[ "$AUTO_UPDATE_WIZARD" == yes ]] && echo y || echo n)"; then
+    AUTO_UPDATE_WIZARD=yes
+  else
+    AUTO_UPDATE_WIZARD=no
+  fi
+fi
+maybe_self_update
 NAMESPACE="$(prompt 'Kubernetes namespace' "$NAMESPACE")"
 APP_NAME="$(prompt 'Application resource prefix' "$APP_NAME")"
 validate_dns_label "$NAMESPACE"; validate_dns_label "$APP_NAME"
@@ -530,6 +651,18 @@ CPU_REQUEST="$(prompt 'CPU request' "$CPU_REQUEST")"
 MEMORY_REQUEST="$(prompt 'Memory request' "$MEMORY_REQUEST")"
 CPU_LIMIT="$(prompt 'CPU limit' "$CPU_LIMIT")"
 MEMORY_LIMIT="$(prompt 'Memory limit' "$MEMORY_LIMIT")"
+if [[ -n "${ATLAS_NODE_SELECTOR:-}" ]]; then
+  NODE_SELECTOR_ENABLED=yes
+  NODE_SELECTOR="$ATLAS_NODE_SELECTOR"
+elif yesno "Use an optional nodeSelector for the server pod?" "$([[ "$NODE_SELECTOR_ENABLED" == yes ]] && echo y || echo n)"; then
+  NODE_SELECTOR_ENABLED=yes
+  NODE_SELECTOR="$(prompt 'nodeSelector(s), comma-separated key=value' "$NODE_SELECTOR")"
+  [[ -n "$NODE_SELECTOR" ]] || die "nodeSelector enabled but no key=value selector was provided"
+  validate_node_selector "$NODE_SELECTOR"
+else
+  NODE_SELECTOR_ENABLED=no
+  NODE_SELECTOR=""
+fi
 OUTPUT_DIR="$(prompt 'Generated manifest directory' "$OUTPUT_DIR")"
 
 if yesno "Generate maintenance CronJobs?" "$([[ "$ENABLE_MAINTENANCE" == yes ]] && echo y || echo n)"; then
@@ -542,20 +675,25 @@ fi
 
 cache_key="${GITHUB_REPO//\//_}/${GITHUB_REF//\//_}"
 cache_dir="$CACHE_ROOT/$cache_key"
-main_tpl="$cache_dir/atlas-install-container.yaml.tpl"
-maint_tpl="$cache_dir/maintenance-cronjobs.yaml.tpl"
-fetch_template "kubernetes/templates/atlas-install-container.yaml.tpl" "$main_tpl"
-fetch_template "kubernetes/templates/maintenance-cronjobs.yaml.tpl" "$maint_tpl"
-
+template_files=(
+  00-namespace.yaml
+  10-pvc.yaml
+  20-deployment.yaml
+  30-service.yaml
+  40-ingress.yaml
+  50-maintenance-cronjobs.yaml
+  kustomization.yaml
+)
 mkdir -p "$OUTPUT_DIR"
-main_out="$OUTPUT_DIR/atlas-install-container.yaml"
-maint_out="$OUTPUT_DIR/maintenance-cronjobs.yaml"
-render_template "$main_tpl" "$main_out"
-if [[ "$ENABLE_MAINTENANCE" == yes ]]; then
-  render_template "$maint_tpl" "$maint_out"
-else
-  rm -f "$maint_out"
-fi
+for name in "${template_files[@]}"; do
+  cache_file="$cache_dir/${name}.tpl"
+  fetch_template "kubernetes/templates/${name}.tpl" "$cache_file"
+  if [[ "$name" == "50-maintenance-cronjobs.yaml" && "$ENABLE_MAINTENANCE" != yes ]]; then
+    rm -f "$OUTPUT_DIR/$name"
+    continue
+  fi
+  render_template "$cache_file" "$OUTPUT_DIR/$name"
+done
 
 readme_tmp="$(mktemp)"
 cat > "$readme_tmp" <<INFO
@@ -566,6 +704,9 @@ Namespace: $NAMESPACE
 Application: $APP_NAME
 Image: $IMAGE
 Public hostname: $PUBLIC_HOSTNAME
+Kustomize entrypoint: $OUTPUT_DIR/kustomization.yaml
+Node selector: $([[ "$NODE_SELECTOR_ENABLED" == yes ]] && printf '%s' "$NODE_SELECTOR" || printf 'disabled')
+Wizard auto-update: $AUTO_UPDATE_WIZARD
 INFO
 if write_if_changed "$readme_tmp" "$OUTPUT_DIR/README.generated.txt"; then log "Generated/updated: $OUTPUT_DIR/README.generated.txt"; else log "Generated README unchanged."; fi
 
@@ -589,9 +730,9 @@ if [[ "$MANAGE_SECRETS" == yes ]]; then
 fi
 
 if [[ "$APPLY_MANIFESTS" == yes ]]; then
-  kubectl apply -f "$main_out"
-  [[ "$ENABLE_MAINTENANCE" == yes ]] && kubectl apply -f "$maint_out"
-  log "Kubernetes manifests applied."
+  kubectl apply -f "$OUTPUT_DIR/00-namespace.yaml"
+  kubectl apply -k "$OUTPUT_DIR"
+  log "Kubernetes manifests applied with Kustomize."
 fi
 
 if (( TLS_SECRET_CHANGED )) && kubectl -n "$NAMESPACE" get deployment "$APP_NAME" >/dev/null 2>&1; then

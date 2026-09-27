@@ -112,4 +112,4 @@ Historical scheduled activities include:
 - hourly plot generation (`create_ljsfi_plots.php`);
 - daily log archival/cleanup.
 
-Kubernetes CronJob examples are included in `kubernetes/maintenance-cronjobs.yaml`.
+Kubernetes CronJob examples are included in `kubernetes/manifests/50-maintenance-cronjobs.yaml`.

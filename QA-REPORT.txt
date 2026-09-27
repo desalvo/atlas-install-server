@@ -1,20 +1,45 @@
-ATLAS Installation Server 3.0.0 r5 - QA
+ATLAS Installation Server 3.0.0 r6 - QA
 ========================================
 
-Fix scope
----------
-- Container startup no longer blocks on fetch-crl.
-- Initial IGTF trust-anchor validation runs with CRL retrieval deferred.
-- CRL retrieval starts asynchronously after Apache startup.
-- fetch-crl is bounded by ATLAS_CRL_FETCH_TIMEOUT_SECONDS (default 120s).
-- Kubernetes startupProbe protects the pod from premature liveness restarts.
-- Periodic IGTF/CRL refresh still runs automatically.
+Scope
+-----
+- Kubernetes resources split into Namespace, PVC, Deployment, Service, Ingress and optional maintenance CronJobs.
+- Native Kustomize entrypoint added for static and wizard-generated deployments.
+- Kubernetes wizard updated for the modular manifest layout and kubectl apply -k.
+- Optional nodeSelector support added; no selector is emitted unless enabled.
+- Optional wizard self-update added, sourced from the selected GitHub repository/ref and guarded by SHA-256 verification.
+- Existing r4/r5 Secret/TLS idempotency and IGTF/CRL startup hardening retained.
 
 Validation
 ----------
-- bash -n entrypoint/update-igtf/wizard: PASS
+- application version remains 3.0.0: PASS
+- bash syntax / repository static CI: PASS
 - Kubernetes static manifest YAML parse: PASS
-- Kubernetes generated-template YAML parse: PASS
-- repository static CI: PASS
-- application version remains 3.0.0
-- linux/amd64 + linux/arm64 build workflow unchanged
+- generated manifests without nodeSelector: PASS
+- generated manifests with multiple nodeSelectors: PASS
+- optional maintenance resource in generated kustomization: PASS
+- nodeSelector absent by default: PASS
+- nodeSelector Kustomize overlay example: PASS
+- wizard SHA-256 sidecar verification: PASS
+- wizard self-update with verified remote content: PASS
+- stale monolithic Kubernetes manifest references: NONE
+- Docker build workflow platforms remain linux/amd64 + linux/arm64
+
+Generated Kubernetes layout
+---------------------------
+00-namespace.yaml
+10-pvc.yaml
+20-deployment.yaml
+30-service.yaml
+40-ingress.yaml
+50-maintenance-cronjobs.yaml (optional)
+kustomization.yaml
+
+Self-update behavior
+--------------------
+- disabled by default;
+- persisted when enabled;
+- can be controlled with --self-update / --no-self-update;
+- ATLAS_WIZARD_AUTO_UPDATE=1 enables it for unattended execution;
+- downloaded wizard is installed only if scripts/atlas-install-k8s-wizard.sh.sha256 matches;
+- replacement is atomic and becomes active on the following execution.

@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.0.0-r6
+
+- Split Kubernetes resources into dedicated Namespace, PVC, Deployment, Service, Ingress and optional maintenance CronJob manifests.
+- Added first-class `kustomization.yaml` support; generated installations are applied with `kubectl apply -k`.
+- Updated the Kubernetes wizard to download, cache, render and apply the modular manifest set.
+- Added optional wizard self-update from the selected GitHub repository/ref with SHA-256 verification and atomic replacement.
+- Added optional `nodeSelector` support for the server pod; no `nodeSelector` is emitted unless explicitly enabled.
+- Persisted self-update and node-selector choices as non-secret wizard state while retaining existing idempotent Secret/TLS behavior.
+
 ## 3.0.0-r5
 
 - Prevented startup from blocking indefinitely in `fetch-crl`.

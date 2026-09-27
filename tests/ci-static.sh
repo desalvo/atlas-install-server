@@ -33,24 +33,55 @@ done < <(find . -type f \( -name '*.sh' -o -path './install-atlas-rhel10.sh' \) 
 printf '== Kubernetes wizard/templates ==\n'
 for f in \
   scripts/atlas-install-k8s-wizard.sh \
-  kubernetes/templates/atlas-install-container.yaml.tpl \
-  kubernetes/templates/maintenance-cronjobs.yaml.tpl; do
+  scripts/atlas-install-k8s-wizard.sh.sha256 \
+  kubernetes/templates/00-namespace.yaml.tpl \
+  kubernetes/templates/10-pvc.yaml.tpl \
+  kubernetes/templates/20-deployment.yaml.tpl \
+  kubernetes/templates/30-service.yaml.tpl \
+  kubernetes/templates/40-ingress.yaml.tpl \
+  kubernetes/templates/50-maintenance-cronjobs.yaml.tpl \
+  kubernetes/templates/kustomization.yaml.tpl \
+  kubernetes/manifests/00-namespace.yaml \
+  kubernetes/manifests/10-pvc.yaml \
+  kubernetes/manifests/20-deployment.yaml \
+  kubernetes/manifests/30-service.yaml \
+  kubernetes/manifests/40-ingress.yaml \
+  kubernetes/manifests/kustomization.yaml; do
   if [[ ! -s "$f" ]]; then
-    printf 'Required Kubernetes wizard asset missing/empty: %s\n' "$f" >&2
+    printf 'Required Kubernetes asset missing/empty: %s\n' "$f" >&2
     fail=1
   fi
 done
-for token in NAMESPACE APP_NAME IMAGE PUBLIC_HOSTNAME INGRESS_CLASS STORAGE_SIZE; do
-  if ! grep -q "{{${token}}}" kubernetes/templates/atlas-install-container.yaml.tpl; then
-    printf 'Main Kubernetes template missing placeholder: %s\n' "$token" >&2
+for token in NAMESPACE APP_NAME IMAGE; do
+  if ! grep -Rq "{{${token}}}" kubernetes/templates/*.tpl; then
+    printf 'Kubernetes templates missing placeholder: %s\n' "$token" >&2
     fail=1
   fi
 done
-if grep -Rqs 'desalvo/atlas-install-server:latest' kubernetes/*.yaml; then
-  printf 'Kubernetes release manifests must not use :latest.\n' >&2
+for token in NODE_SELECTOR_BLOCK; do
+  if ! grep -q "{{${token}}}" kubernetes/templates/20-deployment.yaml.tpl; then
+    printf 'Deployment template missing optional placeholder: %s\n' "$token" >&2
+    fail=1
+  fi
+done
+if ! grep -Fq 'kubectl apply -k "$OUTPUT_DIR"' scripts/atlas-install-k8s-wizard.sh; then
+  printf 'Wizard must apply generated resources through Kustomize.\n' >&2
   fail=1
 fi
-
+for token in '--self-update' 'ATLAS_WIZARD_AUTO_UPDATE' 'atlas-install-k8s-wizard.sh.sha256' 'Use an optional nodeSelector' 'ATLAS_NODE_SELECTOR'; do
+  if ! grep -Fq -- "$token" scripts/atlas-install-k8s-wizard.sh; then
+    printf 'Wizard feature missing: %s\n' "$token" >&2
+    fail=1
+  fi
+done
+if ! (cd scripts && sha256sum -c atlas-install-k8s-wizard.sh.sha256 >/dev/null 2>&1); then
+  printf 'Wizard SHA-256 sidecar does not match the wizard script.\n' >&2
+  fail=1
+fi
+if grep -Rqs 'desalvo/atlas-install-server:latest' kubernetes/manifests kubernetes/templates; then
+  printf 'Kubernetes release manifests/templates must not use :latest.\n' >&2
+  fail=1
+fi
 
 printf '== IGTF refresh hardening ==\n'
 if ! grep -q 'openssl rehash' container/update-igtf.sh; then

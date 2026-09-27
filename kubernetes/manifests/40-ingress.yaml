@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: atlas-install
+  namespace: atlas-install
+  annotations:
+    haproxy-ingress.github.io/ssl-passthrough: "true"
+spec:
+  ingressClassName: haproxy
+  rules:
+    - host: atlas-install-el10.apps.desalvo.eu
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: atlas-install
+                port:
+                  number: 443

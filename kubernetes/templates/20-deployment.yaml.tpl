@@ -1,19 +1,3 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: {{NAMESPACE}}
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: {{APP_NAME}}-data
-  namespace: {{NAMESPACE}}
-spec:
-  accessModes: ["{{PVC_ACCESS_MODE}}"]
-{{STORAGE_CLASS_BLOCK}}  resources:
-    requests:
-      storage: {{STORAGE_SIZE}}
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -31,6 +15,7 @@ spec:
       labels:
         app: {{APP_NAME}}
     spec:
+{{NODE_SELECTOR_BLOCK}}
       terminationGracePeriodSeconds: 30
       containers:
         - name: {{APP_NAME}}
@@ -131,38 +116,3 @@ spec:
         - name: bootstrap
           secret:
             secretName: {{APP_NAME}}-bootstrap
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{APP_NAME}}
-  namespace: {{NAMESPACE}}
-spec:
-  selector:
-    app: {{APP_NAME}}
-  ports:
-    - name: https
-      port: 443
-      targetPort: https
-      protocol: TCP
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: {{APP_NAME}}
-  namespace: {{NAMESPACE}}
-  annotations:
-    haproxy-ingress.github.io/ssl-passthrough: "true"
-spec:
-  ingressClassName: {{INGRESS_CLASS}}
-  rules:
-    - host: {{PUBLIC_HOSTNAME}}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: {{APP_NAME}}
-                port:
-                  number: 443

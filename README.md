@@ -22,7 +22,7 @@ The application keeps the historical access model:
 - Modern responsive UI layered over the historical pages.
 - Protected Web configuration console at `/atlas_install/protected/configuration.php`.
 - OCI image based on Rocky Linux 10, published as `desalvo/atlas-install-server`.
-- Kubernetes manifests for TLS passthrough.
+- Modular Kubernetes manifests with Kustomize support and TLS passthrough.
 - Liveness/readiness endpoints.
 - Secrets kept outside the Web document root and outside the container image.
 
@@ -71,7 +71,7 @@ chmod +x atlas-install-k8s-wizard.sh
 ./atlas-install-k8s-wizard.sh
 ```
 
-See `docs/KUBERNETES-WIZARD.md` for the complete workflow. Manual installation remains supported.
+See `docs/KUBERNETES-WIZARD.md` for the complete workflow. The wizard generates separate Namespace/PVC/Deployment/Service/Ingress manifests plus `kustomization.yaml`, supports an optional nodeSelector, and can optionally self-update from GitHub. Manual installation remains supported.
 
 Create the TLS secret containing the wildcard/server certificate:
 
@@ -89,10 +89,11 @@ kubectl -n atlas-install create secret generic atlas-install-bootstrap \
   --from-file=atlas-install.env=/secure/path/atlas-install.env
 ```
 
-The supplied Kubernetes manifest references `desalvo/atlas-install-server:3.0.0`; adjust the image if required, then apply it:
+The supplied Kubernetes manifests reference `desalvo/atlas-install-server:3.0.0`; adjust the image if required, then apply the Namespace and the Kustomize set:
 
 ```bash
-kubectl apply -f kubernetes/atlas-install-container.yaml
+kubectl apply -f kubernetes/manifests/00-namespace.yaml
+kubectl apply -k kubernetes/manifests/
 ```
 
 The configured public endpoint is expected to be:

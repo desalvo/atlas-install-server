@@ -96,9 +96,22 @@ The supplied manifest uses the tested release tag `desalvo/atlas-install-server:
 ## 5. Deploy
 
 ```bash
-kubectl apply -f kubernetes/atlas-install-container.yaml
+kubectl apply -f kubernetes/manifests/00-namespace.yaml
+kubectl apply -k kubernetes/manifests/
 kubectl -n atlas-install rollout status deployment/atlas-install
 ```
+
+
+## Optional nodeSelector
+
+No node selector is enabled by default. To constrain the server pod manually, add a `nodeSelector` under `spec.template.spec` in `20-deployment.yaml`, for example:
+
+```yaml
+nodeSelector:
+  kubernetes.io/hostname: kube-node-01
+```
+
+The wizard can generate this block automatically and remembers the selection. Leaving the option disabled emits no `nodeSelector`. A static Kustomize example is also provided under `kubernetes/overlays/node-selector/`; edit its patch and apply that overlay with `kubectl apply -k kubernetes/overlays/node-selector/`.
 
 ## 6. Validate TLS passthrough
 
@@ -143,11 +156,7 @@ If you later need multiple replicas, move configuration to a shared/transactiona
 
 ## 8. Maintenance CronJobs
 
-Optional examples are provided in:
-
-```text
-kubernetes/maintenance-cronjobs.yaml
-```
+The optional maintenance resources are in `kubernetes/manifests/50-maintenance-cronjobs.yaml`. Add that file to the generated/static `kustomization.yaml` resources list, or enable maintenance in the wizard.
 
 Before enabling them on a cluster with a strict RWO storage class, ensure the maintenance pods can attach the same storage or move to RWX storage.
 

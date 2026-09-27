@@ -1,7 +1,3 @@
-# Optional maintenance jobs. They use the same persistent configuration written
-# by the protected Web UI. If your StorageClass is strictly single-node RWO,
-# either ensure these jobs are scheduled on the same node as the Deployment or
-# use a RWX-capable volume before enabling them.
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -18,6 +14,7 @@ spec:
           containers:
             - name: plots
               image: desalvo/atlas-install-server:3.0.0
+              imagePullPolicy: IfNotPresent
               command: ["/usr/local/sbin/atlas-container-entrypoint", "maintenance", "plots"]
               env:
                 - name: ATLAS_ENV_FILE
@@ -50,6 +47,7 @@ spec:
           containers:
             - name: cleanup
               image: desalvo/atlas-install-server:3.0.0
+              imagePullPolicy: IfNotPresent
               command: ["/usr/local/sbin/atlas-container-entrypoint", "maintenance", "cleanup"]
               env:
                 - name: ATLAS_ENV_FILE
