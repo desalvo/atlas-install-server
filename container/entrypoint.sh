@@ -97,16 +97,22 @@ Path(dst).write_text(s)
 PY
 }
 
+igtf_refresh_once() {
+  log "Refreshing IGTF trust anchors and CRLs in background."
+  if /usr/local/sbin/atlas-update-igtf; then
+    log "IGTF/CRL background refresh completed; reloading Apache."
+    /usr/sbin/httpd -k graceful || true
+  else
+    log "WARNING: IGTF/CRL background refresh failed; keeping the current trust store."
+  fi
+}
+
 igtf_refresh_loop() {
   local interval="${ATLAS_IGTF_REFRESH_SECONDS:-21600}"
   [[ "$interval" =~ ^[0-9]+$ ]] && (( interval > 0 )) || die "ATLAS_IGTF_REFRESH_SECONDS must be a positive integer"
+  igtf_refresh_once
   while sleep "$interval"; do
-    log "Refreshing IGTF trust anchors and CRLs."
-    if /usr/local/sbin/atlas-update-igtf; then
-      /usr/sbin/httpd -k graceful || true
-    else
-      log "WARNING: periodic IGTF refresh failed; keeping the current trust store."
-    fi
+    igtf_refresh_once
   done
 }
 
@@ -122,7 +128,7 @@ case "${1:-serve}" in
     init_config
     validate_tls
     install -d -o root -g atlas-install -m 2770 /var/lib/atlas-install/log /var/lib/atlas-install/logbackup /var/cache/atlas-install
-    /usr/local/sbin/atlas-update-igtf
+    ATLAS_IGTF_SKIP_CRL=1 /usr/local/sbin/atlas-update-igtf
     render_httpd
     /usr/sbin/httpd -t
     log "Starting PHP-FPM."

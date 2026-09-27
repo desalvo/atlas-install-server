@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.0.0-r5
+
+- Prevented startup from blocking indefinitely in `fetch-crl`.
+- Initial container startup now validates/refreshes IGTF trust anchors but defers CRL retrieval until Apache is running.
+- Added explicit CRL refresh logging and `ATLAS_CRL_FETCH_TIMEOUT_SECONDS` (default 120 seconds).
+- Added a Kubernetes `startupProbe` so liveness does not restart the pod before HTTPS is available.
+- Periodic IGTF/CRL refresh now runs once immediately in the background after startup, then at the configured interval.
+
 
 ## 3.0.0 r4
 

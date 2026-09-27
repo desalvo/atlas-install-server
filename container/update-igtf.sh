@@ -5,12 +5,18 @@ CA_DIR=${ATLAS_IGTF_DIR:-/etc/grid-security/certificates}
 STAMP="$CA_DIR/.igtf-last-refresh"
 FORCE=${ATLAS_IGTF_FORCE:-0}
 MAX_AGE_SECONDS=${ATLAS_IGTF_BUNDLE_MAX_AGE_SECONDS:-86400}
+CRL_TIMEOUT_SECONDS=${ATLAS_CRL_FETCH_TIMEOUT_SECONDS:-120}
+SKIP_CRL=${ATLAS_IGTF_SKIP_CRL:-0}
 
 log() { printf 'IGTF: %s\n' "$*"; }
 
 is_nonnegative_integer() { [[ "$1" =~ ^[0-9]+$ ]]; }
 is_nonnegative_integer "$MAX_AGE_SECONDS" || {
   echo "ATLAS_IGTF_BUNDLE_MAX_AGE_SECONDS must be a non-negative integer" >&2
+  exit 2
+}
+is_nonnegative_integer "$CRL_TIMEOUT_SECONDS" && (( CRL_TIMEOUT_SECONDS > 0 )) || {
+  echo "ATLAS_CRL_FETCH_TIMEOUT_SECONDS must be a positive integer" >&2
   exit 2
 }
 
@@ -98,15 +104,22 @@ else
   log "trust anchors are current; bundle refresh not required"
 fi
 
-# CRLs are refreshed on every invocation. fetch-crl manages the CRL files in
-# the same hashed trust directory and retains the previous usable set if a
-# remote endpoint is temporarily unavailable.
-if command -v fetch-crl >/dev/null 2>&1; then
-  if fetch-crl; then
-    log "CRL refresh completed"
-  else
-    echo "WARNING: fetch-crl returned non-zero; existing CRLs are retained" >&2
-  fi
+# CRLs are refreshed on every normal invocation. During container bootstrap
+# the caller may set ATLAS_IGTF_SKIP_CRL=1 so Apache can start immediately;
+# the entrypoint then performs this refresh asynchronously.
+if [[ "$SKIP_CRL" != 1 ]] && command -v fetch-crl >/dev/null 2>&1; then
+  log "refreshing CRLs (timeout ${CRL_TIMEOUT_SECONDS}s)"
+  set +e
+  timeout --signal=TERM --kill-after=10s "${CRL_TIMEOUT_SECONDS}s" fetch-crl
+  rc=$?
+  set -e
+  case "$rc" in
+    0)   log "CRL refresh completed" ;;
+    124|137) echo "WARNING: fetch-crl timed out after ${CRL_TIMEOUT_SECONDS}s; existing CRLs are retained" >&2 ;;
+    *)   echo "WARNING: fetch-crl returned rc=${rc}; existing CRLs are retained" >&2 ;;
+  esac
+elif [[ "$SKIP_CRL" == 1 ]]; then
+  log "CRL refresh deferred until after Apache startup"
 fi
 
 # Final invariant required by Apache SSLCACertificatePath.

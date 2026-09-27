@@ -55,6 +55,8 @@ spec:
               value: "21600"
             - name: ATLAS_IGTF_BUNDLE_MAX_AGE_SECONDS
               value: "86400"
+            - name: ATLAS_CRL_FETCH_TIMEOUT_SECONDS
+              value: "120"
             - name: ATLAS_HTTPS_PORT
               value: "8443"
           volumeMounts:
@@ -72,6 +74,15 @@ spec:
               readOnly: true
             - name: igtf
               mountPath: /etc/grid-security/certificates
+          startupProbe:
+            httpGet:
+              scheme: HTTPS
+              path: /atlas_install/healthz.php
+              port: https
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 60
           readinessProbe:
             httpGet:
               scheme: HTTPS
