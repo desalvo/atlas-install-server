@@ -1,46 +1,51 @@
 ATLAS Installation Server - 3.0.0 release QA
 ==============================================
 Repository target: https://github.com/desalvo/atlas-install-server
-Docker Hub image: desalvo/atlas-install-server
+Docker Hub default image: desalvo/atlas-install-server
 Container base: rockylinux/rockylinux:10
 Application version: 3.0.0
 Project licence: EUPL-1.2
 
 Validated in this build environment:
 - Versioned application tree: var/www/html/atlas_install-3.0.0
-- PHP files checked: 115
-- PHP lint failures: 0
-- Shell syntax checks: PASS
-- Kubernetes YAML parse: PASS
-- Docker Compose YAML parse: PASS
-- GitHub workflow YAML parse: PASS
+- PHP syntax: PASS
+- Shell syntax: PASS
+- Kubernetes YAML parsing: PASS
+- Docker Compose YAML parsing: PASS
+- GitHub workflow YAML parsing: PASS
+- Static CI checks: PASS
 - Secret hygiene static check: PASS
-- Direct unsanitized HTTP-input SQL pattern check: PASS
-- Dockerfile and container/Containerfile are identical: PASS
-- Git simulation confirms the application tree is trackable: PASS
-- .dockerignore no longer excludes var/www/html: PASS
-- Kubernetes image references use desalvo/atlas-install-server: PASS
+- Dockerfile and container/Containerfile identical: PASS
+- Kubernetes release manifests pinned to 3.0.0: PASS
 - Project, user and administrator documentation: PRESENT
 
-GitHub Actions build failure addressed:
-- Previous error: Docker build context did not contain the versioned application source directory.
-- Root cause: both .gitignore and .dockerignore excluded var/.
-- Resolution: var/www/html is now tracked and included in Docker build context; CI explicitly guards this invariant.
+Kubernetes wizard validation:
+- standalone script: scripts/atlas-install-k8s-wizard.sh
+- first-run GitHub repository/ref selection: PRESENT
+- persisted non-secret defaults/last values: PRESENT (state mode 0600)
+- database passwords excluded from state: PASS
+- GitHub token excluded from state: PASS
+- remote template cache/update comparison: PASS
+- second-run reuse of saved values and unchanged-template detection: PASS
+- cached-template fallback when GitHub is temporarily unavailable: PRESENT
+- main manifest rendering from templates: PASS
+- rendered YAML parse test: PASS (Namespace/PVC/Deployment/Service/Ingress)
+- bootstrap Secret create/update flow: PASS with simulated kubectl
+- TLS Secret create/update flow: PASS with simulated kubectl
+- X.509 certificate/private-key matching validation: PASS
+- hostname certificate validation: PASS where supported by OpenSSL
+- passwords containing quotes/backslashes are escaped in atlas-install.env: PASS
+- no real Kubernetes cluster resources modified during QA
 
-CI pipeline order:
-1. Static tests and source/build-context guards
-2. Build/test Rocky Linux image
-3. Docker Hub login and multi-architecture push only after tests succeed
+GitHub Actions build-context fix retained:
+- var/www/html is included in Git and Docker build context.
+- CI guards against accidental exclusion of the versioned application tree.
 
-Docker Hub publication target:
-- desalvo/atlas-install-server
-- linux/amd64
-- linux/arm64
-- BuildKit provenance enabled
-- SBOM enabled
-
-Required GitHub Actions secret:
-- DOCKERHUB_TOKEN
+Docker Hub publication:
+- default repository: desalvo/atlas-install-server
+- configurable username/image variables and token secret retained
+- platforms: linux/amd64, linux/arm64
+- BuildKit provenance and SBOM retained
 
 Environment limitation:
-No Docker/Podman/Buildah engine is installed in this authoring environment, so the binary OCI image itself could not be rebuilt locally. The exact GitHub failure was independently identified from the public Actions annotation, and source/build-context preconditions plus syntax/static validation were reproduced locally. The GitHub Actions workflow performs the real Rocky Linux image build before any Docker Hub push.
+No Docker/Podman/Buildah engine is installed in this authoring environment. GitHub Actions remains responsible for the binary Rocky Linux image build and multi-architecture publication.

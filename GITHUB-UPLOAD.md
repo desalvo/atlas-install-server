@@ -30,3 +30,16 @@ Replace `--private` with `--public` if the repository is intended to be public.
 In GitHub repository settings create the Actions secret `DOCKERHUB_TOKEN`. It must be a Docker Hub access token with push permission for `desalvo/atlas-install-server`.
 
 After this, pushes and pull requests run tests. A successful push to `main` publishes `latest`, `edge`, and a SHA tag. A successful `v*` tag publishes semantic-version tags and triggers the GitHub source release archive workflow.
+
+
+## Kubernetes wizard
+
+After pushing the repository, operators can download the standalone Kubernetes wizard directly from GitHub:
+
+```bash
+curl -fLO https://raw.githubusercontent.com/desalvo/atlas-install-server/main/scripts/atlas-install-k8s-wizard.sh
+chmod +x atlas-install-k8s-wizard.sh
+./atlas-install-k8s-wizard.sh
+```
+
+The wizard asks for the repository/ref on first run and then retrieves its manifest templates from that location.

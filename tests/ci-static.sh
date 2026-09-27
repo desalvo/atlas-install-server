@@ -29,6 +29,28 @@ while IFS= read -r -d '' f; do
   bash -n "$f" || fail=1
 done < <(find . -type f \( -name '*.sh' -o -path './install-atlas-rhel10.sh' \) -print0)
 
+
+printf '== Kubernetes wizard/templates ==\n'
+for f in \
+  scripts/atlas-install-k8s-wizard.sh \
+  kubernetes/templates/atlas-install-container.yaml.tpl \
+  kubernetes/templates/maintenance-cronjobs.yaml.tpl; do
+  if [[ ! -s "$f" ]]; then
+    printf 'Required Kubernetes wizard asset missing/empty: %s\n' "$f" >&2
+    fail=1
+  fi
+done
+for token in NAMESPACE APP_NAME IMAGE PUBLIC_HOSTNAME INGRESS_CLASS STORAGE_SIZE; do
+  if ! grep -q "{{${token}}}" kubernetes/templates/atlas-install-container.yaml.tpl; then
+    printf 'Main Kubernetes template missing placeholder: %s\n' "$token" >&2
+    fail=1
+  fi
+done
+if grep -Rqs 'desalvo/atlas-install-server:latest' kubernetes/*.yaml; then
+  printf 'Kubernetes release manifests must not use :latest.\n' >&2
+  fail=1
+fi
+
 printf '== PHP syntax ==\n'
 if command -v php >/dev/null 2>&1; then
   while IFS= read -r -d '' f; do

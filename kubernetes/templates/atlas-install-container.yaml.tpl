@@ -1,41 +1,41 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: atlas-install
+  name: {{NAMESPACE}}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: atlas-install-data
-  namespace: atlas-install
+  name: {{APP_NAME}}-data
+  namespace: {{NAMESPACE}}
 spec:
-  accessModes: ["ReadWriteOnce"]
-  resources:
+  accessModes: ["{{PVC_ACCESS_MODE}}"]
+{{STORAGE_CLASS_BLOCK}}  resources:
     requests:
-      storage: 5Gi
+      storage: {{STORAGE_SIZE}}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: atlas-install
-  namespace: atlas-install
+  name: {{APP_NAME}}
+  namespace: {{NAMESPACE}}
 spec:
-  replicas: 1
+  replicas: {{REPLICAS}}
   strategy:
     type: Recreate
   selector:
     matchLabels:
-      app: atlas-install
+      app: {{APP_NAME}}
   template:
     metadata:
       labels:
-        app: atlas-install
+        app: {{APP_NAME}}
     spec:
       terminationGracePeriodSeconds: 30
       containers:
-        - name: atlas-install
-          image: desalvo/atlas-install-server:3.0.0
-          imagePullPolicy: IfNotPresent
+        - name: {{APP_NAME}}
+          image: {{IMAGE}}
+          imagePullPolicy: {{IMAGE_PULL_POLICY}}
           ports:
             - name: https
               containerPort: 8443
@@ -88,11 +88,11 @@ spec:
             failureThreshold: 3
           resources:
             requests:
-              cpu: 100m
-              memory: 256Mi
+              cpu: {{CPU_REQUEST}}
+              memory: {{MEMORY_REQUEST}}
             limits:
-              cpu: "2"
-              memory: 1Gi
+              cpu: {{CPU_LIMIT}}
+              memory: {{MEMORY_LIMIT}}
           securityContext:
             allowPrivilegeEscalation: false
             seccompProfile:
@@ -103,7 +103,7 @@ spec:
       volumes:
         - name: data
           persistentVolumeClaim:
-            claimName: atlas-install-data
+            claimName: {{APP_NAME}}-data
         - name: cache
           emptyDir: {}
         - name: runtime
@@ -112,19 +112,19 @@ spec:
           emptyDir: {}
         - name: tls
           secret:
-            secretName: atlas-install-tls
+            secretName: {{APP_NAME}}-tls
         - name: bootstrap
           secret:
-            secretName: atlas-install-bootstrap
+            secretName: {{APP_NAME}}-bootstrap
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: atlas-install
-  namespace: atlas-install
+  name: {{APP_NAME}}
+  namespace: {{NAMESPACE}}
 spec:
   selector:
-    app: atlas-install
+    app: {{APP_NAME}}
   ports:
     - name: https
       port: 443
@@ -134,20 +134,20 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: atlas-install
-  namespace: atlas-install
+  name: {{APP_NAME}}
+  namespace: {{NAMESPACE}}
   annotations:
     haproxy-ingress.github.io/ssl-passthrough: "true"
 spec:
-  ingressClassName: haproxy
+  ingressClassName: {{INGRESS_CLASS}}
   rules:
-    - host: atlas-install-el10.apps.desalvo.eu
+    - host: {{PUBLIC_HOSTNAME}}
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: atlas-install
+                name: {{APP_NAME}}
                 port:
                   number: 443

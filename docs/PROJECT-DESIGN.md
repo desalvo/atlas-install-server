@@ -203,3 +203,8 @@ A 3.0.0 release candidate is acceptable when:
 - the multi-architecture image publishes for amd64 and arm64;
 - public health and protected mTLS paths behave as documented;
 - release documentation and `VERSION` are consistent.
+
+
+## Kubernetes installation wizard
+
+The Kubernetes deployment layer includes a standalone Bash wizard. The wizard separates version-controlled templates from generated site-specific manifests, retrieves template updates from a user-confirmed GitHub repository/ref, persists only non-secret operator choices, and applies Kubernetes Secrets using client-generated manifests piped to `kubectl apply`. Host TLS material remains external to Git and the container image.

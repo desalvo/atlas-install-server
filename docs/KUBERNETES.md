@@ -1,5 +1,30 @@
 # Kubernetes deployment
 
+## Recommended: interactive wizard
+
+For new installations and reconfiguration, use `scripts/atlas-install-k8s-wizard.sh`. The wizard:
+
+- proposes known project defaults on first run;
+- stores the last non-secret selections under `~/.config/atlas-install-server/k8s-wizard.env`;
+- asks for and confirms the GitHub repository on first run;
+- downloads/refreshes Kubernetes templates from the selected repository/ref;
+- renders the installation-specific manifests;
+- creates or updates the bootstrap database Secret without persisting database passwords locally;
+- validates the server certificate/private key pair and creates or updates the TLS Secret;
+- can optionally apply the generated manifests to the current Kubernetes context.
+
+Download and run it without cloning the whole repository:
+
+```bash
+curl -fLO https://raw.githubusercontent.com/desalvo/atlas-install-server/main/scripts/atlas-install-k8s-wizard.sh
+chmod +x atlas-install-k8s-wizard.sh
+./atlas-install-k8s-wizard.sh
+```
+
+For details see `KUBERNETES-WIZARD.md`.
+
+## Manual installation
+
 ## 1. Build the image
 
 The image is based on Rocky Linux 10 and contains Apache, PHP-FPM, the application and `fetch-crl`. No production secret is part of the build context.
@@ -52,7 +77,7 @@ The bootstrap Secret is used only when the managed configuration PVC contains no
 
 ## 4. Select the image tag
 
-The supplied manifest uses `desalvo/atlas-install-server:latest`. For production deployments, pin a tested semantic-version tag instead of `latest`.
+The supplied manifest uses the tested release tag `desalvo/atlas-install-server:3.0.0`. Change the image only when deploying another tested release or registry target.
 
 ## 5. Deploy
 

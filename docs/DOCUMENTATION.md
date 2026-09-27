@@ -18,6 +18,7 @@
 
 - `ADMIN-GUIDE.md` — administrative overview and operational responsibilities.
 - `KUBERNETES.md` — Kubernetes deployment.
+- `KUBERNETES-WIZARD.md` — interactive manifest/Secret generator and updater.
 - `DOCKER-COMPOSE.md` — Docker Compose deployment.
 - `OPERATIONS.md` — logs, certificates, CRLs, backup, upgrade and diagnostics.
 - `GITHUB-CI.md` — CI/CD and Docker Hub publication.

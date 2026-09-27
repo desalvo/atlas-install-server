@@ -63,6 +63,16 @@ The build context never contains production passwords, TLS private keys or clien
 
 ## Kubernetes quick start
 
+The recommended installation path is the interactive Kubernetes wizard. It downloads or refreshes the manifest templates directly from the selected GitHub repository, remembers the last non-secret choices and can create/update the bootstrap and TLS Secrets:
+
+```bash
+curl -fLO https://raw.githubusercontent.com/desalvo/atlas-install-server/main/scripts/atlas-install-k8s-wizard.sh
+chmod +x atlas-install-k8s-wizard.sh
+./atlas-install-k8s-wizard.sh
+```
+
+See `docs/KUBERNETES-WIZARD.md` for the complete workflow. Manual installation remains supported.
+
 Create the TLS secret containing the wildcard/server certificate:
 
 ```bash
@@ -79,7 +89,7 @@ kubectl -n atlas-install create secret generic atlas-install-bootstrap \
   --from-file=atlas-install.env=/secure/path/atlas-install.env
 ```
 
-The Kubernetes manifest already references `desalvo/atlas-install-server:latest`; pin a version tag for production if desired, then apply it:
+The supplied Kubernetes manifest references `desalvo/atlas-install-server:3.0.0`; adjust the image if required, then apply it:
 
 ```bash
 kubectl apply -f kubernetes/atlas-install-container.yaml

@@ -173,3 +173,8 @@ Administrators are responsible for:
 - testing restore and rollback procedures.
 
 See `SECURITY.md` for the complete trust-boundary model.
+
+
+## Kubernetes installation wizard
+
+For Kubernetes deployments, prefer `scripts/atlas-install-k8s-wizard.sh`; see `docs/KUBERNETES-WIZARD.md`. It renders installation-specific manifests from version-controlled templates and manages the bootstrap and TLS Secrets idempotently.

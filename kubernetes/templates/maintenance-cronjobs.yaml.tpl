@@ -1,14 +1,10 @@
-# Optional maintenance jobs. They use the same persistent configuration written
-# by the protected Web UI. If your StorageClass is strictly single-node RWO,
-# either ensure these jobs are scheduled on the same node as the Deployment or
-# use a RWX-capable volume before enabling them.
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: atlas-install-plots
-  namespace: atlas-install
+  name: {{APP_NAME}}-plots
+  namespace: {{NAMESPACE}}
 spec:
-  schedule: "0 * * * *"
+  schedule: "{{PLOTS_SCHEDULE}}"
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
@@ -17,7 +13,8 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: plots
-              image: desalvo/atlas-install-server:3.0.0
+              image: {{IMAGE}}
+              imagePullPolicy: {{IMAGE_PULL_POLICY}}
               command: ["/usr/local/sbin/atlas-container-entrypoint", "maintenance", "plots"]
               env:
                 - name: ATLAS_ENV_FILE
@@ -30,17 +27,17 @@ spec:
           volumes:
             - name: data
               persistentVolumeClaim:
-                claimName: atlas-install-data
+                claimName: {{APP_NAME}}-data
             - name: cache
               emptyDir: {}
 ---
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: atlas-install-log-cleanup
-  namespace: atlas-install
+  name: {{APP_NAME}}-log-cleanup
+  namespace: {{NAMESPACE}}
 spec:
-  schedule: "15 0 * * *"
+  schedule: "{{CLEANUP_SCHEDULE}}"
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
@@ -49,7 +46,8 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: cleanup
-              image: desalvo/atlas-install-server:3.0.0
+              image: {{IMAGE}}
+              imagePullPolicy: {{IMAGE_PULL_POLICY}}
               command: ["/usr/local/sbin/atlas-container-entrypoint", "maintenance", "cleanup"]
               env:
                 - name: ATLAS_ENV_FILE
@@ -60,4 +58,4 @@ spec:
           volumes:
             - name: data
               persistentVolumeClaim:
-                claimName: atlas-install-data
+                claimName: {{APP_NAME}}-data
