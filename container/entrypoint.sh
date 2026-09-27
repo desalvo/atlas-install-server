@@ -97,11 +97,15 @@ Path(dst).write_text(s)
 PY
 }
 
-crl_loop() {
-  while sleep "${ATLAS_CRL_REFRESH_SECONDS:-21600}"; do
-    log "Refreshing IGTF CRLs."
+igtf_refresh_loop() {
+  local interval="${ATLAS_IGTF_REFRESH_SECONDS:-21600}"
+  [[ "$interval" =~ ^[0-9]+$ ]] && (( interval > 0 )) || die "ATLAS_IGTF_REFRESH_SECONDS must be a positive integer"
+  while sleep "$interval"; do
+    log "Refreshing IGTF trust anchors and CRLs."
     if /usr/local/sbin/atlas-update-igtf; then
       /usr/sbin/httpd -k graceful || true
+    else
+      log "WARNING: periodic IGTF refresh failed; keeping the current trust store."
     fi
   done
 }
@@ -125,7 +129,7 @@ case "${1:-serve}" in
     /usr/sbin/php-fpm --nodaemonize --fpm-config /etc/php-fpm.conf &
     fpm_pid=$!
     trap 'kill "$fpm_pid" 2>/dev/null || true' EXIT TERM INT
-    crl_loop &
+    igtf_refresh_loop &
     log "Starting Apache HTTPS on port $HTTPS_PORT."
     exec /usr/sbin/httpd -DFOREGROUND
     ;;

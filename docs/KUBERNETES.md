@@ -9,8 +9,10 @@ For new installations and reconfiguration, use `scripts/atlas-install-k8s-wizard
 - asks for and confirms the GitHub repository on first run;
 - downloads/refreshes Kubernetes templates from the selected repository/ref;
 - renders the installation-specific manifests;
-- creates or updates the bootstrap database Secret without persisting database passwords locally;
-- validates the server certificate/private key pair and creates or updates the TLS Secret;
+- detects existing bootstrap/TLS Secrets and asks before changing them (default: keep unchanged);
+- reuses existing bootstrap values as defaults without persisting database passwords locally;
+- preserves the initially selected host certificate/key paths unless the operator explicitly changes them;
+- validates the server certificate/private key pair and updates the TLS Secret only when requested;
 - can optionally apply the generated manifests to the current Kubernetes context.
 
 Download and run it without cloning the whole repository:
@@ -22,6 +24,18 @@ chmod +x atlas-install-k8s-wizard.sh
 ```
 
 For details see `KUBERNETES-WIZARD.md`.
+
+
+## Automatic IGTF trust-anchor and CRL refresh
+
+The container initializes `/etc/grid-security/certificates` before Apache starts and then refreshes IGTF material automatically while the pod is running. The default policy is:
+
+```text
+ATLAS_IGTF_REFRESH_SECONDS=21600
+ATLAS_IGTF_BUNDLE_MAX_AGE_SECONDS=86400
+```
+
+Every six hours the container invokes the IGTF updater. CRLs are refreshed on every invocation; the classic/MICS/IOTA trust-anchor bundles are re-downloaded when the local bundle stamp is older than one day. Downloads and `openssl rehash` are performed in a staging directory and the active trust store is replaced only after validation succeeds. A transient refresh failure therefore leaves the previous working trust store in place. Apache is gracefully reloaded after a successful periodic refresh.
 
 ## Manual installation
 

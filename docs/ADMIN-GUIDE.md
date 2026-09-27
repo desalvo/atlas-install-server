@@ -178,3 +178,9 @@ See `SECURITY.md` for the complete trust-boundary model.
 ## Kubernetes installation wizard
 
 For Kubernetes deployments, prefer `scripts/atlas-install-k8s-wizard.sh`; see `docs/KUBERNETES-WIZARD.md`. It renders installation-specific manifests from version-controlled templates and manages the bootstrap and TLS Secrets idempotently.
+
+## Idempotent Kubernetes wizard and Secrets
+
+On repeated runs, the Kubernetes wizard keeps existing bootstrap and TLS Secrets unless the administrator explicitly chooses to update them. Existing bootstrap values are offered as defaults when an update is requested. The TLS certificate/key paths selected on first configuration are remembered locally and remain unchanged until the administrator explicitly chooses new paths. This allows the wizard to be safely re-run after template updates without rotating credentials or certificates unintentionally.
+
+The container also refreshes IGTF trust anchors and CRLs automatically; see `KUBERNETES.md` and `OPERATIONS.md` for the default intervals and failure policy.

@@ -128,3 +128,7 @@ The source tree is ready to be uploaded as `desalvo/atlas-install-server`. See `
 ## Licence
 
 ATLAS Installation Server 3.0.0 is distributed under the European Union Public Licence v1.2 (`EUPL-1.2`). See `LICENSE` and `NOTICE`. Bundled third-party components retain their own applicable licence notices.
+
+### Kubernetes/IGTF updates in r4
+
+The Kubernetes wizard is idempotent and preserves existing Secrets by default. Host certificate/key paths chosen during initial setup are remembered until explicitly changed. The container automatically refreshes IGTF trust anchors and CRLs and validates/re-hashes the trust directory before Apache uses it.

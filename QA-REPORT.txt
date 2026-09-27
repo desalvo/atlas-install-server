@@ -1,51 +1,55 @@
-ATLAS Installation Server - 3.0.0 release QA
-==============================================
-Repository target: https://github.com/desalvo/atlas-install-server
-Docker Hub default image: desalvo/atlas-install-server
-Container base: rockylinux/rockylinux:10
+ATLAS Installation Server 3.0.0 r4 - delivery validation
+========================================================
+GitHub target: https://github.com/desalvo/atlas-install-server
+Docker Hub default target: desalvo/atlas-install-server
 Application version: 3.0.0
-Project licence: EUPL-1.2
+Packaging revision: r4
+Licence: EUPL-1.2
 
-Validated in this build environment:
-- Versioned application tree: var/www/html/atlas_install-3.0.0
-- PHP syntax: PASS
-- Shell syntax: PASS
+Changes validated in r4
+-----------------------
+- Fixed IGTF trust-store initialization: bundle layout is discovered recursively.
+- Trust anchors are merged in staging, validated, rehashed with `openssl rehash`, then promoted.
+- OpenSSL hash entries are validated after rehash, without assuming regular-file `*.0` entries.
+- Existing CRLs are preserved while trust anchors are replaced.
+- Periodic IGTF refresh is automatic in the serving container:
+  * refresh/check interval: 21600 seconds (6 h)
+  * trust-bundle maximum age: 86400 seconds (24 h)
+  * CRL refresh: every updater invocation
+  * successful periodic refresh: graceful Apache reload
+  * failed refresh: previous active trust store remains intact
+- Kubernetes manifest and Docker Compose expose the new IGTF refresh settings.
+- Kubernetes wizard detects existing bootstrap/TLS Secrets and asks before changing them.
+- Existing Secret update default is NO; second runs therefore preserve credentials/certificates.
+- Existing bootstrap non-secret values become defaults only when update is explicitly selected.
+- Existing DB passwords are preserved by blank password input.
+- Initial host certificate/key paths are saved locally and reused until explicitly changed.
+- Identical TLS files are detected; no Secret update or Deployment restart is performed.
+- A real TLS change triggers Deployment restart so Apache loads the new certificate.
+- Generated manifests/state use compare-before-write behavior.
+
+Validation
+----------
+- application version consistency: PASS (3.0.0)
+- shell syntax checks: PASS
+- PHP syntax checks: PASS
 - Kubernetes YAML parsing: PASS
-- Docker Compose YAML parsing: PASS
 - GitHub workflow YAML parsing: PASS
-- Static CI checks: PASS
-- Secret hygiene static check: PASS
 - Dockerfile and container/Containerfile identical: PASS
-- Kubernetes release manifests pinned to 3.0.0: PASS
-- Project, user and administrator documentation: PRESENT
+- static CI suite: PASS
+- secret hygiene checks: PASS
+- IGTF synthetic nested-bundle refresh: PASS
+- IGTF `openssl rehash` hash-link generation: PASS
+- IGTF second-run freshness detection: PASS
+- IGTF failed forced refresh preserves previous trust store: PASS
+- wizard first-run Secret creation with TLS validation: PASS
+- wizard second-run Secret preservation: PASS
+- wizard second-run manifest/state no-rewrite behavior: PASS
+- wizard explicit update with identical TLS material: PASS (no restart)
+- DB passwords absent from wizard state: PASS
+- stored TLS paths survive subsequent runs: PASS
 
-Kubernetes wizard validation:
-- standalone script: scripts/atlas-install-k8s-wizard.sh
-- first-run GitHub repository/ref selection: PRESENT
-- persisted non-secret defaults/last values: PRESENT (state mode 0600)
-- database passwords excluded from state: PASS
-- GitHub token excluded from state: PASS
-- remote template cache/update comparison: PASS
-- second-run reuse of saved values and unchanged-template detection: PASS
-- cached-template fallback when GitHub is temporarily unavailable: PRESENT
-- main manifest rendering from templates: PASS
-- rendered YAML parse test: PASS (Namespace/PVC/Deployment/Service/Ingress)
-- bootstrap Secret create/update flow: PASS with simulated kubectl
-- TLS Secret create/update flow: PASS with simulated kubectl
-- X.509 certificate/private-key matching validation: PASS
-- hostname certificate validation: PASS where supported by OpenSSL
-- passwords containing quotes/backslashes are escaped in atlas-install.env: PASS
-- no real Kubernetes cluster resources modified during QA
-
-GitHub Actions build-context fix retained:
-- var/www/html is included in Git and Docker build context.
-- CI guards against accidental exclusion of the versioned application tree.
-
-Docker Hub publication:
-- default repository: desalvo/atlas-install-server
-- configurable username/image variables and token secret retained
-- platforms: linux/amd64, linux/arm64
-- BuildKit provenance and SBOM retained
-
-Environment limitation:
-No Docker/Podman/Buildah engine is installed in this authoring environment. GitHub Actions remains responsible for the binary Rocky Linux image build and multi-architecture publication.
+OCI binary build
+----------------
+Not run in this authoring runtime because Docker/Podman/Buildah is not available.
+GitHub Actions performs the actual Rocky Linux multi-architecture build for linux/amd64 and linux/arm64.

@@ -1,5 +1,17 @@
 # Changelog
 
+
+## 3.0.0 r4
+
+- Fixed IGTF startup failure caused by assuming hash-named certificates were present at the archive root before local trust-store preparation.
+- IGTF bundles are now merged from nested `certificates` directories, validated in staging, rehashed with `openssl rehash`, and promoted only after validation.
+- Added automatic periodic IGTF trust-anchor and CRL refresh (6-hour check; 24-hour trust-bundle maximum age by default) with graceful Apache reload.
+- Existing CRLs are preserved while trust anchors are replaced; failed refreshes leave the previous validated trust store active.
+- Kubernetes wizard now asks before changing existing bootstrap/TLS Secrets and defaults to keeping them unchanged.
+- Existing bootstrap values are used as defaults only when an update is explicitly requested; blank password input preserves the current password.
+- Initial host certificate/key paths are persisted and reused; changing them requires an explicit operator choice.
+- Repeated wizard runs are idempotent: unchanged manifests/state are not rewritten and identical TLS material does not cause a Secret update or Deployment restart.
+
 ## 3.0.0
 
 - Added the standalone Kubernetes installation wizard `scripts/atlas-install-k8s-wizard.sh`.

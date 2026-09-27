@@ -51,6 +51,39 @@ if grep -Rqs 'desalvo/atlas-install-server:latest' kubernetes/*.yaml; then
   fail=1
 fi
 
+
+printf '== IGTF refresh hardening ==\n'
+if ! grep -q 'openssl rehash' container/update-igtf.sh; then
+  printf 'IGTF updater must rebuild OpenSSL hash links.\n' >&2
+  fail=1
+fi
+if ! grep -q 'ATLAS_IGTF_BUNDLE_MAX_AGE_SECONDS' container/update-igtf.sh; then
+  printf 'IGTF updater must support periodic trust-bundle refresh age.\n' >&2
+  fail=1
+fi
+if ! grep -q 'ATLAS_IGTF_REFRESH_SECONDS' container/entrypoint.sh; then
+  printf 'Container entrypoint must run periodic IGTF refresh.\n' >&2
+  fail=1
+fi
+if ! grep -Fq 'IGTF trust store contains no OpenSSL hashed CA entries after rehash' container/update-igtf.sh; then
+  printf 'IGTF updater must validate hash entries after staging/rehash.\n' >&2
+  fail=1
+fi
+
+printf '== Wizard idempotency guards ==\n'
+for token in \
+  'Update existing bootstrap secret?' \
+  'Update existing TLS secret?' \
+  'Change the stored host certificate/key paths?' \
+  'ATLAS_UPDATE_BOOTSTRAP_SECRET' \
+  'ATLAS_UPDATE_TLS_SECRET' \
+  'TLS secret content already matches'; do
+  if ! grep -Fq "$token" scripts/atlas-install-k8s-wizard.sh; then
+    printf 'Wizard idempotency behavior missing: %s\n' "$token" >&2
+    fail=1
+  fi
+done
+
 printf '== PHP syntax ==\n'
 if command -v php >/dev/null 2>&1; then
   while IFS= read -r -d '' f; do

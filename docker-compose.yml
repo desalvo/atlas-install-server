@@ -15,7 +15,8 @@ services:
       ATLAS_TLS_KEY_FILE: /run/secrets/atlas_tls_key
       ATLAS_IGTF_DIR: /etc/grid-security/certificates
       ATLAS_HTTPS_PORT: "8443"
-      ATLAS_CRL_REFRESH_SECONDS: "${ATLAS_CRL_REFRESH_SECONDS:-21600}"
+      ATLAS_IGTF_REFRESH_SECONDS: "${ATLAS_IGTF_REFRESH_SECONDS:-21600}"
+      ATLAS_IGTF_BUNDLE_MAX_AGE_SECONDS: "${ATLAS_IGTF_BUNDLE_MAX_AGE_SECONDS:-86400}"
     secrets:
       - source: atlas_tls_cert
         target: atlas_tls_cert

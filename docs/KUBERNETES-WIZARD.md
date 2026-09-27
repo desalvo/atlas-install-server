@@ -36,7 +36,9 @@ All non-secret answers are saved with mode `0600` in:
 
 Later runs propose the last selected values instead of the initial defaults.
 
-Database passwords are deliberately **not** stored in this file. When an existing Kubernetes bootstrap Secret is present, leaving a password blank keeps the current secret value. Otherwise the wizard asks for the password with terminal echo disabled.
+Database passwords are deliberately **not** stored in this file. Existing Kubernetes Secrets are treated conservatively: when a bootstrap or TLS Secret is found, the wizard first asks whether it should be updated. The default is to keep the existing Secret unchanged. If bootstrap update is selected, the existing non-secret values become the proposed defaults and a blank password keeps the current password.
+
+The host certificate/key paths selected during the initial configuration are stored as non-secret local state and are reused on later runs. They are not changed merely because the wizard is run again. When updating an existing TLS Secret, the wizard asks separately whether those stored paths should be changed; the default is to keep them.
 
 ## Templates and generated manifests
 
@@ -71,7 +73,7 @@ The wizard creates/updates:
 
 using `kubectl create secret ... --dry-run=client -o yaml | kubectl apply -f -`. The resulting secret contains `atlas-install.env` with DB and application settings.
 
-If the Secret already exists, existing DB passwords are reused when the corresponding password prompt is left blank. This permits host/user/hostname changes without exposing or retyping unchanged passwords.
+If the Secret already exists, the wizard asks whether to update it; the default is **No**. If update is selected, existing DB/application values are read from the Secret and proposed as defaults. Existing DB passwords are reused when the corresponding password prompt is left blank. This permits selective changes without exposing or retyping unchanged passwords.
 
 ### Host TLS Secret
 
@@ -90,7 +92,7 @@ from a certificate/full-chain PEM file and private-key PEM file. Before applying
 
 Only the last certificate/key **paths** are stored in wizard state; certificate/private-key contents are never copied into the state file.
 
-If the files are unavailable on a later execution and an existing TLS Secret is present, the wizard can retain the existing Secret unchanged.
+If the TLS Secret already exists, the wizard asks whether to update it; the default is **No**. If update is selected, the previously stored certificate/key paths are reused unless the operator explicitly chooses to change them. If the selected files are byte-for-byte identical to the current Secret, no Secret update or Deployment restart is performed. When the TLS material really changes, the wizard restarts the existing Deployment so Apache loads the new certificate.
 
 ## Generate only
 
@@ -138,7 +140,11 @@ ATLAS_DB_RO_PASSWORD
 ATLAS_DB_BROKER_PASSWORD
 ATLAS_TLS_CERT_FILE
 ATLAS_TLS_KEY_FILE
+ATLAS_UPDATE_BOOTSTRAP_SECRET=1
+ATLAS_UPDATE_TLS_SECRET=1
 ```
+
+In non-interactive mode existing Secrets are kept by default. Set the corresponding `ATLAS_UPDATE_*_SECRET=1` flag only when an update is intentionally required. This makes repeated unattended executions idempotent by default.
 
 Use `--non-interactive --apply` only after reviewing the stored/default values and the target Kubernetes context.
 

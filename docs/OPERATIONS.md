@@ -71,3 +71,14 @@ Do not reuse a mutable `latest` tag for production change control.
 ## Native host deployment
 
 The native installer remains available as `install-atlas-rhel10.sh`. It stores configuration outside the document root and supports certificate-only updates. Because the new Web UI can modify application configuration, the native configuration directory/file is group-writable only by the dedicated service group that includes Apache.
+
+## IGTF automatic refresh
+
+The running container refreshes IGTF trust material automatically. Defaults are a six-hour check interval and a 24-hour maximum age for downloaded trust-anchor bundles. To force an immediate refresh inside a pod:
+
+```bash
+kubectl -n atlas-install exec deployment/atlas-install -- \
+  env ATLAS_IGTF_FORCE=1 /usr/local/sbin/atlas-update-igtf
+```
+
+A successful periodic refresh triggers an Apache graceful reload. If a remote IGTF endpoint is temporarily unavailable, the previous validated trust store remains active.

@@ -51,6 +51,10 @@ spec:
               value: /run/secrets/tls/tls.key
             - name: ATLAS_IGTF_DIR
               value: /etc/grid-security/certificates
+            - name: ATLAS_IGTF_REFRESH_SECONDS
+              value: "21600"
+            - name: ATLAS_IGTF_BUNDLE_MAX_AGE_SECONDS
+              value: "86400"
             - name: ATLAS_HTTPS_PORT
               value: "8443"
           volumeMounts:

@@ -63,6 +63,8 @@ The Kubernetes example:
 
 Further hardening can move Apache/PHP-FPM to fully non-root processes after validating all historical file operations.
 
-## CRL failure policy
+## IGTF trust-anchor and CRL refresh policy
 
-Apache is configured with `SSLCARevocationCheck chain`. Keep CRL refresh operational. Monitor `fetch-crl` failures and certificate-expiration alerts; stale/missing revocation material can affect client-certificate acceptance.
+Apache is configured with `SSLCARevocationCheck chain`. The container automatically checks IGTF trust anchors and refreshes CRLs every six hours by default. Trust-anchor bundles are refreshed when older than 24 hours. The updater downloads into staging, merges the accredited classic/MICS/IOTA trust directories, runs `openssl rehash`, validates the resulting hash entries, and only then updates the active directory. Existing CRLs are protected during trust-anchor replacement and `fetch-crl` refreshes them afterwards.
+
+A failed periodic download or rehash does not replace the active trust store. Monitor repeated updater/fetch-crl failures and certificate-expiration alerts; stale/missing revocation material can affect client-certificate acceptance.
