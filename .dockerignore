@@ -1,0 +1,12 @@
+.git
+.github
+.env
+secrets
+*.tar
+*.tar.gz
+*.sha256
+coverage
+dist
+.DS_Store
+
+# IMPORTANT: do not ignore var/: var/www/html contains the application source.

@@ -1,0 +1,15 @@
+.env
+secrets/*
+!secrets/README.md
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+!tests/fixtures/*.crt
+coverage/
+dist/
+.DS_Store
+
+# IMPORTANT: var/www/html contains the application source and must be tracked.
+# Runtime state is kept outside the repository (for example /var/lib/atlas-install).

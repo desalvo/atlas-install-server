@@ -1,0 +1,4 @@
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+ATLAS_ENV_FILE=/etc/atlas-install/atlas-install.env
+15 0 * * * atlas-install /var/www/html/atlas_install/conf/scripts/cleanup-logfiles >/dev/null 2>&1

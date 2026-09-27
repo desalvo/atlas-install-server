@@ -1,0 +1,732 @@
+-- MySQL dump 10.9
+--
+-- Host: localhost    Database: atlas_install
+-- ------------------------------------------------------
+-- Server version	4.1.22-log
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Database
+--
+
+CREATE DATABASE IF NOT EXISTS `$DBNAME`;
+USE `$DBNAME`;
+
+--
+-- Table structure for table `access_log`
+--
+
+DROP TABLE IF EXISTS `access_log`;
+CREATE TABLE `access_log` (
+  `ref` int(11) NOT NULL auto_increment,
+  `urlfk` int(11) NOT NULL default 0,
+  `userfk` int(11) NOT NULL default 0,
+  `sourceipfk` int(11) NOT NULL DEFAULT 0,
+  `destipfk` int(11) NOT NULL DEFAULT 0,
+  `query` varchar(255) default NULL,
+  `date` datetime default NULL,
+  PRIMARY KEY  (`ref`),
+  KEY `access_log_url_index` (`urlfk`),
+  KEY `access_log_date_index` (`date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `access_url`
+--
+
+DROP TABLE IF EXISTS `access_url`;
+CREATE TABLE `access_url` (
+  `ref` int(11) NOT NULL auto_increment,
+  `url` varchar(255) NOT NULL default '',
+  PRIMARY KEY  (`ref`),
+  KEY `access_url_index` (`url`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `access_ip`
+--
+
+DROP TABLE IF EXISTS `access_ip`;
+CREATE TABLE `access_ip` (
+  `ref` int(11) NOT NULL auto_increment,
+  `ip` varchar(20) NOT NULL default '',
+  PRIMARY KEY  (`ref`),
+  KEY `access_ip_index` (`ip`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `autoinstall_target`
+--
+
+DROP TABLE IF EXISTS `autoinstall_target`;
+CREATE TABLE `autoinstall_target` (
+  `ref` int(11) NOT NULL auto_increment,
+  `name` varchar(15) NOT NULL default '',
+  `description` varchar(255) default NULL,
+  PRIMARY KEY  (`ref`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `bdii`
+--
+
+DROP TABLE IF EXISTS `bdii`;
+CREATE TABLE `bdii` (
+  `ref` int(11) NOT NULL auto_increment,
+  `gridfk` int(11) NOT NULL default '1',
+  `hostname` varchar(128) NOT NULL default '',
+  `port` int(11) NOT NULL default '2170',
+  `ns` varchar(255) default NULL,
+  `lb` varchar(255) default NULL,
+  `ld` varchar(255) default NULL,
+  `wmproxy` varchar(255) default NULL,
+  `myproxy` varchar(255) default NULL,
+  `preferred` int(11) NOT NULL default '0',
+  `enabled` int(11) NOT NULL default '1',
+  PRIMARY KEY  (`ref`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `bdii_ext`
+--
+
+DROP TABLE IF EXISTS `bdii_ext`;
+CREATE TABLE `bdii_ext` (
+  `ref` int(11) NOT NULL auto_increment,
+  `bdiifk` int(11) NOT NULL default '0',
+  `fieldfk` int(11) NOT NULL default '0',
+  `value` varchar(255) default NULL,
+  PRIMARY KEY  (`ref`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `field_descriptions`
+--
+
+DROP TABLE IF EXISTS `field_descriptions`;
+CREATE TABLE `field_descriptions` (
+  `ref` int(11) NOT NULL auto_increment,
+  `table_name` varchar(50) NOT NULL default '',
+  `field_name` varchar(50) NOT NULL default '',
+  `field_query` varchar(255) default NULL,
+  `field_typefk` int(11) NOT NULL default '1',
+  `field_nullfk` int(11) NOT NULL default '0',
+  `field_default` varchar(255) default NULL,
+  `show_conf` int(11) NOT NULL default '1',
+  `show_def` int(11) NOT NULL default '1',
+  `format` varchar(100) default NULL,
+  `fregexp` varchar(255) default NULL,
+  `token` varchar(50) default NULL,
+  `description` varchar(255) default NULL,
+  `help` varchar(255) default NULL,
+  PRIMARY KEY  (`ref`),
+  KEY `table_name` (`table_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `field_relations`
+--
+
+DROP TABLE IF EXISTS `field_relations`;
+CREATE TABLE `field_relations` (
+  `ref` int(11) NOT NULL auto_increment,
+  `name` varchar(50) NOT NULL default '',
+  `table1` varchar(30) NOT NULL default '',
+  `field1` varchar(30) NOT NULL default '',
+  `table2` varchar(30) NOT NULL default '',
+  `field2` varchar(255) NOT NULL default '',
+  `description` varchar(50) default NULL,
+  PRIMARY KEY  (`ref`),
+  KEY `table1` (`table1`),
+  KEY `table2` (`table2`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `field_types`
+--
+
+DROP TABLE IF EXISTS `field_types`;
+CREATE TABLE `field_types` (
+  `ref` int(11) NOT NULL auto_increment,
+  `name` varchar(50) NOT NULL default '',
+  `description` varchar(255) default NULL,
+  PRIMARY KEY  (`ref`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `grid`
+--
+
+DROP TABLE IF EXISTS `grid`;
+CREATE TABLE `grid` (
+  `ref` int(11) NOT NULL auto_increment,
+  `name` varchar(10) NOT NULL default '',
+  `description` varchar(255) default NULL,
+  PRIMARY KEY  (`ref`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `jdl`
+--
+
+DROP TABLE IF EXISTS `jdl`;
+CREATE TABLE `jdl` (
+  `ref` int(11) NOT NULL auto_increment,
+  `name` varchar(255) NOT NULL default '',
+  `type` varchar(50) NOT NULL default '',
+  `userfk` int(11) NOT NULL default '0',
+  `relfk` int(11) default NULL,
+  `joblock` int(11) NOT NULL default '0',
+  `content` text,
+  PRIMARY KEY  (`ref`),
+  KEY `relfk_index` (`relfk`),
+  KEY `name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `job`
+--
+
+DROP TABLE IF EXISTS `job`;
+CREATE TABLE `job` (
+  `ref` int(11) NOT NULL auto_increment,
+  `userfk` int(11) default NULL,
+  `adminfk` int(11) default NULL,
+  `id` varchar(128) NOT NULL default '',
+  `name` varchar(255) NOT NULL default '',
+  `typefk` varchar(255) default NULL,
+  `jdlfk` int(11) NOT NULL default '0',
+  `requestfk` varchar(128) default '0',
+  `status` varchar(255) default NULL,
+  `status_reason` varchar(255) default NULL,
+  `exit_code` int(11) default NULL,
+  `submission_time` datetime default NULL,
+  `reach_time` datetime default NULL,
+  `retrieval_time` datetime default NULL,
+  `sitefk` int(11) default NULL,
+  `validationfk` int(11) NOT NULL default '0',
+  `outputfk` int(11) NOT NULL default '0',
+  `logfile` varchar(255) default NULL,
+  `logfragments` int(11) NOT NULL default '0',
+  `info` mediumtext,
+  `comments` varchar(255) default NULL,
+  PRIMARY KEY  (`ref`,`id`),
+  KEY `jdlfk_index` (`jdlfk`),
+  KEY `job_sitefk_indx` (`sitefk`),
+  KEY `submission_time` (`submission_time`),
+  KEY `jobid_index` (`id`),
+  KEY `job_validationfk_indx` (`validationfk`),
+  KEY `name` (`name`),
+  KEY `job_requestfk_indx` (`requestfk`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci MAX_ROWS=4294967295 AVG_ROW_LENGTH=50;
+
+--
+-- Table structure for table `ljsf_sched`
+--
+
+DROP TABLE IF EXISTS `ljsf_sched`;
+CREATE TABLE `ljsf_sched` (
+  `ref` int(11) NOT NULL auto_increment,
+  `name` varchar(50) NOT NULL default '',
+  `reqtypefk` int(11) NOT NULL default '0',
+  `relfk` int(11) NOT NULL default '0',
+  `sitefk` int(11) NOT NULL default '0',
+  `userfk` int(11) NOT NULL default '0',
+  `agentfk` int(11) NOT NULL default '0',
+  `reqfk` varchar(128) default NULL,
+  `sched_date` datetime NOT NULL default '0000-00-00 00:00:00',
+  `exec_date` datetime default NULL,
+  `statusfk` int(11) NOT NULL default '0',
+  `description` varchar(255) default NULL,
+  PRIMARY KEY  (`ref`,`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `ljsf_sched_status`
+--
+
+DROP TABLE IF EXISTS `ljsf_sched_status`;
+CREATE TABLE `ljsf_sched_status` (
+  `ref` int(11) NOT NULL auto_increment,
+  `name` varchar(50) NOT NULL default '',
+  `description` varchar(255) default NULL,
+  PRIMARY KEY  (`ref`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `log`
+--
+
+DROP TABLE IF EXISTS `log`;
+CREATE TABLE `log` (
+  `ref` int(11) NOT NULL auto_increment,
+  `requestfk` varchar(128) default '0',
+  `action` varchar(128) NOT NULL default '',
+  `description` varchar(255) NOT NULL default '',
+  `userfk` int(11) default NULL,
+  `comments` varchar(255) default NULL,
+  `url` varchar(128) default NULL,
+  `date` datetime default NULL,
+  PRIMARY KEY  (`ref`),
+  KEY `log_action_index` (`action`),
+  KEY `log_date_index` (`date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `mail_log`
+--
+
+DROP TABLE IF EXISTS `mail_log`;
+CREATE TABLE `mail_log` (
+  `ref` int(11) NOT NULL auto_increment,
+  `typefk` varchar(128) NOT NULL default '',
+  `address` varchar(255) NOT NULL default '',
+  `copies` int(11) default NULL,
+  `date` datetime default NULL,
+  PRIMARY KEY  (`ref`),
+  KEY `mail_log_typefk_index` (`typefk`),
+  KEY `mail_log_date_index` (`date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `mail_type`
+--
+
+DROP TABLE IF EXISTS `mail_type`;
+CREATE TABLE `mail_type` (
+  `ref` int(11) NOT NULL auto_increment,
+  `name` varchar(30) NOT NULL default '',
+  `description` varchar(255) default NULL,
+  PRIMARY KEY  (`ref`),
+  KEY `mail_type_name_index` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `release_arch`
+--
+
+DROP TABLE IF EXISTS `release_arch`;
+CREATE TABLE `release_arch` (
+  `ref` int(11) NOT NULL auto_increment,
+  `platform_type` varchar(16) NOT NULL default 'i686',
+  `os_type` varchar(128) NOT NULL default 'linux',
+  `gcc_ver` varchar(128) NOT NULL default '',
+  `mode` varchar(10) NOT NULL default 'opt',
+  `description` varchar(255) NOT NULL default '',
+  PRIMARY KEY  (`ref`,`description`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `release_data`
+--
+
+DROP TABLE IF EXISTS `release_data`;
+CREATE TABLE `release_data` (
+  `ref` int(11) NOT NULL auto_increment,
+  `name` varchar(50) NOT NULL default '',
+  `build` varchar(15) default 'project',
+  `typefk` int(11) NOT NULL default '0',
+  `archfk` int(11) NOT NULL default '0',
+  `sw_archfk` int(11) default '0',
+  `userfk` int(11) NOT NULL default '0',
+  `default_validate_taskfk` int(11) default '1',
+  `default_install_taskfk` int(11) default '2',
+  `default_test_taskfk` int(11) default '3',
+  `default_uninstall_taskfk` int(11) default '4',
+  `default_cleanup_taskfk` int(11) default '5',
+  `default_publish_tag_taskfk` int(11) default '6',
+  `default_remove_tag_taskfk` int(11) default '7',
+  `obsolete` int(11) default '0',
+  `autoinstall` int(11) default '1',
+  `requires` varchar(30) default NULL,
+  `dbrelease` varchar(10) default NULL,
+  `kit_cache` varchar(255) default NULL,
+  `installer_version` varchar(10) default NULL,
+  `install_tools_version` varchar(10) default NULL,
+  `sw_name` varchar(255) default 'AtlasProduction',
+  `sw_revision` varchar(20) default '1',
+  `pacman_version` varchar(20) default NULL,
+  `pacman_platform` varchar(20) default 'auto',
+  `sw_versionarea` varchar(20) default NULL,
+  `sw_physicalpath` varchar(255) NOT NULL default '$VO_ATLAS_SW_DIR/prod/releases',
+  `sw_logicalpath` varchar(255) NOT NULL default '$VO_ATLAS_SW_DIR/software',
+  `sw_atlas_fix_64` varchar(10) default 'no',
+  `sw_atlas_compiler` varchar(10) default 'no',
+  `sw_diskspace` varchar(255) NOT NULL default '7000000:20000:5000000',
+  `kvpost` varchar(10) default 'yes',
+  `tag` varchar(100) NOT NULL default '',
+  `package` varchar(255) NOT NULL default '',
+  `comments` varchar(255) default NULL,
+  `date` datetime NOT NULL default '0000-00-00 00:00:00',
+  `cvmfs_available` int(11) NOT NULL default '0',
+  `critical` int(11) NOT NULL default '0',
+  `critical_site_typefk` int(11) NOT NULL default '1',
+  `critical_validity_from` datetime default NULL,
+  `critical_validity_to` datetime default NULL,
+  `critical_description` varchar(25) default NULL,
+  `critical_userfk` int(11) NOT NULL default '0',
+  `critical_date` datetime default NULL,
+  PRIMARY KEY  (`ref`),
+  UNIQUE KEY `name` (`name`),
+  KEY `typefk` (`typefk`),
+  KEY `archfk` (`archfk`),
+  KEY `tag` (`tag`),
+  KEY `critical` (`critical`,`critical_site_typefk`,`critical_validity_from`,`critical_validity_to`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `release_data_ext`
+--
+
+DROP TABLE IF EXISTS `release_data_ext`;
+CREATE TABLE `release_data_ext` (
+  `ref` int(11) NOT NULL auto_increment,
+  `relfk` int(11) NOT NULL default '0',
+  `fieldfk` int(11) NOT NULL default '0',
+  `value` varchar(255) default NULL,
+  PRIMARY KEY  (`ref`),
+  KEY `fieldfk` (`fieldfk`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `release_stat`
+--
+
+DROP TABLE IF EXISTS `release_stat`;
+CREATE TABLE `release_stat` (
+  `ref` int(11) NOT NULL auto_increment,
+  `sitefk` int(11) NOT NULL default '0',
+  `name` varchar(50) NOT NULL default '',
+  `userfk` int(11) NOT NULL default '0',
+  `pin` int(11) default '0',
+  `pinuserfk` int(11) default '0',
+  `pindate` datetime default NULL,
+  `tag` varchar(100) NOT NULL default '',
+  `status` varchar(100) NOT NULL default '',
+  `comments` varchar(255) default NULL,
+  `date` datetime NOT NULL default '0000-00-00 00:00:00',
+  PRIMARY KEY  (`ref`,`name`),
+  KEY `userfk` (`userfk`),
+  KEY `name` (`name`),
+  KEY `sitefk` (`sitefk`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `release_subscription`
+--
+
+DROP TABLE IF EXISTS `release_subscription`;
+CREATE TABLE `release_subscription` (
+  `ref` int(11) NOT NULL auto_increment,
+  `sitename` varchar(50) NOT NULL default 'UNKNOWN',
+  `userfk` int(11) NOT NULL default '0',
+  `pattern` varchar(50) NOT NULL default '',
+  `date` datetime NOT NULL default '0000-00-00 00:00:00',
+  `comment` varchar(255) default NULL,
+  PRIMARY KEY  (`ref`),
+  KEY `sitename` (`sitename`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `release_type`
+--
+
+DROP TABLE IF EXISTS `release_type`;
+CREATE TABLE `release_type` (
+  `ref` int(11) NOT NULL auto_increment,
+  `category` varchar(30) NOT NULL default 'release',
+  `description` varchar(255) NOT NULL default '',
+  PRIMARY KEY  (`ref`,`description`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `request`
+--
+
+DROP TABLE IF EXISTS `request`;
+CREATE TABLE `request` (
+  `id` varchar(128) NOT NULL default '',
+  `bdiifk` int(11) NOT NULL default '0',
+  `sitefk` int(11) NOT NULL default '0',
+  `relfk` int(11) NOT NULL default '0',
+  `typefk` int(11) NOT NULL default '0',
+  `userfk` int(11) NOT NULL default '0',
+  `adminfk` int(11) default NULL,
+  `statusfk` int(11) NOT NULL default '0',
+  `request_date` datetime default NULL,
+  `update_date` datetime default NULL,
+  `user_comments` varchar(255) default NULL,
+  `admin_comments` varchar(255) default NULL,
+  PRIMARY KEY  (`id`),
+  KEY `request_relfk_indx` (`relfk`),
+  KEY `statusfk` (`statusfk`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `request_status`
+--
+
+DROP TABLE IF EXISTS `request_status`;
+CREATE TABLE `request_status` (
+  `ref` int(11) NOT NULL auto_increment,
+  `description` varchar(128) default NULL,
+  PRIMARY KEY  (`ref`),
+  KEY `description` (`description`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `request_type`
+--
+
+DROP TABLE IF EXISTS `request_type`;
+CREATE TABLE `request_type` (
+  `ref` int(11) NOT NULL auto_increment,
+  `level` int(11) NOT NULL default '0',
+  `field` varchar(100) NOT NULL default 'default_validate_taskfk',
+  `description` varchar(128) default NULL,
+  `comment` varchar(255) default NULL,
+  PRIMARY KEY  (`ref`),
+  KEY `description` (`description`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `request_history`
+--
+
+DROP TABLE IF EXISTS `request_history`;
+CREATE TABLE `request_history` (
+  `ref` int(11) NOT NULL auto_increment,
+  `entries` int(11) NOT NULL default '0',
+  `date` datetime default NULL,
+  PRIMARY KEY  (`ref`),
+  KEY `request_history_date_index` (`date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `role`
+--
+
+DROP TABLE IF EXISTS `role`;
+CREATE TABLE `role` (
+  `ref` int(11) NOT NULL auto_increment,
+  `description` varchar(128) default NULL,
+  PRIMARY KEY  (`ref`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `schema_version`
+--
+
+DROP TABLE IF EXISTS `schema_version`;
+CREATE TABLE `schema_version` (
+  `ref` int(11) NOT NULL auto_increment,
+  `major` int(11) NOT NULL default '0',
+  `minor` int(11) NOT NULL default '0',
+  `patch` int(11) NOT NULL default '0',
+  `date` datetime NOT NULL default '0000-00-00 00:00:00',
+  `description` varchar(255) default NULL,
+  PRIMARY KEY  (`ref`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `site`
+--
+
+DROP TABLE IF EXISTS `site`;
+CREATE TABLE `site` (
+  `ref` int(11) NOT NULL auto_increment,
+  `cs` varchar(128) NOT NULL default '',
+  `cename` varchar(50) NOT NULL default '',
+  `name` varchar(30) NOT NULL default '',
+  `gridfk` int(11) NOT NULL default '1',
+  `osname` varchar(128) NOT NULL default '',
+  `osrelease` varchar(128) NOT NULL default '',
+  `osversion` varchar(128) NOT NULL default '',
+  `arch` varchar(20) NOT NULL default '',
+  `tags` varchar(255) default NULL,
+  `alias` varchar(128) default NULL,
+  `swarea` varchar(255) default NULL,
+  `fstype` varchar(15) default NULL,
+  `mountpoint` varchar(255) default NULL,
+  `capacity` int(11) default NULL,
+  `available` int(11) default NULL,
+  `quota` int(11) default NULL,
+  `status` int(11) default '1',
+  `attr` int(10) unsigned NOT NULL default '0',
+  `host_status` int(11) NOT NULL default '1',
+  `resource_status` int(11) NOT NULL default '1',
+  `last_activity` timestamp NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
+  PRIMARY KEY  (`ref`),
+  KEY `gridfk` (`gridfk`),
+  KEY `cs` (`cs`),
+  KEY `cename` (`cename`),
+  KEY `name` (`name`),
+  KEY `arch` (`arch`),
+  KEY `date` (`last_activity`),
+  KEY `class` (`attr`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `site_attr`
+--
+
+DROP TABLE IF EXISTS `site_attr`;
+CREATE TABLE `site_attr` (
+  `ref` int(11) NOT NULL auto_increment,
+  `attr` int(10) unsigned NOT NULL default '0',
+  `name` varchar(25) NOT NULL default '',
+  `description` varchar(255) default NULL,
+  PRIMARY KEY  (`ref`),
+  KEY `attr` (`attr`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `site_ext`
+--
+
+DROP TABLE IF EXISTS `site_ext`;
+CREATE TABLE `site_ext` (
+  `ref` int(11) NOT NULL auto_increment,
+  `sitefk` int(11) NOT NULL default '0',
+  `fieldfk` int(11) NOT NULL default '0',
+  `value` varchar(255) default NULL,
+  PRIMARY KEY  (`ref`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `site_type`
+--
+
+DROP TABLE IF EXISTS `site_type`;
+CREATE TABLE `site_type` (
+  `ref` int(11) NOT NULL auto_increment,
+  `name` varchar(50) NOT NULL default '',
+  `description` varchar(255) NOT NULL default '',
+  PRIMARY KEY  (`ref`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `site_type_attr`
+--
+
+DROP TABLE IF EXISTS `site_type_attr`;
+CREATE TABLE `site_type_attr` (
+  `ref` int(11) NOT NULL auto_increment,
+  `type` int(11) NOT NULL default '0',
+  `attr` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`ref`),
+  KEY `type` (`type`,`attr`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `status`
+--
+
+DROP TABLE IF EXISTS `status`;
+CREATE TABLE `status` (
+  `ref` int(11) NOT NULL auto_increment,
+  `description` varchar(255) NOT NULL default '',
+  PRIMARY KEY  (`ref`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `subscription`
+--
+
+DROP TABLE IF EXISTS `subscription`;
+CREATE TABLE `subscription` (
+  `ref` int(11) NOT NULL auto_increment,
+  `userfk` int(11) NOT NULL default '0',
+  `release` int(11) NOT NULL default '0',
+  `sitename` varchar(100) NOT NULL default '',
+  `eventfk` int(11) NOT NULL default '1',
+  `immediate` int(11) NOT NULL default '1',
+  `summary` int(11) NOT NULL default '0',
+  `comments` varchar(255) default NULL,
+  PRIMARY KEY  (`ref`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `subscription_event`
+--
+
+DROP TABLE IF EXISTS `subscription_event`;
+CREATE TABLE `subscription_event` (
+  `ref` int(10) unsigned NOT NULL auto_increment,
+  `name` varchar(30) NOT NULL default '',
+  `description` varchar(255) default NULL,
+  PRIMARY KEY  (`ref`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `task`
+--
+
+DROP TABLE IF EXISTS `task`;
+CREATE TABLE `task` (
+  `ref` int(11) NOT NULL auto_increment,
+  `name` varchar(50) NOT NULL default 'validate',
+  `description` varchar(255) default NULL,
+  `target` varchar(20) default NULL,
+  PRIMARY KEY  (`ref`),
+  KEY `name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `user`
+--
+
+DROP TABLE IF EXISTS `user`;
+CREATE TABLE `user` (
+  `ref` int(11) NOT NULL auto_increment,
+  `name` varchar(50) NOT NULL default '',
+  `dn` varchar(200) default NULL,
+  `email` varchar(150) default NULL,
+  `priv_view` int(11) NOT NULL default '0',
+  `priv_insert` int(11) NOT NULL default '0',
+  `priv_update` int(11) NOT NULL default '0',
+  `priv_pin` int(11) NOT NULL default '0',
+  `priv_relsub` int(11) NOT NULL default '0',
+  `priv_critical` int(11) NOT NULL default '0',
+  `rolefk` int(11) default '1',
+  `valid_start` datetime default NULL,
+  `valid_end` datetime default NULL,
+  `enabled` int(11) NOT NULL default '1',
+  PRIMARY KEY  (`ref`),
+  KEY `rolefk` (`rolefk`),
+  KEY `name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `validation`
+--
+
+DROP TABLE IF EXISTS `validation`;
+CREATE TABLE `validation` (
+  `ref` int(11) NOT NULL auto_increment,
+  `description` varchar(255) NOT NULL default '',
+  PRIMARY KEY  (`ref`,`description`),
+  KEY `description` (`description`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+CREATE USER IF NOT EXISTS '@DBREADER@'@'@DBHOST@' IDENTIFIED BY '@DBREADERPASS@';
+CREATE USER IF NOT EXISTS '@DBWRITER@'@'@DBHOST@' IDENTIFIED BY '@DBWRITERPASS@';
+GRANT SELECT ON @DBNAME@.* TO '@DBREADER@'@'@DBHOST@';
+GRANT SELECT, INSERT, UPDATE, DELETE ON @DBNAME@.* TO '@DBWRITER@'@'@DBHOST@';
+FLUSH PRIVILEGES;
+FLUSH PRIVILEGES;

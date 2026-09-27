@@ -1,0 +1,153 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: atlas-install
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: atlas-install-data
+  namespace: atlas-install
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: atlas-install
+  namespace: atlas-install
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: atlas-install
+  template:
+    metadata:
+      labels:
+        app: atlas-install
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: atlas-install
+          image: desalvo/atlas-install-server:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: https
+              containerPort: 8443
+              protocol: TCP
+          env:
+            - name: ATLAS_ENV_FILE
+              value: /var/lib/atlas-install/config/atlas-install.env
+            - name: ATLAS_BOOTSTRAP_ENV
+              value: /run/secrets/bootstrap/atlas-install.env
+            - name: ATLAS_TLS_CERT_FILE
+              value: /run/secrets/tls/tls.crt
+            - name: ATLAS_TLS_KEY_FILE
+              value: /run/secrets/tls/tls.key
+            - name: ATLAS_IGTF_DIR
+              value: /etc/grid-security/certificates
+            - name: ATLAS_HTTPS_PORT
+              value: "8443"
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/atlas-install
+            - name: cache
+              mountPath: /var/cache/atlas-install
+            - name: runtime
+              mountPath: /run/atlas-install
+            - name: tls
+              mountPath: /run/secrets/tls
+              readOnly: true
+            - name: bootstrap
+              mountPath: /run/secrets/bootstrap
+              readOnly: true
+            - name: igtf
+              mountPath: /etc/grid-security/certificates
+          readinessProbe:
+            httpGet:
+              scheme: HTTPS
+              path: /atlas_install/readyz.php
+              port: https
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 4
+          livenessProbe:
+            httpGet:
+              scheme: HTTPS
+              path: /atlas_install/healthz.php
+              port: https
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "2"
+              memory: 1Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop: ["ALL"]
+              add: ["CHOWN", "DAC_OVERRIDE", "FOWNER", "KILL", "SETGID", "SETUID"]
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: atlas-install-data
+        - name: cache
+          emptyDir: {}
+        - name: runtime
+          emptyDir: {}
+        - name: igtf
+          emptyDir: {}
+        - name: tls
+          secret:
+            secretName: atlas-install-tls
+        - name: bootstrap
+          secret:
+            secretName: atlas-install-bootstrap
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: atlas-install
+  namespace: atlas-install
+spec:
+  selector:
+    app: atlas-install
+  ports:
+    - name: https
+      port: 443
+      targetPort: https
+      protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: atlas-install
+  namespace: atlas-install
+  annotations:
+    haproxy-ingress.github.io/ssl-passthrough: "true"
+spec:
+  ingressClassName: haproxy
+  rules:
+    - host: atlas-install-el10.apps.desalvo.eu
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: atlas-install
+                port:
+                  number: 443

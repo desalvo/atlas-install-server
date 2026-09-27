@@ -1,0 +1,168 @@
+name: CI and Docker image
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  IMAGE_NAME: desalvo/atlas-install-server
+
+jobs:
+  static-tests:
+    name: Static tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install validators
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y php-cli python3-yaml
+
+      - name: Shell, PHP and secret checks
+        run: ./tests/ci-static.sh
+
+      - name: Validate YAML
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import yaml
+          files = list(Path('kubernetes').glob('*.yaml')) + [Path('docker-compose.yml')]
+          for p in files:
+              with p.open() as f:
+                  list(yaml.safe_load_all(f))
+              print(f'OK {p}')
+          PY
+
+      - name: Validate Docker Compose model
+        run: |
+          mkdir -p .ci-secrets
+          cp etc/atlas-install/atlas-install.env.example .ci-secrets/atlas-install.env
+          openssl req -x509 -newkey rsa:2048 -nodes -days 1 \
+            -subj '/CN=atlas-install-el10.apps.desalvo.eu' \
+            -addext 'subjectAltName=DNS:atlas-install-el10.apps.desalvo.eu' \
+            -keyout .ci-secrets/tls.key -out .ci-secrets/tls.crt
+          ATLAS_TLS_CERT_SOURCE=.ci-secrets/tls.crt \
+          ATLAS_TLS_KEY_SOURCE=.ci-secrets/tls.key \
+          ATLAS_BOOTSTRAP_ENV_SOURCE=.ci-secrets/atlas-install.env \
+            docker compose -f docker-compose.yml config -q
+
+  image-test:
+    name: Build and test Rocky Linux image
+    runs-on: ubuntu-latest
+    needs: static-tests
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Verify application source is present in checkout
+        run: |
+          version="$(cat VERSION)"
+          test -d "var/www/html/atlas_install-${version}"
+          if git check-ignore -q "var/www/html/atlas_install-${version}"; then
+            echo "Application source is ignored by Git" >&2
+            exit 1
+          fi
+          if grep -Eq '^[[:space:]]*/?var/?[[:space:]]*$' .dockerignore; then
+            echo "Application source is excluded by .dockerignore" >&2
+            exit 1
+          fi
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build CI image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: Dockerfile
+          load: true
+          push: false
+          tags: atlas-install-server:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Verify Rocky Linux base and PHP tree
+        run: |
+          version="$(cat VERSION)"
+          docker run --rm --entrypoint bash \
+            -e ATLAS_TEST_APP_DIR="/var/www/html/atlas_install-${version}" \
+            atlas-install-server:ci -lc '
+              set -e
+              grep -qi "Rocky Linux release 10" /etc/rocky-release
+              test -d "$ATLAS_TEST_APP_DIR"
+              failures=0
+              while IFS= read -r -d "" f; do
+                php -l "$f" >/dev/null || failures=1
+              done < <(find "$ATLAS_TEST_APP_DIR" -type f -name "*.php" -print0)
+              test "$failures" -eq 0
+            '
+
+      - name: Image contains no packaged private keys
+        run: |
+          if docker run --rm --entrypoint bash atlas-install-server:ci -lc \
+            'grep -RIl "BEGIN .*PRIVATE KEY" /var/www/html /opt/atlas 2>/dev/null | grep -q .'; then
+            echo 'Private key material found in image payload' >&2
+            exit 1
+          fi
+
+  docker-push:
+    name: Publish Docker Hub image
+    runs-on: ubuntu-latest
+    needs: [static-tests, image-test]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: desalvo
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=edge,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix=sha-
+
+      - name: Build and push multi-arch image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: mode=max
+          sbom: true

@@ -1,0 +1,2977 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.1">
+  <Document>
+    <name>ATLAS sites</name>
+    <description>ATLAS sites.</description>
+    <Placemark>
+      <name><![CDATA[AEGIS01-IPB-SCL ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=AEGIS01-IPB-SCL">AEGIS01-IPB-SCL Tier3</a>
+        <br />
+        <a href="http://www.scl.rs/">http://www.scl.rs/</a>
+        <br />
+        <a href="mailto:grid-support@ipb.ac.rs">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>20.3910,44.8552,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[AGLT2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=AGLT2">AGLT2 Tier3</a>
+        <br />
+        <a href="http://www.aglt2.org/twiki/bin/view/AGLT2/Tier2Policy">http://www.aglt2.org/twiki/bin/view/AGLT2/Tier2Policy</a>
+        <br />
+        <a href="mailto: smckee@umich.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-83.740994,42.276189,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[AM-04-YERPHI ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=AM-04-YERPHI">AM-04-YERPHI Tier3</a>
+        <br />
+        <a href="http://www.grid.am/">http://www.grid.am/</a>
+        <br />
+        <a href="mailto:support@grid.am">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>44.31,40.1,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[Australia-ATLAS ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=Australia-ATLAS">Australia-ATLAS TierTier-2</a>
+        <br />
+        <a href="http://epp.physics.unimelb.edu.au/">http://epp.physics.unimelb.edu.au/</a>
+        <br />
+        <a href="mailto:tier2@physics.unimelb.edu.au">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>144.963991,-37.796766,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[AUVERGRID ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=AUVERGRID">AUVERGRID Tier3</a>
+        <br />
+        <a href="http://www.auvergrid.fr">http://www.auvergrid.fr</a>
+        <br />
+        <a href="mailto:grid-admin@clermont.in2p3.fr">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>3.08,45.78,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[BEIJING-LCG2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=BEIJING-LCG2">BEIJING-LCG2 TierTier-2</a>
+        <br />
+        <a href="http://www.goc.ac.cn/">http://www.goc.ac.cn/</a>
+        <br />
+        <a href="mailto:lcg-admin@ihep.ac.cn">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>116.241,39.909,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[BELLARMINE-ATLAS-T3 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=BELLARMINE-ATLAS-T3">BELLARMINE-ATLAS-T3 Tier3</a>
+        <br />
+        <a href="http://www.bellarmine.edu/cas/physics.aspx">http://www.bellarmine.edu/cas/physics.aspx</a>
+        <br />
+        <a href="mailto: amahmood@bellarmine.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-85.703713,38.219681,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[BG01-IPP ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=BG01-IPP">BG01-IPP Tier3</a>
+        <br />
+        <a href="http://www.grid.bas.bg">http://www.grid.bas.bg</a>
+        <br />
+        <a href="mailto:egee-support@parallel.bas.bg">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>23.1,42.3,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[BG03-NGCC ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=BG03-NGCC">BG03-NGCC TierTier-3</a>
+        <br />
+        <a href="http://www.grid.bas.bg">http://www.grid.bas.bg</a>
+        <br />
+        <a href="mailto:ngcc-admins@acad.bg">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>23.368275,42.67441667,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[BG05-SUGrid ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=BG05-SUGrid">BG05-SUGrid Tier3</a>
+        <br />
+        <a href="http://grid.uni-sofia.bg">http://grid.uni-sofia.bg</a>
+        <br />
+        <a href="mailto:admin@grid.uni-sofia.bg">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>23.30,42.40,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[BIFI ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=BIFI">BIFI Tier3</a>
+        <br />
+        <a href="http://bifi.unizar.es">http://bifi.unizar.es</a>
+        <br />
+        <a href="mailto:egee-admin@bifi.es">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-0.8975636959075928,41.64388683092849,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[BNL-ATLAS ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=BNL-ATLAS">BNL-ATLAS Tier3</a>
+        <br />
+        <a href="https://www.racf.bnl.gov/Facility/LinuxFarm/CondorPolicy_BNL_USATLAS.html">https://www.racf.bnl.gov/Facility/LinuxFarm/CondorPolicy_BNL_USATLAS.html</a>
+        <br />
+        <a href="mailto: xzhao@bnl.gov">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-72.8868,40.8695,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[BNL_Test_2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=BNL_Test_2">BNL_Test_2 Tier3</a>
+        <br />
+        <a href="https://www.racf.bnl.gov/Facility/LinuxFarm/CondorPolicy_BNL_USATLAS.html">https://www.racf.bnl.gov/Facility/LinuxFarm/CondorPolicy_BNL_USATLAS.html</a>
+        <br />
+        <a href="mailto: xzhao@bnl.gov">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-72.8868,40.8695,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[BU_ATLAS_Tier2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=BU_ATLAS_Tier2">BU_ATLAS_Tier2 Tier3</a>
+        <br />
+        <a href="http://atlas000.bu.edu/NETier2/wiki/index.php/Main_Page">http://atlas000.bu.edu/NETier2/wiki/index.php/Main_Page</a>
+        <br />
+        <a href="mailto: youssef@bu.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-71.104487,42.349045,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[BY-NCPHEP ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=BY-NCPHEP">BY-NCPHEP TierTier-3</a>
+        <br />
+        <a href="http://www.hep.by">http://www.hep.by</a>
+        <br />
+        <a href="mailto:grid-admin@hep.by">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>27.5797,53.9353,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[CA-ALBERTA-WESTGRID-T2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=CA-ALBERTA-WESTGRID-T2">CA-ALBERTA-WESTGRID-T2 TierTier-2</a>
+        <br />
+        <a href="http://www.ualberta.ca">http://www.ualberta.ca</a>
+        <br />
+        <a href="mailto:lcgadmin@phys.ualberta.ca">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-113.53,53.53,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[CA-MCGILL-CLUMEQ-T2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=CA-MCGILL-CLUMEQ-T2">CA-MCGILL-CLUMEQ-T2 TierTier-2</a>
+        <br />
+        <a href="https://www.clumeq.mcgill.ca/">https://www.clumeq.mcgill.ca/</a>
+        <br />
+        <a href="mailto:atlasgrid-admin@clumeq.ca">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-73.8,45.4,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[CA-SCINET-T2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=CA-SCINET-T2">CA-SCINET-T2 TierTier-2</a>
+        <br />
+        <a href="http://www.scinet.utoronto.ca">http://www.scinet.utoronto.ca</a>
+        <br />
+        <a href="mailto:lcg-support@scinet.utoronto.ca">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-79.50,43.80,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[CA-VICTORIA-WESTGRID-T2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=CA-VICTORIA-WESTGRID-T2">CA-VICTORIA-WESTGRID-T2 TierTier-2</a>
+        <br />
+        <a href="http://www.rcf.uvic.ca/index.php?id=48">http://www.rcf.uvic.ca/index.php?id=48</a>
+        <br />
+        <a href="mailto:rcf-lcg@uvic.ca">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-123.31,48.47,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[CBPF ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=CBPF">CBPF TierTier-2</a>
+        <br />
+        <a href="http://www.cbpf.br">http://www.cbpf.br</a>
+        <br />
+        <a href="mailto:gridlafex@cbpf.br">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-43.17386,-22.95398,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[CERN-PROD ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=CERN-PROD">CERN-PROD TierTier-0</a>
+        <br />
+        <a href="http://www.cern.ch">http://www.cern.ch</a>
+        <br />
+        <a href="mailto:grid-cern-prod-admins@cern.ch">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>06.0458,46.2325,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[CESGA ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=CESGA">CESGA Tier3</a>
+        <br />
+        <a href="http://www.egee.cesga.es">http://www.egee.cesga.es</a>
+        <br />
+        <a href="mailto:grid-admin@cesga.es">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-8.553147,42.875558,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[CIT_CMS_T2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=CIT_CMS_T2">CIT_CMS_T2 Tier3</a>
+        <br />
+        <a href="http://tier2.cacr.caltech.edu">http://tier2.cacr.caltech.edu</a>
+        <br />
+        <a href="mailto: tier2admin@hep.caltech.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-118.124,34.1379,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[CNR-ILC-PISA ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=CNR-ILC-PISA">CNR-ILC-PISA Tier3</a>
+        <br />
+        <a href="http://www.ilc.cnr.it">http://www.ilc.cnr.it</a>
+        <br />
+        <a href="mailto:grid-prod@ilc.cnr.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>10.4243,43.7178,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[CSCS-LCG2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=CSCS-LCG2">CSCS-LCG2 TierTier-2</a>
+        <br />
+        <a href="http://www.cscs.ch">http://www.cscs.ch</a>
+        <br />
+        <a href="mailto:grid-rt@cscs.ch">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>8.959871,46.025277,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[CY-01-KIMON ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=CY-01-KIMON">CY-01-KIMON Tier3</a>
+        <br />
+        <a href="http://grid.ucy.ac.cy/egee/">http://grid.ucy.ac.cy/egee/</a>
+        <br />
+        <a href="mailto:grid@cs.ucy.ac.cy">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>33.411279,35.144295,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[CYFRONET-LCG2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=CYFRONET-LCG2">CYFRONET-LCG2 TierTier-2</a>
+        <br />
+        <a href="www.cyfronet.pl">www.cyfronet.pl</a>
+        <br />
+        <a href="mailto:lcg-admin@cyf-kr.edu.pl">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>19.90916,50.068978,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[DESY-HH ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=DESY-HH">DESY-HH TierTier-2</a>
+        <br />
+        <a href="http://grid.desy.de/">http://grid.desy.de/</a>
+        <br />
+        <a href="mailto:grid@desy.de">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>9.8772,53.5772,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[DESY-ZN ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=DESY-ZN">DESY-ZN TierTier-2</a>
+        <br />
+        <a href="http://gridcenter.desy.de">http://gridcenter.desy.de</a>
+        <br />
+        <a href="mailto:grid-admin@ifh.de">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>13.63271,52.34475,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[EELA-UTFSM ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=EELA-UTFSM">EELA-UTFSM TierTier-3</a>
+        <br />
+        <a href="http://www.hpc.cl">http://www.hpc.cl</a>
+        <br />
+        <a href="mailto:grid@hpc.utfsm.cl">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-71.596,-33.035,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[EFDA-JET ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=EFDA-JET">EFDA-JET TierTier-2</a>
+        <br />
+        <a href="http://www.jet.efda.org/">http://www.jet.efda.org/</a>
+        <br />
+        <a href="mailto:jac-adm@jet.efda.org">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-1.226327,51.658467,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[egee.fesb.hr ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=egee.fesb.hr">egee.fesb.hr Tier3</a>
+        <br />
+        <a href="http://www.fesb.hr">http://www.fesb.hr</a>
+        <br />
+        <a href="mailto:egee-siteadmin@fesb.hr">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>16.4423974,43.5069502,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[egee.irb.hr ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=egee.irb.hr">egee.irb.hr Tier3</a>
+        <br />
+        <a href="http://www.irb.hr">http://www.irb.hr</a>
+        <br />
+        <a href="mailto:lcg-admin@irb.hr">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>15.969518,45.792118,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[egee.srce.hr ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=egee.srce.hr">egee.srce.hr Tier3</a>
+        <br />
+        <a href="http://www.srce.hr">http://www.srce.hr</a>
+        <br />
+        <a href="mailto:egi-fls@cro-ngi.hr">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>15.969518,45.792118,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[Firefly ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=Firefly">Firefly Tier3</a>
+        <br />
+        <a href="http://t2.unl.edu/site_policy">http://t2.unl.edu/site_policy</a>
+        <br />
+        <a href="mailto: hcc-support@unl.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-96.0169,41.2473,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[FMPhI-UNIBA ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=FMPhI-UNIBA">FMPhI-UNIBA TierTier-2</a>
+        <br />
+        <a href="http://grid.dnp.fmph.uniba.sk">http://grid.dnp.fmph.uniba.sk</a>
+        <br />
+        <a href="mailto:gridmaster@dnp.fmph.uniba.sk">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>17.0712,48.1528,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[FNAL_FERMIGRID ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=FNAL_FERMIGRID">FNAL_FERMIGRID Tier3</a>
+        <br />
+        <a href="http://fermigrid.fnal.gov/policy.html">http://fermigrid.fnal.gov/policy.html</a>
+        <br />
+        <a href="mailto: fermigrid-help@listserv.fnal.gov">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-88.2546,41.8412,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[FNAL_GPGRID_1 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=FNAL_GPGRID_1">FNAL_GPGRID_1 Tier3</a>
+        <br />
+        <a href="http://fermigrid.fnal.gov/policy.html">http://fermigrid.fnal.gov/policy.html</a>
+        <br />
+        <a href="mailto: fermigrid-help@listserv.fnal.gov">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-88.2546,41.8412,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[FZK-LCG2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=FZK-LCG2">FZK-LCG2 TierTier-1</a>
+        <br />
+        <a href="http://www.gridka.de/">http://www.gridka.de/</a>
+        <br />
+        <a href="mailto:lcg-admin@lists.kit.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>8.4321,49.0963,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[GARR-01-DIR ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=GARR-01-DIR">GARR-01-DIR Tier3</a>
+        <br />
+        <a href="http://www.garr.it">http://www.garr.it</a>
+        <br />
+        <a href="mailto:grid-tech@garr.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>12.5121,41.8988,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[GLOW ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=GLOW">GLOW Tier3</a>
+        <br />
+        <a href="http://www.hep.wisc.edu/cms/comp/osg/site_policy.html">http://www.hep.wisc.edu/cms/comp/osg/site_policy.html</a>
+        <br />
+        <a href="mailto: cmsops@hep.wisc.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-89.4011,43.0731,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[GoeGrid ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=GoeGrid">GoeGrid TierTier-2</a>
+        <br />
+        <a href="http://goegrid.de">http://goegrid.de</a>
+        <br />
+        <a href="mailto:goegrid_admin@physik.uni-goettingen.de">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>9.9706,51.56259,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[GR-01-AUTH ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=GR-01-AUTH">GR-01-AUTH Tier3</a>
+        <br />
+        <a href="http://www.grid.auth.gr/el">http://www.grid.auth.gr/el</a>
+        <br />
+        <a href="mailto:gr-01-auth@rt.grid.auth.gr">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>22.96,40.63,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[GR-04-FORTH-ICS ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=GR-04-FORTH-ICS">GR-04-FORTH-ICS Tier3</a>
+        <br />
+        <a href="http://www.ics.forth.gr/dcs/hellasgrid.html">http://www.ics.forth.gr/dcs/hellasgrid.html</a>
+        <br />
+        <a href="mailto:cpapachr@ics.forth.gr">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>25.10,35.20,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[GR-06-IASA ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=GR-06-IASA">GR-06-IASA Tier3</a>
+        <br />
+        <a href="http://www.iasa.gr">http://www.iasa.gr</a>
+        <br />
+        <a href="mailto:gr-06-iasa_no_spam_please@iasa.gr">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>23.78,37.97,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[GR-10-UOI ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=GR-10-UOI">GR-10-UOI Tier3</a>
+        <br />
+        <a href="http://www.uoi.gr">http://www.uoi.gr</a>
+        <br />
+        <a href="mailto:xcsimul@cc.uoi.gr">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>20.8530,39.6578,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[GRASE-CSE-MAGIC ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=GRASE-CSE-MAGIC">GRASE-CSE-MAGIC Tier3</a>
+        <br />
+        <a href="https://wiki.cse.buffalo.edu/services/content/cyber-infrastructure-osg-policies">https://wiki.cse.buffalo.edu/services/content/cyber-infrastructure-osg-policies</a>
+        <br />
+        <a href="mailto: cse-staff@buffalo.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-78.878,42.886,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[GridUNESP_CENTRAL ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=GridUNESP_CENTRAL">GridUNESP_CENTRAL Tier3</a>
+        <br />
+        <a href="https://www.ncc.unesp.br/wiki">https://www.ncc.unesp.br/wiki</a>
+        <br />
+        <a href="mailto: grid_admin@ncc.unesp.br">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-46.66769,-23.511344,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[GRIF ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=GRIF">GRIF TierTier-2</a>
+        <br />
+        <a href="http://grif.fr/">http://grif.fr/</a>
+        <br />
+        <a href="mailto:grid.support@grif.fr">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>2.170686,48.699262,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[GRISU-SPACI-NAPOLI ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=GRISU-SPACI-NAPOLI">GRISU-SPACI-NAPOLI Tier3</a>
+        <br />
+        <a href="http://www.spaci.it">http://www.spaci.it</a>
+        <br />
+        <a href="mailto:spaciadmin@spaci.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>14.18287,40.83785,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[GRISU-UNINA ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=GRISU-UNINA">GRISU-UNINA Tier3</a>
+        <br />
+        <a href="http://www.scope.unina.it">http://www.scope.unina.it</a>
+        <br />
+        <a href="mailto:scopeadmin@unina.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>14.18287,40.83785,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[HEPHY-UIBK ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=HEPHY-UIBK">HEPHY-UIBK TierTier-2</a>
+        <br />
+        <a href="http://www.uibk.ac.at/austrian-wlcg-tier-2/">http://www.uibk.ac.at/austrian-wlcg-tier-2/</a>
+        <br />
+        <a href="mailto:lcg-manager@physik.uibk.ac.at">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>11.3458333,47.2636111,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[HG-01-GRNET ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=HG-01-GRNET">HG-01-GRNET Tier3</a>
+        <br />
+        <a href="http://www.hellasgrid.gr">http://www.hellasgrid.gr</a>
+        <br />
+        <a href="mailto:hg-01-grnet_no_spam_please@hellasgrid.gr">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>23.8181,37.9965,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[HG-02-IASA ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=HG-02-IASA">HG-02-IASA Tier3</a>
+        <br />
+        <a href="http://www.iasa.gr">http://www.iasa.gr</a>
+        <br />
+        <a href="mailto:hg-02-iasa_no_spam_please@iasa.gr">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>23.78,37.97,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[HG-03-AUTH ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=HG-03-AUTH">HG-03-AUTH Tier3</a>
+        <br />
+        <a href="http://www.grid.auth.gr/el">http://www.grid.auth.gr/el</a>
+        <br />
+        <a href="mailto:hg-03-auth@rt.hellasgrid.gr">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>22.96,40.63,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[HG-05-FORTH ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=HG-05-FORTH">HG-05-FORTH Tier3</a>
+        <br />
+        <a href="http://www.ics.forth.gr/dcs/hellasgrid.html">http://www.ics.forth.gr/dcs/hellasgrid.html</a>
+        <br />
+        <a href="mailto:hg-05-forth@hellasgrid.gr">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>25.072094,35.304759,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[HG-06-EKT ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=HG-06-EKT">HG-06-EKT Tier3</a>
+        <br />
+        <a href="http://www.hellasgrid.gr">http://www.hellasgrid.gr</a>
+        <br />
+        <a href="mailto:hg-06-ekt_no_spam_please@hellasgrid.gr">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>23.7459,37.9729,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[HG-08-Okeanos ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=HG-08-Okeanos">HG-08-Okeanos Tier3</a>
+        <br />
+        <a href="http://www.hellasgrid.gr">http://www.hellasgrid.gr</a>
+        <br />
+        <a href="mailto:hg-08-okeanos@hellasgrid.gr">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>23.7882,38.0459,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[HU_ATLAS_Tier2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=HU_ATLAS_Tier2">HU_ATLAS_Tier2 Tier3</a>
+        <br />
+        <a href="http://atlas000.bu.edu/NETier2/wiki/">http://atlas000.bu.edu/NETier2/wiki/</a>
+        <br />
+        <a href="mailto: john_brunelle@harvard.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-71.114671,42.378575,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[IEPSAS-Kosice ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=IEPSAS-Kosice">IEPSAS-Kosice TierTier-2</a>
+        <br />
+        <a href="http://www.saske.sk">http://www.saske.sk</a>
+        <br />
+        <a href="mailto:grid.support@saske.sk">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>21.24,48.73,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[ifae ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=ifae">ifae TierTier-2</a>
+        <br />
+        <a href="http://www.ifae.es">http://www.ifae.es</a>
+        <br />
+        <a href="mailto:lcg.support@pic.es">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>2.169919,41.387917,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[IFIC-LCG2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=IFIC-LCG2">IFIC-LCG2 TierTier-2</a>
+        <br />
+        <a href="http://ific.uv.es/">http://ific.uv.es/</a>
+        <br />
+        <a href="mailto:lcg.support@ific.uv.es">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-0.4255,39.5149,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[IFJ-PAN-BG ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=IFJ-PAN-BG">IFJ-PAN-BG TierTier-3</a>
+        <br />
+        <a href="http://www.ifj.edu.pl">http://www.ifj.edu.pl</a>
+        <br />
+        <a href="mailto:grid-admin@ifj.edu.pl">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>19.889679551124573,50.089751404080026,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[IISAS-Bratislava ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=IISAS-Bratislava">IISAS-Bratislava Tier3</a>
+        <br />
+        <a href="http://www.ui.sav.sk">http://www.ui.sav.sk</a>
+        <br />
+        <a href="mailto:grid-admin.ui@sav.sk">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>17.070,48.171,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[IL-TAU-HEP ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=IL-TAU-HEP">IL-TAU-HEP TierTier-2</a>
+        <br />
+        <a href="http://www.tau.ac.il">http://www.tau.ac.il</a>
+        <br />
+        <a href="mailto:hep-admin@hep.tau.ac.il">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>34.80,32.11,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[IllinoisHEP ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=IllinoisHEP">IllinoisHEP TierTier-3</a>
+        <br />
+        <a href="https://twiki.hep.uiuc.edu/bin/view/Main/Tier3">https://twiki.hep.uiuc.edu/bin/view/Main/Tier3</a>
+        <br />
+        <a href="mailto: ddl@illinois.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-88.22243,40.110599,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[IN2P3-CC ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=IN2P3-CC">IN2P3-CC TierTier-1</a>
+        <br />
+        <a href="http://grid.in2p3.fr">http://grid.in2p3.fr</a>
+        <br />
+        <a href="mailto:user.support@cc.in2p3.fr">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>4.8655,45.7825,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[IN2P3-CC-T2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=IN2P3-CC-T2">IN2P3-CC-T2 TierTier-2</a>
+        <br />
+        <a href="http://grid.in2p3.fr">http://grid.in2p3.fr</a>
+        <br />
+        <a href="mailto:user.support@cc.in2p3.fr">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>4.8655,45.7825,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[IN2P3-CPPM ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=IN2P3-CPPM">IN2P3-CPPM TierTier-2</a>
+        <br />
+        <a href="http://marianne.in2p3.fr/egee/">http://marianne.in2p3.fr/egee/</a>
+        <br />
+        <a href="mailto:gridadmin@cppm.in2p3.fr">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>5.441,43.231,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[IN2P3-LAPP ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=IN2P3-LAPP">IN2P3-LAPP TierTier-2</a>
+        <br />
+        <a href="http://lapp.in2p3.fr/">http://lapp.in2p3.fr/</a>
+        <br />
+        <a href="mailto:gridadmin@lapp.in2p3.fr">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>6.156242,45.921667,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[IN2P3-LPC ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=IN2P3-LPC">IN2P3-LPC TierTier-2</a>
+        <br />
+        <a href="http://clrwww.in2p3.fr">http://clrwww.in2p3.fr</a>
+        <br />
+        <a href="mailto:grid-admin@clermont.in2p3.fr">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>3.08,45.78,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[IN2P3-LPSC ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=IN2P3-LPSC">IN2P3-LPSC TierTier-2</a>
+        <br />
+        <a href="http://lpsc.in2p3.fr">http://lpsc.in2p3.fr</a>
+        <br />
+        <a href="mailto:grid.admin@lpsc.in2p3.fr">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>5.69,45.2,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[INFN-BARI ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=INFN-BARI">INFN-BARI TierTier-2</a>
+        <br />
+        <a href="http://www.ba.infn.it">http://www.ba.infn.it</a>
+        <br />
+        <a href="mailto:grid-prod@ba.infn.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>16.8693,41.1261,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[INFN-BOLOGNA ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=INFN-BOLOGNA">INFN-BOLOGNA Tier3</a>
+        <br />
+        <a href="http://www.bo.infn.it">http://www.bo.infn.it</a>
+        <br />
+        <a href="mailto:grid-prod@bo.infn.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>11.3417,44.4948,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[INFN-BOLOGNA-T3 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=INFN-BOLOGNA-T3">INFN-BOLOGNA-T3 Tier3</a>
+        <br />
+        <a href="http://www.bo.infn.it">http://www.bo.infn.it</a>
+        <br />
+        <a href="mailto:grid-prod@bo.infn.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>11.3417,44.4948,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[INFN-CAGLIARI ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=INFN-CAGLIARI">INFN-CAGLIARI Tier3</a>
+        <br />
+        <a href="http://www.ca.infn.it">http://www.ca.infn.it</a>
+        <br />
+        <a href="mailto:grid-prod@ca.infn.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>9.13,39.21,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[INFN-CATANIA ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=INFN-CATANIA">INFN-CATANIA TierTier-2</a>
+        <br />
+        <a href="http://grid.ct.infn.it">http://grid.ct.infn.it</a>
+        <br />
+        <a href="mailto:grid-prod@ct.infn.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>15.152,37.5,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[INFN-COSENZA ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=INFN-COSENZA">INFN-COSENZA Tier3</a>
+        <br />
+        <a href="http://www.cs.infn.it">http://www.cs.infn.it</a>
+        <br />
+        <a href="mailto:paola.turco@fis.unical.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>16.181456,39.331548,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[INFN-FERRARA ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=INFN-FERRARA">INFN-FERRARA TierTier-3</a>
+        <br />
+        <a href="http://www.italiangrid.it/">http://www.italiangrid.it/</a>
+        <br />
+        <a href="mailto:grid-prod@fe.infn.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>11.6204,44.8378,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[INFN-FRASCATI ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=INFN-FRASCATI">INFN-FRASCATI TierTier-2</a>
+        <br />
+        <a href="http://www.lnf.infn.it">http://www.lnf.infn.it</a>
+        <br />
+        <a href="mailto:grid-prod@lnf.infn.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>12.6844,41.797,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[INFN-GENOVA ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=INFN-GENOVA">INFN-GENOVA TierTier-3</a>
+        <br />
+        <a href="http://www.ge.infn.it">http://www.ge.infn.it</a>
+        <br />
+        <a href="mailto:grid-prod@ge.infn.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>8.9307,44.4181,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[INFN-LECCE ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=INFN-LECCE">INFN-LECCE TierTier-3</a>
+        <br />
+        <a href="http://www.le.infn.it">http://www.le.infn.it</a>
+        <br />
+        <a href="mailto:grid-prod@le.infn.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>18.1728,40.358,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[INFN-LNL-2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=INFN-LNL-2">INFN-LNL-2 TierTier-2</a>
+        <br />
+        <a href="http://www.lnl.infn.it">http://www.lnl.infn.it</a>
+        <br />
+        <a href="mailto:grid-prod@lnl.infn.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>11.57,45.21,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[INFN-MILANO-ATLASC ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=INFN-MILANO-ATLASC">INFN-MILANO-ATLASC TierTier-2</a>
+        <br />
+        <a href="http://tier2.mi.infn.it">http://tier2.mi.infn.it</a>
+        <br />
+        <a href="mailto:grid-prod@mi.infn.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>9.2308,45.4764,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[INFN-NAPOLI-ARGO ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=INFN-NAPOLI-ARGO">INFN-NAPOLI-ARGO TierTier-3</a>
+        <br />
+        <a href="http://www.na.infn.it">http://www.na.infn.it</a>
+        <br />
+        <a href="mailto:grid-prod@na.infn.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>14.18308,40.83855,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[INFN-NAPOLI-ATLAS ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=INFN-NAPOLI-ATLAS">INFN-NAPOLI-ATLAS TierTier-2</a>
+        <br />
+        <a href="http://www.na.infn.it">http://www.na.infn.it</a>
+        <br />
+        <a href="mailto:grid-prod-atlas-mon@na.infn.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>14.2363,40.8527,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[INFN-NAPOLI-CMS ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=INFN-NAPOLI-CMS">INFN-NAPOLI-CMS TierTier-3</a>
+        <br />
+        <a href="http://www.na.infn.it">http://www.na.infn.it</a>
+        <br />
+        <a href="mailto:grid-prod@na.infn.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>14.18308,40.83855,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[INFN-NAPOLI-PAMELA ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=INFN-NAPOLI-PAMELA">INFN-NAPOLI-PAMELA Tier3</a>
+        <br />
+        <a href="http://www.na.infn.it">http://www.na.infn.it</a>
+        <br />
+        <a href="mailto:grid-prod@na.infn.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>14.2363,40.8527,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[INFN-PADOVA ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=INFN-PADOVA">INFN-PADOVA TierTier-3</a>
+        <br />
+        <a href="http://www.pd.infn.it">http://www.pd.infn.it</a>
+        <br />
+        <a href="mailto:grid-prod@pd.infn.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>11.886,45.4095,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[INFN-PAVIA ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=INFN-PAVIA">INFN-PAVIA TierTier-3</a>
+        <br />
+        <a href="http://grid-adm.pv.infn.it">http://grid-adm.pv.infn.it</a>
+        <br />
+        <a href="mailto:grid-support@pv.infn.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>9.141312,45.197338,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[INFN-PISA ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=INFN-PISA">INFN-PISA TierTier-2</a>
+        <br />
+        <a href="http://www.pi.infn.it">http://www.pi.infn.it</a>
+        <br />
+        <a href="mailto:grid-prod@lists.pi.infn.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>10.4,43.7,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[INFN-ROMA1 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=INFN-ROMA1">INFN-ROMA1 TierTier-2</a>
+        <br />
+        <a href="http://www.roma1.infn.it">http://www.roma1.infn.it</a>
+        <br />
+        <a href="mailto:grid-prod@roma1.infn.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>12.482324,41.7827,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[INFN-ROMA2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=INFN-ROMA2">INFN-ROMA2 Tier3</a>
+        <br />
+        <a href="http://www.roma2.infn.it/">http://www.roma2.infn.it/</a>
+        <br />
+        <a href="mailto:grid-prod@roma2.infn.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>12.60,41.85,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[INFN-ROMA3 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=INFN-ROMA3">INFN-ROMA3 TierTier-3</a>
+        <br />
+        <a href="http://web-cluster.fis.uniroma3.it">http://web-cluster.fis.uniroma3.it</a>
+        <br />
+        <a href="mailto:grid-prod@roma3.infn.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>12.4667974,41.855894,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[INFN-T1 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=INFN-T1">INFN-T1 TierTier-1</a>
+        <br />
+        <a href="http://www.cnaf.infn.it">http://www.cnaf.infn.it</a>
+        <br />
+        <a href="mailto:t1-admin@cnaf.infn.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>11.3417,44.4948,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[INFN-TORINO ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=INFN-TORINO">INFN-TORINO TierTier-2</a>
+        <br />
+        <a href="http://www.to.infn.it/grid">http://www.to.infn.it/grid</a>
+        <br />
+        <a href="mailto:grid-prod@to.infn.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>07.40,45.03,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[INFN-TRIESTE ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=INFN-TRIESTE">INFN-TRIESTE TierTier-3</a>
+        <br />
+        <a href="http://www.ts.infn.it">http://www.ts.infn.it</a>
+        <br />
+        <a href="mailto:grid-prod@ts.infn.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>13.83,45.66,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[ITEP ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=ITEP">ITEP Tier3</a>
+        <br />
+        <a href="http://egee.itep.ru">http://egee.itep.ru</a>
+        <br />
+        <a href="mailto:lublev@itep.ru">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>37.37,55.55,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[ITWM ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=ITWM">ITWM Tier3</a>
+        <br />
+        <a href="http://www.itwm.fraunhofer.de">http://www.itwm.fraunhofer.de</a>
+        <br />
+        <a href="mailto:egee-admin@itwm.fraunhofer.de">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>7.75,49.45,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[JINR-LCG2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=JINR-LCG2">JINR-LCG2 TierTier-2</a>
+        <br />
+        <a href="http://lcg.jinr.ru">http://lcg.jinr.ru</a>
+        <br />
+        <a href="mailto:lcgadm@lxmail.jinr.ru">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>37.195502,56.742800,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[JP-KEK-CRC-02 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=JP-KEK-CRC-02">JP-KEK-CRC-02 Tier3</a>
+        <br />
+        <a href="http://grid.cc.kek.jp/">http://grid.cc.kek.jp/</a>
+        <br />
+        <a href="mailto:dgteam@ml.post.kek.jp">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>140.2303,36.06,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[LCG_KNU ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=LCG_KNU">LCG_KNU TierTier-2</a>
+        <br />
+        <a href="http://chep.knu.ac.kr">http://chep.knu.ac.kr</a>
+        <br />
+        <a href="mailto:lcg_knu@knu.ac.kr">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>128.61,35.89,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[LIP-Coimbra ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=LIP-Coimbra">LIP-Coimbra TierTier-2</a>
+        <br />
+        <a href="http://www.coimbra.lip.pt/">http://www.coimbra.lip.pt/</a>
+        <br />
+        <a href="mailto:m.a.oliveira@coimbra.lip.pt">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-8.424444,40.207,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[LIP-Lisbon ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=LIP-Lisbon">LIP-Lisbon TierTier-2</a>
+        <br />
+        <a href="http://www.lip.pt">http://www.lip.pt</a>
+        <br />
+        <a href="mailto:grid.admin@lip.pt">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-9.143403768539429,38.739925290125484,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[LRZ-LMU ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=LRZ-LMU">LRZ-LMU TierTier-2</a>
+        <br />
+        <a href="http://www.lrz.de/">http://www.lrz.de/</a>
+        <br />
+        <a href="mailto:lcg-admin@lists.lrz.de">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>11.6667,48.2617,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[MaiGRID ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=MaiGRID">MaiGRID Tier3</a>
+        <br />
+        <a href="http://www.iph.uni-mainz.de/">http://www.iph.uni-mainz.de/</a>
+        <br />
+        <a href="mailto:etapadmins@majordomo.uni-mainz.de">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>8.27,50.0,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[MIT_CMS ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=MIT_CMS">MIT_CMS Tier3</a>
+        <br />
+        <a href="http://www.cmsaf.mit.edu/grid-policy.html">http://www.cmsaf.mit.edu/grid-policy.html</a>
+        <br />
+        <a href="mailto: maxi@mit.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-71.06,42.22,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[MPPMU ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=MPPMU">MPPMU TierTier-2</a>
+        <br />
+        <a href="http://www.mppmu.mpg.de">http://www.mppmu.mpg.de</a>
+        <br />
+        <a href="mailto:lcg-support@rzg.mpg.de">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>11.6731,48.2633,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[MWT2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=MWT2">MWT2 Tier3</a>
+        <br />
+        <a href="http://www.mwt2.org/policy.html">http://www.mwt2.org/policy.html</a>
+        <br />
+        <a href="mailto: support@mwt2.org">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-86.1581,39.7671,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[NCG-INGRID-PT ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=NCG-INGRID-PT">NCG-INGRID-PT TierTier-2</a>
+        <br />
+        <a href="http://www.lip.pt">http://www.lip.pt</a>
+        <br />
+        <a href="mailto:grid.admin@lip.pt">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-9.08,38.76,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[NCP-LCG2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=NCP-LCG2">NCP-LCG2 TierTier-2</a>
+        <br />
+        <a href="http://www.ncp.edu.pk">http://www.ncp.edu.pk</a>
+        <br />
+        <a href="mailto:pk-ncp@ncp.edu.pk">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>73.094920,33.445955,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[Nebraska ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=Nebraska">Nebraska Tier3</a>
+        <br />
+        <a href=""http://t2.unl.edu/site-policy"">"http://t2.unl.edu/site-policy"</a>
+        <br />
+        <a href="mailto: cms@listserv.unl.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-96.68,40.82,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[NIKHEF-ELPROD ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=NIKHEF-ELPROD">NIKHEF-ELPROD TierTier-1</a>
+        <br />
+        <a href="http://www.nikhef.nl/">http://www.nikhef.nl/</a>
+        <br />
+        <a href="mailto:grid.support@nikhef.nl">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>4.95131,52.35584,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[NWICG_Earth ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=NWICG_Earth">NWICG_Earth Tier3</a>
+        <br />
+        <a href="http://www.nwicgrid.org">http://www.nwicgrid.org</a>
+        <br />
+        <a href="mailto: sfedorov@nd.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-86.10,41.85,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[NWICG_NDCMS ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=NWICG_NDCMS">NWICG_NDCMS Tier3</a>
+        <br />
+        <a href="http://www.nwicgrid.org">http://www.nwicgrid.org</a>
+        <br />
+        <a href="mailto: sfedorov@nd.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-86.10,41.85,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[NYSGRID-CCR-U2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=NYSGRID-CCR-U2">NYSGRID-CCR-U2 Tier3</a>
+        <br />
+        <a href="http://osg.ccr.buffalo.edu">http://osg.ccr.buffalo.edu</a>
+        <br />
+        <a href="mailto: jbednasz@ccr.buffalo.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-78.878,42.886,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[NYSGRID_CORNELL_NYS1 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=NYSGRID_CORNELL_NYS1">NYSGRID_CORNELL_NYS1 Tier3</a>
+        <br />
+        <a href="UNAVAILABLE">UNAVAILABLE</a>
+        <br />
+        <a href="mailto: shl1@cac.cornell.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-76.47,42.48,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[OUHEP_ITB ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=OUHEP_ITB">OUHEP_ITB Tier3</a>
+        <br />
+        <a href="http://www-hep.nhn.ou.edu/">http://www-hep.nhn.ou.edu/</a>
+        <br />
+        <a href="mailto: hs@nhn.ou.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-97.4465,35.2070,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[OUHEP_OSG ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=OUHEP_OSG">OUHEP_OSG Tier3</a>
+        <br />
+        <a href="http://www-hep.nhn.ou.edu/">http://www-hep.nhn.ou.edu/</a>
+        <br />
+        <a href="mailto: hs@nhn.ou.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-97.4465,35.2070,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[OU_OCHEP_SWT2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=OU_OCHEP_SWT2">OU_OCHEP_SWT2 Tier3</a>
+        <br />
+        <a href="http://tier2-01.ochep.ou.edu/">http://tier2-01.ochep.ou.edu/</a>
+        <br />
+        <a href="mailto: hs@nhn.ou.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-97.4405,35.1835,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[OU_OSCER_ATLAS ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=OU_OSCER_ATLAS">OU_OSCER_ATLAS Tier3</a>
+        <br />
+        <a href="http://www.oscer.ou.edu/">http://www.oscer.ou.edu/</a>
+        <br />
+        <a href="mailto: hs@nhn.ou.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-97.4564,35.2385,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[pic ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=pic">pic TierTier-1</a>
+        <br />
+        <a href="http://www.pic.es">http://www.pic.es</a>
+        <br />
+        <a href="mailto:lcg.support@pic.es">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>2.169919,41.387917,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[praguelcg2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=praguelcg2">praguelcg2 TierTier-2</a>
+        <br />
+        <a href="http://www.farm.particle.cz/">http://www.farm.particle.cz/</a>
+        <br />
+        <a href="mailto:lcg-admin@fzu.cz">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>14.468711,50.124343,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[prague_cesnet_lcg2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=prague_cesnet_lcg2">prague_cesnet_lcg2 Tier3</a>
+        <br />
+        <a href="http://egee.cesnet.cz/">http://egee.cesnet.cz/</a>
+        <br />
+        <a href="mailto:ngi-firstline@metacentrum.cz">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>14.3886,50.1020,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[PSNC ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=PSNC">PSNC TierTier-2</a>
+        <br />
+        <a href="http://www.man.poznan.pl">http://www.man.poznan.pl</a>
+        <br />
+        <a href="mailto:egee@man.poznan.pl">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>16.91753,52.41144,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[Purdue-RCAC ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=Purdue-RCAC">Purdue-RCAC Tier3</a>
+        <br />
+        <a href="http://www.physics.purdue.edu/tier2/policy">http://www.physics.purdue.edu/tier2/policy</a>
+        <br />
+        <a href="mailto: fhu@purdue.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-86.911,40.444,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[RAL-LCG2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=RAL-LCG2">RAL-LCG2 TierTier-1</a>
+        <br />
+        <a href="http://www.gridpp.ac.uk/tier1a/">http://www.gridpp.ac.uk/tier1a/</a>
+        <br />
+        <a href="mailto:lcg-support@gridpp.rl.ac.uk">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-1.32,51.57,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[RECAS-NAPOLI ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=RECAS-NAPOLI">RECAS-NAPOLI Tier3</a>
+        <br />
+        <a href="http://www.pon-recas.it">http://www.pon-recas.it</a>
+        <br />
+        <a href="mailto:recasna-admin@unina.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>14.18287,40.83785,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[RedIRIS ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=RedIRIS">RedIRIS Tier3</a>
+        <br />
+        <a href="http://www.rediris.es">http://www.rediris.es</a>
+        <br />
+        <a href="mailto:sysadmin@rediris.es">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-3.70325,40,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[Rice ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=Rice">Rice Tier3</a>
+        <br />
+        <a href="UNAVAILABLE">UNAVAILABLE</a>
+        <br />
+        <a href="mailto: yepes@rice.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>95.4093404462586,29.7163181479405,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[RO-02-NIPNE ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=RO-02-NIPNE">RO-02-NIPNE TierTier-2</a>
+        <br />
+        <a href="http://www.nipne.ro">http://www.nipne.ro</a>
+        <br />
+        <a href="mailto:atgrid@nipne.ro">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>26.0624,44.2213,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[RO-07-NIPNE ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=RO-07-NIPNE">RO-07-NIPNE TierTier-2</a>
+        <br />
+        <a href="http://www.nipne.ro">http://www.nipne.ro</a>
+        <br />
+        <a href="mailto:seegrid@nipne.ro">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>26.0624,44.2213,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[RO-14-ITIM ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=RO-14-ITIM">RO-14-ITIM TierTier-2</a>
+        <br />
+        <a href="http://www.itim-cj.ro">http://www.itim-cj.ro</a>
+        <br />
+        <a href="mailto:felix@itim-cj.ro">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>23.583,46.75,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[RO-16-UAIC ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=RO-16-UAIC">RO-16-UAIC TierTier-2</a>
+        <br />
+        <a href="http://www.uaic.ro/uaic/bin/view/Main/WebHome">http://www.uaic.ro/uaic/bin/view/Main/WebHome</a>
+        <br />
+        <a href="mailto:ramona@uaic.ro">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>27.6,47.1666667,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[RRC-KI ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=RRC-KI">RRC-KI TierTier-2</a>
+        <br />
+        <a href="http://www.grid.kiae.ru/">http://www.grid.kiae.ru/</a>
+        <br />
+        <a href="mailto:gridops@grid.kiae.ru">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>37.583,55.750,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[RRC-KI-T1 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=RRC-KI-T1">RRC-KI-T1 TierTier-1</a>
+        <br />
+        <a href="http://www.grid.kiae.ru/">http://www.grid.kiae.ru/</a>
+        <br />
+        <a href="mailto:gridops@grid.kiae.ru">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>37.583,55.750,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[ru-Moscow-FIAN-LCG2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=ru-Moscow-FIAN-LCG2">ru-Moscow-FIAN-LCG2 TierTier-2</a>
+        <br />
+        <a href="http://monitor.grid.lebedev.ru">http://monitor.grid.lebedev.ru</a>
+        <br />
+        <a href="mailto:grid-admin@sci.lebedev.ru">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>37.567,55.698,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[ru-PNPI ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=ru-PNPI">ru-PNPI TierTier-2</a>
+        <br />
+        <a href="http://egee.pnpi.nw.ru">http://egee.pnpi.nw.ru</a>
+        <br />
+        <a href="mailto:globus@pnpi.nw.ru">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>30.1114,59.5961,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[RU-Protvino-IHEP ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=RU-Protvino-IHEP">RU-Protvino-IHEP TierTier-2</a>
+        <br />
+        <a href="http://www.ihep.su">http://www.ihep.su</a>
+        <br />
+        <a href="mailto:lcg@ihep.ru">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>37.37,54.86594,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[RU-SPbSU ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=RU-SPbSU">RU-SPbSU Tier3</a>
+        <br />
+        <a href="http://www.spbu.ru">http://www.spbu.ru</a>
+        <br />
+        <a href="mailto:andrey.zar@gmail.com,azaroche@cern.ch">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>30.25,59.88,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[RUG-CIT ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=RUG-CIT">RUG-CIT Tier3</a>
+        <br />
+        <a href="http://www.rug.nl/cit">http://www.rug.nl/cit</a>
+        <br />
+        <a href="mailto:servicedesk.centraal@rug.nl">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>6.53481,53.23821,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[SARA-MATRIX ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=SARA-MATRIX">SARA-MATRIX TierTier-1</a>
+        <br />
+        <a href="http://www.sara.nl">http://www.sara.nl</a>
+        <br />
+        <a href="mailto:grid.support@sara.nl">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>5.229089,52.378181,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[SFU-LCG2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=SFU-LCG2">SFU-LCG2 TierTier-2</a>
+        <br />
+        <a href="http://http://hep.phys.sfu.ca/atlas/">http://http://hep.phys.sfu.ca/atlas/</a>
+        <br />
+        <a href="mailto:lcg_support@sfu.ca">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-123.07,49.16,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[SiGNET ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=SiGNET">SiGNET TierTier-2</a>
+        <br />
+        <a href="http://www-f9.ijs.si/">http://www-f9.ijs.si/</a>
+        <br />
+        <a href="mailto:grid.admin@ijs.si">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>14.48767,46.04217,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[SMU_HPC ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=SMU_HPC">SMU_HPC Tier3</a>
+        <br />
+        <a href="http://www.uscms.org/SoftwareComputing/Grid/Policy/OSG_VO.html">http://www.uscms.org/SoftwareComputing/Grid/Policy/OSG_VO.html</a>
+        <br />
+        <a href="mailto: ross@smu.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-96.782734,32.841242,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[SPRACE ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=SPRACE">SPRACE Tier3</a>
+        <br />
+        <a href="http://osg-ce.sprace.org.br">http://osg-ce.sprace.org.br</a>
+        <br />
+        <a href="mailto: jadir.marra.da.silva@cern.ch">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-46.66769,-23.511344,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[SWT2_CPB ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=SWT2_CPB">SWT2_CPB Tier3</a>
+        <br />
+        <a href="http://www.atlas-swt2.org/twiki/bin/view/SWT2/SWT2CPBUsagePolicy">http://www.atlas-swt2.org/twiki/bin/view/SWT2/SWT2CPBUsagePolicy</a>
+        <br />
+        <a href="mailto: swt2ops@hepmail.uta.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-97.11,32.73,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[Taiwan-LCG2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=Taiwan-LCG2">Taiwan-LCG2 TierTier-1</a>
+        <br />
+        <a href="http://www.twgird.org/aproc">http://www.twgird.org/aproc</a>
+        <br />
+        <a href="mailto:asgc-t1@lists.grid.sinica.edu.tw">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>121.6167,25.067,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[TECHNION-HEP ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=TECHNION-HEP">TECHNION-HEP TierTier-2</a>
+        <br />
+        <a href="http://www.technion.ac.il">http://www.technion.ac.il</a>
+        <br />
+        <a href="mailto:lcg-managers-L@techunix.technion.ac.il">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>35.012,32.463,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[TOKYO-LCG2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=TOKYO-LCG2">TOKYO-LCG2 TierTier-2</a>
+        <br />
+        <a href="http://www.icepp.s.u-tokyo.ac.jp/index-e.html">http://www.icepp.s.u-tokyo.ac.jp/index-e.html</a>
+        <br />
+        <a href="mailto:lcg-admin@icepp.s.u-tokyo.ac.jp">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>139.7631,35.71373,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[TR-01-ULAKBIM ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=TR-01-ULAKBIM">TR-01-ULAKBIM TierTier-3</a>
+        <br />
+        <a href="http://www.grid.org.tr">http://www.grid.org.tr</a>
+        <br />
+        <a href="mailto:grid-teknik@ulakbim.gov.tr">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>33.02,39.99,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[TR-03-METU ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=TR-03-METU">TR-03-METU TierTier-2</a>
+        <br />
+        <a href="http://www.grid.org.tr">http://www.grid.org.tr</a>
+        <br />
+        <a href="mailto:grid-teknik@ulakbim.gov.tr">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>33.76,39.88,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[TR-10-ULAKBIM ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=TR-10-ULAKBIM">TR-10-ULAKBIM TierTier-2</a>
+        <br />
+        <a href="http://www.grid.org.tr">http://www.grid.org.tr</a>
+        <br />
+        <a href="mailto:grid-teknik@ulakbim.gov.tr">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>33.02,39.99,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[TRIUMF-LCG2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=TRIUMF-LCG2">TRIUMF-LCG2 TierTier-1</a>
+        <br />
+        <a href="http://grid.triumf.ca">http://grid.triumf.ca</a>
+        <br />
+        <a href="mailto:lcg_support@triumf.ca">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-123.231,49.247,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[TTU-ANTAEUS ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=TTU-ANTAEUS">TTU-ANTAEUS Tier3</a>
+        <br />
+        <a href="http://tigreportal.hipcat.net">http://tigreportal.hipcat.net</a>
+        <br />
+        <a href="mailto: alan.sill@ttu.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-101.8,33.6,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[TTU-TINGE ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=TTU-TINGE">TTU-TINGE Tier3</a>
+        <br />
+        <a href="http://osg-docdb.opensciencegrid.org/cgi-bin/ShowDocument?docid=377">http://osg-docdb.opensciencegrid.org/cgi-bin/ShowDocument?docid=377</a>
+        <br />
+        <a href="mailto: amy.wang@ttu.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-101.855,33.578,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[TUDresden-ZIH ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=TUDresden-ZIH">TUDresden-ZIH Tier3</a>
+        <br />
+        <a href="www.tu-dresden.de/zih">www.tu-dresden.de/zih</a>
+        <br />
+        <a href="mailto:dgrid-support@tu-dresden.de">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>13.735503,51.0285611,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[Tufts_ATLAS_Tier3 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=Tufts_ATLAS_Tier3">Tufts_ATLAS_Tier3 Tier3</a>
+        <br />
+        <a href="http://atlas000.bu.edu/NETier2/wiki/">http://atlas000.bu.edu/NETier2/wiki/</a>
+        <br />
+        <a href="mailto: atlas-admins@tufts.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-71.1193,42.4019,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[TW-eScience ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=TW-eScience">TW-eScience Tier3</a>
+        <br />
+        <a href="http://www.twgird.org/aproc">http://www.twgird.org/aproc</a>
+        <br />
+        <a href="mailto:euasia-site@lists.grid.sinica.edu.tw">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>121.6167,25.067,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[TW-FTT ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=TW-FTT">TW-FTT TierTier-2</a>
+        <br />
+        <a href="http://www.twgird.org/aproc">http://www.twgird.org/aproc</a>
+        <br />
+        <a href="mailto:asgc-t1@lists.grid.sinica.edu.tw">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>121.6167,25.067,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[UA-KNU ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=UA-KNU">UA-KNU TierTier-2</a>
+        <br />
+        <a href="http://cluster.univ.kiev.ua">http://cluster.univ.kiev.ua</a>
+        <br />
+        <a href="mailto:support@grid.org.ua">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>30.470279,50.382906,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[UAM-LCG2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=UAM-LCG2">UAM-LCG2 TierTier-2</a>
+        <br />
+        <a href="http://hepexp.ft.uam.es">http://hepexp.ft.uam.es</a>
+        <br />
+        <a href="mailto:lcg.support@uam.es">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-3.7167,40.4167,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[UCR-HEP ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=UCR-HEP">UCR-HEP Tier3</a>
+        <br />
+        <a href="https://twiki.grid.iu.edu/twiki/bin/view/Education/UCRiversideTier3">https://twiki.grid.iu.edu/twiki/bin/view/Education/UCRiversideTier3</a>
+        <br />
+        <a href="mailto: william.strossman@ucr.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-117.324,33.974,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[UCSDT2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=UCSDT2">UCSDT2 Tier3</a>
+        <br />
+        <a href="http://hepuser.ucsd.edu/twiki2/bin/view/UCSDTier2/SitePolicy">http://hepuser.ucsd.edu/twiki2/bin/view/UCSDTier2/SitePolicy</a>
+        <br />
+        <a href="mailto: tmartin@physics.ucsd.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-117.2397,32.8851,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[UFlorida-HPC ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=UFlorida-HPC">UFlorida-HPC Tier3</a>
+        <br />
+        <a href="http://hpc.ufl.edu/index.php?body=policy">http://hpc.ufl.edu/index.php?body=policy</a>
+        <br />
+        <a href="mailto: yfu@hpc.ufl.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-82.35,29.69,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[UKI-LT2-Brunel ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=UKI-LT2-Brunel">UKI-LT2-Brunel TierTier-2</a>
+        <br />
+        <a href="http://www.brunel.ac.uk/about/acad/sed">http://www.brunel.ac.uk/about/acad/sed</a>
+        <br />
+        <a href="mailto:lcg-admin@brunel.ac.uk">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-0.4741,51.5307,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[UKI-LT2-IC-HEP ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=UKI-LT2-IC-HEP">UKI-LT2-IC-HEP TierTier-2</a>
+        <br />
+        <a href="http://www.hep.ph.ic.ac.uk/e-science/">http://www.hep.ph.ic.ac.uk/e-science/</a>
+        <br />
+        <a href="mailto:lcg-site-admin@imperial.ac.uk">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-0.17897,51.49945,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[UKI-LT2-RHUL ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=UKI-LT2-RHUL">UKI-LT2-RHUL TierTier-2</a>
+        <br />
+        <a href="http://www.pp.rhul.ac.uk">http://www.pp.rhul.ac.uk</a>
+        <br />
+        <a href="mailto:grid-admin@pp.rhul.ac.uk">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-0.552255,51.426812,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[UKI-LT2-UCL-HEP ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=UKI-LT2-UCL-HEP">UKI-LT2-UCL-HEP TierTier-2</a>
+        <br />
+        <a href="http://www.hep.ucl.ac.uk/">http://www.hep.ucl.ac.uk/</a>
+        <br />
+        <a href="mailto:lcg-admin@hep.ucl.ac.uk">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-0.1334,51.5255,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[UKI-NORTHGRID-LANCS-HEP ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=UKI-NORTHGRID-LANCS-HEP">UKI-NORTHGRID-LANCS-HEP Tier3</a>
+        <br />
+        <a href="http://www.gridpp.ac.uk/wiki/Lancaster">http://www.gridpp.ac.uk/wiki/Lancaster</a>
+        <br />
+        <a href="mailto:lcg-admin@hep.lancs.ac.uk">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-2.7840,54.0105,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[UKI-NORTHGRID-LIV-HEP ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=UKI-NORTHGRID-LIV-HEP">UKI-NORTHGRID-LIV-HEP TierTier-2</a>
+        <br />
+        <a href="http://www.gridpp.ac.uk/northgrid/liverpool">http://www.gridpp.ac.uk/northgrid/liverpool</a>
+        <br />
+        <a href="mailto:gridteam@hep.ph.liv.ac.uk">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-2.964,53.4035,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[UKI-NORTHGRID-MAN-HEP ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=UKI-NORTHGRID-MAN-HEP">UKI-NORTHGRID-MAN-HEP TierTier-2</a>
+        <br />
+        <a href="http://www.northgrid.ac.uk/manchester">http://www.northgrid.ac.uk/manchester</a>
+        <br />
+        <a href="mailto:helpdesk@NOSPAMtier2.hep.manchester.ac.uk">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-2.2302,53.4669,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[UKI-NORTHGRID-SHEF-HEP ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=UKI-NORTHGRID-SHEF-HEP">UKI-NORTHGRID-SHEF-HEP TierTier-2</a>
+        <br />
+        <a href="http://www.hep.shef.ac.uk/research/escience.php">http://www.hep.shef.ac.uk/research/escience.php</a>
+        <br />
+        <a href="mailto:edg-site-admin@sheffield.ac.uk">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-1.4861,53.381,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[UKI-SCOTGRID-DURHAM ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=UKI-SCOTGRID-DURHAM">UKI-SCOTGRID-DURHAM TierTier-2</a>
+        <br />
+        <a href="http://www.ippp.dur.ac.uk/">http://www.ippp.dur.ac.uk/</a>
+        <br />
+        <a href="mailto:oper.ip3@durham.ac.uk">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-1.571,54.76,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[UKI-SCOTGRID-ECDF ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=UKI-SCOTGRID-ECDF">UKI-SCOTGRID-ECDF TierTier-2</a>
+        <br />
+        <a href="http://www.scotgrid.ac.uk/">http://www.scotgrid.ac.uk/</a>
+        <br />
+        <a href="mailto:wlcg-support-ecdf@mlist.is.ed.ac.uk">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-3.174105,55.9214118,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[UKI-SCOTGRID-GLASGOW ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=UKI-SCOTGRID-GLASGOW">UKI-SCOTGRID-GLASGOW TierTier-2</a>
+        <br />
+        <a href="http://www.scotgrid.ac.uk/">http://www.scotgrid.ac.uk/</a>
+        <br />
+        <a href="mailto:uki-scotgrid-glasgow@physics.gla.ac.uk">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-4.2917,55.8717,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[UKI-SOUTHGRID-BHAM-HEP ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=UKI-SOUTHGRID-BHAM-HEP">UKI-SOUTHGRID-BHAM-HEP TierTier-2</a>
+        <br />
+        <a href="http://www.ep.ph.bham.ac.uk/index.php?page=welcome">http://www.ep.ph.bham.ac.uk/index.php?page=welcome</a>
+        <br />
+        <a href="mailto:lcg-site-admin@hep.ph.bham.ac.uk">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-1.9230,52.4598,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[UKI-SOUTHGRID-BRIS-HEP ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=UKI-SOUTHGRID-BRIS-HEP">UKI-SOUTHGRID-BRIS-HEP TierTier-2</a>
+        <br />
+        <a href="http://www.bris.ac.uk/physics/research/particle/">http://www.bris.ac.uk/physics/research/particle/</a>
+        <br />
+        <a href="mailto:lcg-site-admin@phy.bris.ac.uk">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-02.6021,51.4585,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[UKI-SOUTHGRID-CAM-HEP ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=UKI-SOUTHGRID-CAM-HEP">UKI-SOUTHGRID-CAM-HEP TierTier-2</a>
+        <br />
+        <a href="http://serv05.hep.phy.cam.ac.uk:8880">http://serv05.hep.phy.cam.ac.uk:8880</a>
+        <br />
+        <a href="mailto:lcg-admin@hep.phy.cam.ac.uk">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>0.092782,52.208,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[UKI-SOUTHGRID-OX-HEP ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=UKI-SOUTHGRID-OX-HEP">UKI-SOUTHGRID-OX-HEP TierTier-2</a>
+        <br />
+        <a href="http://www.physics.ox.ac.uk">http://www.physics.ox.ac.uk</a>
+        <br />
+        <a href="mailto:lcg_manager@physics.ox.ac.uk">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-1.2595,51.7595,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[UKI-SOUTHGRID-RALPP ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=UKI-SOUTHGRID-RALPP">UKI-SOUTHGRID-RALPP TierTier-2</a>
+        <br />
+        <a href="http://www.ppd.clrc.ac.uk/public/ppd.html">http://www.ppd.clrc.ac.uk/public/ppd.html</a>
+        <br />
+        <a href="mailto:ppd.grid.support@rl.ac.uk">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-1.3163,51.5721,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[UKI-SOUTHGRID-SUSX ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=UKI-SOUTHGRID-SUSX">UKI-SOUTHGRID-SUSX TierTier-2</a>
+        <br />
+        <a href="http://www.sussex.ac.uk">http://www.sussex.ac.uk</a>
+        <br />
+        <a href="mailto:grid-admin@sussex.ac.uk">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-0.08,50.867,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[UMissHEP ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=UMissHEP">UMissHEP Tier3</a>
+        <br />
+        <a href="UNAVAILABLE">UNAVAILABLE</a>
+        <br />
+        <a href="mailto: sanders@relativity.phy.olemiss.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-89.53,34.37,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[Uni-Bonn ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=Uni-Bonn">Uni-Bonn Tier3</a>
+        <br />
+        <a href="http://pi.physik.uni-bonn.de">http://pi.physik.uni-bonn.de</a>
+        <br />
+        <a href="mailto:grid-admin@physik.uni-bonn.de">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>7.09,50.73,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[UNI-DORTMUND ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=UNI-DORTMUND">UNI-DORTMUND TierTier-3</a>
+        <br />
+        <a href="http://www.tu-dortmund.de">http://www.tu-dortmund.de</a>
+        <br />
+        <a href="mailto:dgrid-admin@grid.tu-dortmund.de">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>7.24,51.29,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[UNI-FREIBURG ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=UNI-FREIBURG">UNI-FREIBURG TierTier-2</a>
+        <br />
+        <a href="http://www.bfg.uni-freiburg.de">http://www.bfg.uni-freiburg.de</a>
+        <br />
+        <a href="mailto:lcg-admin@bfg.uni-freiburg.de">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>7.8483333,48.0033333,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[UNI-SIEGEN-HEP ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=UNI-SIEGEN-HEP">UNI-SIEGEN-HEP TierTier-3</a>
+        <br />
+        <a href="http://www.hep.physik.uni-siegen.de/">http://www.hep.physik.uni-siegen.de/</a>
+        <br />
+        <a href="mailto:lcg-admin@lists.hep.physik.uni-siegen.de">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>8.03,50.87,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[UNINA-EGEE ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=UNINA-EGEE">UNINA-EGEE Tier3</a>
+        <br />
+        <a href="http://www.scope.unina.it">http://www.scope.unina.it</a>
+        <br />
+        <a href="mailto:scopeadmin@unina.it">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>14.18287,40.83785,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[USCMS-FNAL-WC1 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=USCMS-FNAL-WC1">USCMS-FNAL-WC1 TierTier-1</a>
+        <br />
+        <a href="http://www.uscms.org/SoftwareComputing/Grid/Policy/OSG_VO.html">http://www.uscms.org/SoftwareComputing/Grid/Policy/OSG_VO.html</a>
+        <br />
+        <a href="mailto: cms-t1@fnal.gov">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-88.2546,41.8412,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[UTA_SWT2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=UTA_SWT2">UTA_SWT2 Tier3</a>
+        <br />
+        <a href="http://www.atlas-swt2.org/twiki/bin/view/SWT2/UTASWT2Policy">http://www.atlas-swt2.org/twiki/bin/view/SWT2/UTASWT2Policy</a>
+        <br />
+        <a href="mailto: swt2ops@hepmail.uta.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-97.21,32.78,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[Vanderbilt ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=Vanderbilt">Vanderbilt Tier3</a>
+        <br />
+        <a href="http://www.accre.vanderbilt.edu/mission/services/grid.php">http://www.accre.vanderbilt.edu/mission/services/grid.php</a>
+        <br />
+        <a href="mailto: john.mora@vanderbilt.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-86.80,36.15,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[VICTORIA-LCG2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=VICTORIA-LCG2">VICTORIA-LCG2 Tier3</a>
+        <br />
+        <a href="http://www.uvic.ca">http://www.uvic.ca</a>
+        <br />
+        <a href="mailto:rcf-lcg@uvic.ca">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-123.33,48.50,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[WCSS64 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=WCSS64">WCSS64 Tier3</a>
+        <br />
+        <a href="http://www.wcss.wroc.pl">http://www.wcss.wroc.pl</a>
+        <br />
+        <a href="mailto:egee-site-manager@kdm.wcss.wroc.pl">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>17.06,51.11,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[WEIZMANN-LCG2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=WEIZMANN-LCG2">WEIZMANN-LCG2 TierTier-2</a>
+        <br />
+        <a href="http://www.weizmann.ac.il">http://www.weizmann.ac.il</a>
+        <br />
+        <a href="mailto:lcg-managers@weizmann.ac.il">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>34.813,31.908,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[WT2 ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=WT2">WT2 Tier3</a>
+        <br />
+        <a href="UNAVAILABLE">UNAVAILABLE</a>
+        <br />
+        <a href="mailto: osg-support@slac.stanford.edu">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>-122,37,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[wuppertalprod ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=wuppertalprod">wuppertalprod TierTier-2</a>
+        <br />
+        <a href="http://www.pleiades.uni-wuppertal.de">http://www.pleiades.uni-wuppertal.de</a>
+        <br />
+        <a href="mailto:lcg-admin@physik.uni-wuppertal.de">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>7.14941,51.24564,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[ZA-UJ ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=ZA-UJ">ZA-UJ TierTier-3</a>
+        <br />
+        <a href="http://physics.uj.ac.za/cluster">http://physics.uj.ac.za/cluster</a>
+        <br />
+        <a href="mailto:sergio.ballestrero@cern.ch">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>27.99,-26.18.,0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name><![CDATA[ZA-WITS-CORE ]]></name>
+      <description><![CDATA[
+        <a href="list.php?sitename=ZA-WITS-CORE">ZA-WITS-CORE TierTier-3</a>
+        <br />
+        <a href="http://grid.core.wits.ac.za">http://grid.core.wits.ac.za</a>
+        <br />
+        <a href="mailto:scott.hazelhurst@wits.ac.za">site contacts</a>
+      ]]></description>
+      <Style><IconStyle><Icon><href>https://atlas-install.roma1.infn.it/atlas_install/img/sw_inst_icon.png</href></Icon></IconStyle></Style>
+      <Point>
+        <extrude>1</extrude>
+        <coordinates>+28.0305,-26.1925,0</coordinates>
+      </Point>
+    </Placemark>
+  </Document>
+</kml>

@@ -1,0 +1,49 @@
+<VirtualHost *:443>
+  ServerName @PUBLIC_HOSTNAME@
+  DocumentRoot "/var/www/html"
+
+  ServerSignature Off
+  TraceEnable Off
+
+  SSLEngine on
+  SSLCertificateFile    "@HOST_CERT@"
+  SSLCertificateKeyFile "@HOST_KEY@"
+
+  # Client certificates are requested during the initial TLS handshake, but
+  # are required only for the historically protected area below.
+  SSLVerifyClient optional
+  SSLVerifyDepth 20
+  SSLCACertificatePath "/etc/grid-security/certificates"
+  SSLCARevocationCheck chain
+  SSLProtocol -all +TLSv1.2 +TLSv1.3
+  SSLOptions +StdEnvVars +ExportCertData
+
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "DENY"
+  Header always set Referrer-Policy "no-referrer"
+
+  <Directory "/var/www/html/atlas_install">
+    Options -Indexes -ExecCGI
+    AllowOverride None
+    Require all granted
+  </Directory>
+
+  <Directory "/var/www/html/atlas_install/conf">
+    Require all denied
+  </Directory>
+
+  <FilesMatch "(^\\.|\\.(?:sql|template|save|bak|orig|ini|env|log)$)">
+    Require all denied
+  </FilesMatch>
+
+  # Preserve the original access model: public application paths, including
+  # /atlas_install/exec, remain reachable without a client certificate.
+  # Only /protected requires a successfully verified client certificate.
+  <LocationMatch "^/atlas_install/protected(?:/|$)">
+    Require expr "%{SSL_CLIENT_VERIFY} == 'SUCCESS'"
+  </LocationMatch>
+
+  ErrorLog "/var/log/httpd/atlas-install_error_ssl.log"
+  CustomLog "/var/log/httpd/atlas-install_access_ssl.log" combined
+</VirtualHost>

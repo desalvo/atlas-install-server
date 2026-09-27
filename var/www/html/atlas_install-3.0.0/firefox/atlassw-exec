@@ -1,0 +1,7 @@
+#!/bin/sh
+LOGFILE="$1"
+SWMGR="$2"
+shift 2
+[ ! -d "`dirname ${LOGFILE}`" ] && mkdir -p `dirname ${LOGFILE}`
+$SWMGR $@ &> ${LOGFILE}
+exit

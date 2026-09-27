@@ -1,0 +1,569 @@
+html{height: 100%;}
+
+body
+{ font-family: "lucida sans", arial, sans-serif;
+  padding: 0px;
+  margin: 0px;
+  font-size: .78em;
+  background: #F6F4F0;
+  color: #635B53;}
+
+p
+{ margin: 0px;
+  padding: 0px 0px 16px 0px;
+  line-height: 1.7em;}
+
+h1, h2, h3, h4
+{ font-size: 150%;
+  padding: 7px 0px 5px 0px; 
+  margin: 0px 0px 12px 0px; 
+  font-weight: normal;
+  color: #342F28;
+  font-family: serif;}
+
+h3
+{ color: #FF0000;
+  font-family: sans-serif;}
+
+h1, h3
+{ text-transform: uppercase;
+  margin: 10px 0px 20px 0px;
+  padding: 5px 20px 5px 0px;
+  border-bottom: 1px solid #CCC6B4;}
+
+th
+{
+  font-family: sans-serif;
+  font-size: 14px;
+}
+
+td
+{
+  font-family: sans-serif;
+  font-size: 12px;
+}
+
+em
+{
+  font-size: 150%;
+  font-weight: 900;
+  color: #FF0000;
+}
+
+input, select
+{
+  font-size: 12px;
+}
+
+a, a:hover
+{ border-bottom: 1px dotted;
+  color: #333333;
+  text-decoration: none;}
+
+a:hover
+{ border-bottom: 1px solid;
+  color: #A4AA04;}
+
+img
+{ border: 0px; 
+  margin: 0px; 
+  padding: 0px;}
+
+a
+{ outline: none;}
+
+form
+{ padding: 0; 
+  margin: 0;}
+
+.left
+{ float: left;
+  margin-right: 10px;}
+
+.right
+{ float: right; 
+  margin-left: 10px;}
+
+.center
+{ display: block;
+  text-align: center;
+  margin: 0 auto;}
+
+blockquote
+{ margin: 20px 0px 20px 0px; 
+  padding: 10px 20px 0px 20px;
+  border: 1px solid #E5E5DB;
+  background: #FFF;}
+
+ul
+{ margin: 2px 0px 18px 16px;
+  padding: 0px;}
+
+ul li
+{ list-style-type: square;
+  margin: 0px 0px 6px 0px; 
+  padding: 0px;}
+
+ol
+{ margin: 8px 0px 0px 24px;
+  padding: 0px;}
+
+ol li
+{ margin: 0px 0px 11px 0px; 
+  padding: 0px;}
+
+#main, #logo, #menubar, #site_content, #site_content1, #footer
+{ margin-left: auto; 
+  margin-right: auto;}
+
+#header
+{ background: url(back.png) repeat-x;}
+
+#logo
+{ width: 870px;
+  height: 127px;
+  position: relative;
+  background: transparent url(sw_install_logo.png) no-repeat right;}
+
+#logo #logo_text 
+{ position: absolute; 
+  top: 0;
+  left: 0;}
+
+#logo h1, #logo h2
+{ font: normal 300% 'century gothic', arial, sans-serif;
+  border-bottom: 0;
+  text-transform: none;
+  margin: 0 0 0 9px;}
+
+#logo_text h1, #logo_text h1 a, #logo_text h1 a:hover 
+{ padding: 22px 0 0 0;
+  color: #777;
+  letter-spacing: 0.1em;
+  text-decoration: none;}
+
+#logo_text h1 a .logo_colour
+{ color: #B8BD20;}
+
+#logo_text a:hover .logo_colour
+{ color: #777;}
+
+#logo_text h2
+{ font-size: 120%;
+  padding: 4px 0 0 0;
+  color: #BBB;}
+
+#logo h1, #logo h2
+{ margin: 0;
+  font-family: "century gothic", arial, sans-serif;}
+
+#logo h1
+{ font-size: 300%;
+  padding: 22px 0px 0px 0px;
+  color: #777;}
+
+#logo h2
+{ font-size: 120%;
+  padding: 4px 0px 0px 0px;
+  color: #BBB;}
+
+#logo a
+{ border: none;}
+
+#menubar
+{ width: 930px;
+  height: 46px;
+  padding-top: 4px;
+  padding-left: 4px;} 
+
+ul#menu
+{ float: right;
+  margin: 0px;}
+
+ul#menu li
+{ float: left;
+  margin: 5px 0 0 0;
+  padding: 0 0 0 6px;
+  list-style: none;}
+
+ul#menu li a
+{ letter-spacing: 0.1em;
+  font-family: serif;
+  font-size: 100%;
+  display: block; 
+  float: left; 
+  height: 20px;
+  text-decoration: none; 
+  padding: 9px 22px 5px 16px;
+  text-align: left;
+  color: #FFF;
+  text-transform: uppercase;
+  border: none;} 
+
+ul#menu li.selected a
+{ height: 20px;
+  padding: 7px 22px 4px 16px;}
+
+ul#menu li.selected
+{ margin: 7px 0 0 0;
+  background: #635B53 url(tabs.png) no-repeat 0 0px;}
+
+ul#menu li.selected a, ul#menu li.selected a:hover
+{ background: #635B53 url(tabs.png) no-repeat 100% 0px;
+  color: #FFF;}
+
+ul#menu li a:hover
+{ color: #A4AA04;}
+
+#site_content
+{ width: 870px;
+  margin-top: 10px;
+  overflow: scroll;
+} 
+
+#site_content1
+{ width: 95%;
+  margin-top: 10px;
+  margin-left: 50px; 
+  overflow: scroll;
+  text-align: center;
+} 
+
+#site_content2
+{ width: 180%;
+  margin-top: 10px;
+  overflow: scroll;} 
+
+.sidebar
+{ float: right;
+  width: 178px;
+  padding: 20px 25px 15px 15px;}
+
+.sidebar ul
+{ width: 178px; 
+  padding-top: 4px; 
+  margin: 4px 0px 30px 0px;}
+
+.sidebar li
+{ list-style: none; 
+  padding: 0px 0px 2px 0px; }
+
+.sidebar li a, .sidebar li a:hover
+{ text-decoration: none; 
+  padding: 4px 0px 4px 35px;
+  display: block;
+  background: transparent url(arrow.png) no-repeat left center;
+  color: #555;
+  border: none;} 
+
+.sidebar li a.selected, .sidebar li a:hover, .sidebar li a.selected:hover
+{ color: #A4AA04;} 
+
+#content
+{ text-align: left;
+  width: 624px;
+  float: left;
+  padding: 20px 10px 15px 0px;}
+
+#footer
+{ width: 100%;
+  font-family: sans-serif;
+  font-size: 90%;
+  height: 80px;
+  padding: 20px 0px 4px 0px;
+  margin-bottom: 20px;
+  text-align: center; 
+  background: #313131;
+  color: #A8AA94;
+  border-top: 4px solid #A4AA04;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;}
+
+#footer a
+{ color: #A8AA94;
+  text-decoration: none;}
+
+#footer a:hover
+{ color: #FFF;
+  text-decoration: none;}
+
+.search
+{ width: 122px;
+  border: 1px solid #CCC6B4;
+  padding: 4px;
+  color: #635B53;}
+
+.form_settings
+{ margin: 15px 0 0 0;}
+
+.form_settings p
+{ padding: 0 0 4px 0;}
+
+.form_settings span
+{ float: left; 
+  width: 200px; 
+  text-align: left;}
+  
+.form_settings input, .form_settings textarea
+{ padding: 5px; 
+  width: 299px; 
+  font: 100% arial; 
+  border: 1px solid #E5E5DB; 
+  background: #FFF; 
+  color: #47433F;}
+  
+.form_settings .submit
+{ font: 100% arial; 
+  border: 1px solid; 
+  width: 99px; 
+  margin: 0 0 0 212px; 
+  height: 33px;
+  padding: 2px 0 3px 0;
+  cursor: pointer; 
+  background: #3B3B3B; 
+  color: #FFF;}
+
+.form_settings textarea, .form_settings select
+{ font: 100% arial; 
+  width: 299px;}
+
+.form_settings select
+{ width: 310px;}
+
+.form_settings .checkbox
+{ margin: 4px 0; 
+  padding: 0; 
+  width: 14px;
+  border: 0;
+  background: none;}
+
+.separator
+{ width: 100%;
+  height: 0;
+  border-top: 1px solid #D9D5CF;
+  border-bottom: 1px solid #FFF;
+  margin: 0 0 20px 0;}
+  
+table
+{ margin: 0px 0 0px 0;}
+
+table tr th, table tr td
+{ background: #3B3B3B;
+  color: #FFF;
+  text-align: left;}
+  
+table tr td
+{ background: #FFF;
+  color: #47433F;
+  border-top: 0px solid #FFF;}
+
+.selection
+{
+  Background-Color : #FFFF99 ;
+  Height : 14 ;
+  Font-Size: 12pt;
+  Font-Weight : Bold ;
+  Color : #FF0000 ;
+  Font-Family : Arial, Helvetica ;
+  Text-Align : Left ;
+  white-space: nowrap;
+}
+
+.selection1
+{
+  Background-Color : #BEBEBE ;
+  Height : 14 ;
+  Font-Size: 12pt;
+  Font-Weight : Bold ;
+  Color : #FF0000 ;
+  Font-Family : Arial, Helvetica ;
+  Text-Align : Left ;
+  white-space: nowrap;
+}
+
+.selection2
+{
+  Background-Color : #D3D3D3 ;
+  Height : 14 ;
+  Font-Size: 12pt;
+  Font-Weight : Bold ;
+  Color : #FF0000 ;
+  Font-Family : Arial, Helvetica ;
+  Text-Align : Left ;
+  white-space: nowrap;
+}
+
+.adminbar td
+{
+  Background-Color : #99CCFF ;
+}
+
+.table1 th, th a:link, th a:visited
+{
+  Background-Color : #333333 ;
+  Height : 10 ;
+  Font-Size: 10pt;
+  Font-Weight : Bold ;
+  Color : #FFFFFF ;
+  Font-Family : Arial, Helvetica ;
+  Text-Align : Left ;
+  white-space: nowrap;
+}
+
+.table1 th a:hover, a:hover
+{ color: #000099;}
+
+.table1 td
+{
+  Background-Color : #CCFFFF ;
+}
+
+.table2 th
+{
+  Background-Color : #990000 ;
+  Height : 10 ;
+  Font-Size: 10pt;
+  Font-Weight : Bold ;
+  Color : #FFFFFF ;
+  Font-Family : Arial, Helvetica ;
+  Text-Align : Center ;
+}
+
+.table2 td
+{
+  Background-Color : #CCCCCC ;
+  Height : 10 ;
+  Font-Size: 10pt;
+  Font-Weight : Bold ;
+  Color : #000000 ;
+  Font-Family : Arial, Helvetica ;
+  Text-Align : Left ;
+  white-space: nowrap;
+}
+
+.table3 th, th a:link, th a:visited
+{
+  Background-Color : #333333 ;
+  Height : 10 ;
+  Font-Size: 10pt;
+  Font-Weight : Bold ;
+  Color : #FFFFFF ;
+  Font-Family : Arial, Helvetica ;
+  Text-Align : Left ;
+  white-space: nowrap;
+}
+
+.table3 th a:hover, a:hover
+{ color: #000099;}
+
+.pendingTask td { Background-Color : #CCCCCC; }
+.installedTask td { Background-Color : #00FF00; }
+.failedTask td { Background-Color : #FF0000; }
+.abortedTask td { Background-Color : #00AAFF; }
+.removedTask td { Background-Color : #7F7F7F; }
+.maxinstretryTask td { Background-Color : #FFA500; }
+.maxrmretryTask td { Background-Color : #FFFF00; }
+.inconsistentTask td { Background-Color : #FFB5C5; }
+.otherTask td { Background-Color : #DDDDDD; }
+.installfailTask td { Background-Color : #66FFFF; }
+.cancelledTask td { Background-Color : #99FFFF; }
+.closedTask td { Background-Color : #FF66FF; }
+.waitingTask td { Background-Color : #FFFF7A; }
+
+.valPending td { Background-Color : #DDDDDD; white-space: nowrap; }
+.valOk td { Background-Color : #00FF00; white-space: nowrap; }
+.valFailed td { Background-Color : #FF0000; white-space: nowrap; }
+.valUnknown td { Background-Color : #FF00FF; white-space: nowrap; }
+
+.reqNotAssigned td { Background-Color : #DDDDDD; white-space: nowrap; }
+.reqAccepted td { Background-Color : #DDDD00; white-space: nowrap; }
+.reqRejected td { Background-Color : #FF0000; white-space: nowrap; }
+.reqCanceled td { Background-Color : #FF00FF; white-space: nowrap; }
+.reqStopped td { Background-Color : #7F7FFF; white-space: nowrap; }
+.reqDone td { Background-Color : #00FF00; white-space: nowrap; }
+.reqAutorun td { Background-Color : #7F7F7F; white-space: nowrap; }
+.reqAutoabort td { Background-Color : #A020F0; white-space: nowrap; }
+.reqAborting td { Background-Color : #00FFFF; white-space: nowrap; }
+.reqIgnore td { Background-Color : #8B0000; white-space: nowrap; }
+
+.prod_noauto td { Background-Color : #0000FF; color : #FFFFFF; }
+.obs_noauto td { Background-Color : #7F7F7F; }
+.prod_allauto td { Background-Color : #00FF00; }
+.obs_allauto td { Background-Color : #FF0000; }
+.prod_auto1 td { Background-Color: '#EF00EF'; }
+.obs_auto1 td { Background-Color: '#00EF00'; }
+.prod_auto2 td { Background-Color: '#DAA520'; }
+.obs_auto2 td { Background-Color: '#32CD32'; }
+.prod_auto3 td { Background-Color: '#F08080'; }
+.obs_auto3 td { Background-Color: '#F0E68C'; }
+.prod_auto4 td { Background-Color: '#FFCCFF'; }
+.obs_auto4 td { Background-Color: '#99FF99'; }
+
+div#help {
+  display: none;
+  position: absolute;
+  width: 280px;
+  padding: 10px;
+  background: #FFFFCC;
+  color: #000000;
+  border: 1px solid #1a1a1a;
+  font-size: 90%;
+}
+
+.whitetable td
+{ Background-Color: #EFEFEF ; }
+
+.redline td
+{
+  Background-Color: #FF0000 ;
+  color: white;
+  white-space: nowrap;
+  border: 1px solid #1a1a1a;
+}
+
+.orangeline td
+{
+  Background-Color: #FFA500 ;
+  white-space: nowrap;
+  border: 1px solid #1a1a1a;
+}
+
+.yellowline td
+{
+  Background-Color: #FFFF00 ;
+  white-space: nowrap;
+  border: 1px solid #1a1a1a;
+}
+
+.grayline td
+{
+  Background-Color: #DDDDDD ;
+  white-space: nowrap;
+  border: 1px solid #1a1a1a;
+}
+
+.lightgreenline td
+{
+  Background-Color: #88FF88 ;
+  white-space: nowrap;
+  border: 1px solid #1a1a1a;
+}
+
+.greenline td
+{
+  Background-Color: #00FF00 ;
+  white-space: nowrap;
+  border: 1px solid #1a1a1a;
+}
+
+.greentable td
+{
+  Background-Color: #AAFFAA ;
+  white-space: nowrap;
+}
+
+.graytable td
+{
+  Background-Color : #DDDDDD ;
+  white-space: nowrap;
+}

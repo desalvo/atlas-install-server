@@ -1,0 +1,1 @@
+* */4 * * * root /usr/bin/php @INSTALLHOME@/check_site_name.php > /dev/null 2>&1

@@ -1,0 +1,58 @@
+services:
+  atlas-install-server:
+    image: ${ATLAS_IMAGE:-desalvo/atlas-install-server:latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: atlas-install-server
+    restart: unless-stopped
+    ports:
+      - "${ATLAS_BIND_ADDRESS:-0.0.0.0}:${ATLAS_HTTPS_PORT:-8443}:8443"
+    environment:
+      ATLAS_ENV_FILE: /var/lib/atlas-install/config/atlas-install.env
+      ATLAS_BOOTSTRAP_ENV: /run/secrets/atlas_bootstrap_env
+      ATLAS_TLS_CERT_FILE: /run/secrets/atlas_tls_cert
+      ATLAS_TLS_KEY_FILE: /run/secrets/atlas_tls_key
+      ATLAS_IGTF_DIR: /etc/grid-security/certificates
+      ATLAS_HTTPS_PORT: "8443"
+      ATLAS_CRL_REFRESH_SECONDS: "${ATLAS_CRL_REFRESH_SECONDS:-21600}"
+    secrets:
+      - source: atlas_tls_cert
+        target: atlas_tls_cert
+        mode: 0444
+      - source: atlas_tls_key
+        target: atlas_tls_key
+        mode: 0400
+      - source: atlas_bootstrap_env
+        target: atlas_bootstrap_env
+        mode: 0400
+    volumes:
+      - atlas_install_data:/var/lib/atlas-install
+      - atlas_install_cache:/var/cache/atlas-install
+      - atlas_install_igtf:/etc/grid-security/certificates
+      - atlas_install_runtime:/run/atlas-install
+    tmpfs:
+      - /run/php-fpm
+      - /var/log/httpd
+    healthcheck:
+      test: ["CMD-SHELL", "curl -kfsS https://127.0.0.1:8443/atlas_install/healthz.php >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+    security_opt:
+      - no-new-privileges:true
+
+secrets:
+  atlas_tls_cert:
+    file: ${ATLAS_TLS_CERT_SOURCE:-./secrets/tls.crt}
+  atlas_tls_key:
+    file: ${ATLAS_TLS_KEY_SOURCE:-./secrets/tls.key}
+  atlas_bootstrap_env:
+    file: ${ATLAS_BOOTSTRAP_ENV_SOURCE:-./secrets/atlas-install.env}
+
+volumes:
+  atlas_install_data:
+  atlas_install_cache:
+  atlas_install_igtf:
+  atlas_install_runtime:

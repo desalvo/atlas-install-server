@@ -1,0 +1,119 @@
+# Kubernetes deployment
+
+## 1. Build the image
+
+The image is based on Rocky Linux 10 and contains Apache, PHP-FPM, the application and `fetch-crl`. No production secret is part of the build context.
+
+```bash
+./container/build-image.sh desalvo/atlas-install-server:latest
+podman push desalvo/atlas-install-server:latest
+```
+
+Docker can be selected explicitly:
+
+```bash
+CONTAINER_ENGINE=docker ./container/build-image.sh desalvo/atlas-install-server:latest
+```
+
+## 2. Create TLS Secret
+
+The certificate must cover `atlas-install-el10.apps.desalvo.eu`. With TLS passthrough this certificate is presented directly by Apache in the pod.
+
+```bash
+kubectl create namespace atlas-install
+kubectl -n atlas-install create secret tls atlas-install-tls \
+  --cert=/secure/fullchain.pem \
+  --key=/secure/privkey.pem
+```
+
+## 3. Create the bootstrap configuration
+
+Copy the example locally, enter real DB passwords, protect the file and create the Secret:
+
+```bash
+cp etc/atlas-install/atlas-install.env.example /secure/atlas-install.env
+chmod 600 /secure/atlas-install.env
+$EDITOR /secure/atlas-install.env
+
+kubectl -n atlas-install create secret generic atlas-install-bootstrap \
+  --from-file=atlas-install.env=/secure/atlas-install.env
+```
+
+Recommended defaults:
+
+```text
+ATLAS_PUBLIC_HOSTNAME=atlas-install-el10.apps.desalvo.eu
+ATLAS_DB_RW_HOST=192.168.1.145
+ATLAS_DB_RO_HOST=192.168.1.145
+ATLAS_DB_BROKER_HOST=192.168.1.145
+```
+
+The bootstrap Secret is used only when the managed configuration PVC contains no active configuration file.
+
+## 4. Select the image tag
+
+The supplied manifest uses `desalvo/atlas-install-server:latest`. For production deployments, pin a tested semantic-version tag instead of `latest`.
+
+## 5. Deploy
+
+```bash
+kubectl apply -f kubernetes/atlas-install-container.yaml
+kubectl -n atlas-install rollout status deployment/atlas-install
+```
+
+## 6. Validate TLS passthrough
+
+HAProxy Ingress must use:
+
+```yaml
+haproxy-ingress.github.io/ssl-passthrough: "true"
+```
+
+There must be one TLS backend for the hostname. The backend performs the handshake and therefore receives the original client certificate.
+
+Test a public endpoint without a client certificate:
+
+```bash
+curl -vk https://atlas-install-el10.apps.desalvo.eu/atlas_install/healthz.php
+```
+
+Then test the protected area with a valid client certificate:
+
+```bash
+curl -v \
+  --cert /secure/client-cert.pem \
+  --key /secure/client-key.pem \
+  https://atlas-install-el10.apps.desalvo.eu/atlas_install/protected/configuration.php
+```
+
+A request to `/protected/` without an acceptable certificate must fail.
+
+## 7. Persistent data
+
+`atlas-install-data` stores:
+
+```text
+/var/lib/atlas-install/config/atlas-install.env
+/var/lib/atlas-install/log/
+/var/lib/atlas-install/logbackup/
+```
+
+The provided manifest uses one replica and `Recreate` update strategy so the managed configuration has a single writer.
+
+If you later need multiple replicas, move configuration to a shared/transactional backend or an RWX volume and review legacy file-writing behavior before scaling.
+
+## 8. Maintenance CronJobs
+
+Optional examples are provided in:
+
+```text
+kubernetes/maintenance-cronjobs.yaml
+```
+
+Before enabling them on a cluster with a strict RWO storage class, ensure the maintenance pods can attach the same storage or move to RWX storage.
+
+## 9. Network policy / firewall
+
+Permit database TCP/3306 from the Kubernetes worker/pod network required by your CNI to `192.168.1.145`; restrict all other sources at the DB firewall when possible.
+
+The application database accounts should also be host-restricted at MySQL/Percona/MariaDB level.

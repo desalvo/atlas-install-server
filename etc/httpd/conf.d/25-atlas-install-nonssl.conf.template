@@ -1,0 +1,5 @@
+<VirtualHost *:80>
+  ServerName @PUBLIC_HOSTNAME@
+  Redirect permanent / https://@PUBLIC_HOSTNAME@/
+  ServerSignature Off
+</VirtualHost>

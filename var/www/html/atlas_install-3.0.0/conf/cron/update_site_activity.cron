@@ -1,0 +1,1 @@
+*/30 * * * * root /usr/bin/php @INSTALLHOME@/update_site_activity.php > /dev/null 2>&1
