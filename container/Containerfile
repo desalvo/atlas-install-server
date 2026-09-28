@@ -19,7 +19,8 @@ RUN dnf -y update \
  && dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm \
  && dnf -y install fetch-crl \
  && dnf clean all \
- && rm -rf /var/cache/dnf /etc/httpd/conf.d/ssl.conf /var/www/html/*
+ && rm -rf /var/cache/dnf /etc/httpd/conf.d/ssl.conf /var/www/html/* \
+ && sed -ri 's|^[[:space:]]*Listen[[:space:]]+80([[:space:]]*)$|# disabled in container: Listen 80|' /etc/httpd/conf/httpd.conf
 
 RUN getent group atlas-install >/dev/null || groupadd --system atlas-install \
  && usermod -a -G atlas-install apache \

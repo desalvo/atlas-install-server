@@ -133,3 +133,7 @@ ATLAS Installation Server 3.0.0 is distributed under the European Union Public L
 ### Kubernetes/IGTF updates in r4
 
 The Kubernetes wizard is idempotent and preserves existing Secrets by default. Host certificate/key paths chosen during initial setup are remembered until explicitly changed. The container automatically refreshes IGTF trust anchors and CRLs and validates/re-hashes the trust directory before Apache uses it.
+
+### Container ports
+
+The Kubernetes/container deployment serves HTTPS only on unprivileged port `8443` inside the pod. The Rocky Linux default Apache `Listen 80` is explicitly disabled; the Kubernetes Service maps port 443 to container port 8443. No `NET_BIND_SERVICE` capability is required.

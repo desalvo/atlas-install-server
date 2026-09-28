@@ -150,3 +150,17 @@ if [[ -n "$unsafe" ]]; then
 fi
 
 exit "$fail"
+
+# Container must never require a privileged HTTP listener.
+grep -Fq "disabled in container: Listen 80" Dockerfile || {
+  echo "ERROR: Dockerfile does not disable Rocky Linux default Listen 80" >&2
+  exit 1
+}
+grep -Fq "disable_default_http_listener" container/entrypoint.sh || {
+  echo "ERROR: container entrypoint lacks Listen 80 runtime guard" >&2
+  exit 1
+}
+if grep -Eq '^[[:space:]]*Listen[[:space:]]+80([[:space:]]*)$' container/httpd-container.conf.template; then
+  echo "ERROR: container Apache template enables privileged port 80" >&2
+  exit 1
+fi

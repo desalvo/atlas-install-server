@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.0.0 r7
+
+- Fixed Kubernetes/container startup failure caused by Rocky Linux httpd default `Listen 80`.
+- Container image now disables the privileged HTTP listener and serves only on `ATLAS_HTTPS_PORT` (default 8443).
+- Added runtime guard in the container entrypoint so a future base-image change cannot silently re-enable port 80.
+- Kubernetes security context intentionally does not add `NET_BIND_SERVICE`; no privileged port is required.
+
 ## 3.0.0-r6
 
 - Split Kubernetes resources into dedicated Namespace, PVC, Deployment, Service, Ingress and optional maintenance CronJob manifests.

@@ -82,6 +82,17 @@ validate_tls() {
   openssl x509 -in "$TLS_CERT" -noout -checkhost "$host" >/dev/null 2>&1 || die "TLS certificate does not cover $host"
 }
 
+disable_default_http_listener() {
+  local conf=/etc/httpd/conf/httpd.conf
+  if [[ -f "$conf" ]] && grep -Eq '^[[:space:]]*Listen[[:space:]]+80([[:space:]]*)$' "$conf"; then
+    log "Disabling Rocky Linux default HTTP listener on port 80; container HTTPS listener is ${HTTPS_PORT}."
+    sed -ri 's|^[[:space:]]*Listen[[:space:]]+80([[:space:]]*)$|# disabled in container: Listen 80|' "$conf"
+  fi
+  if grep -Eq '^[[:space:]]*Listen[[:space:]]+80([[:space:]]*)$' "$conf" 2>/dev/null; then
+    die "Apache default Listen 80 is still active; refusing to start with privileged HTTP listener"
+  fi
+}
+
 render_httpd() {
   local host
   host=$(read_env_value ATLAS_PUBLIC_HOSTNAME atlas-install-el10.apps.desalvo.eu)
@@ -129,6 +140,7 @@ case "${1:-serve}" in
     validate_tls
     install -d -o root -g atlas-install -m 2770 /var/lib/atlas-install/log /var/lib/atlas-install/logbackup /var/cache/atlas-install
     ATLAS_IGTF_SKIP_CRL=1 /usr/local/sbin/atlas-update-igtf
+    disable_default_http_listener
     render_httpd
     /usr/sbin/httpd -t
     log "Starting PHP-FPM."

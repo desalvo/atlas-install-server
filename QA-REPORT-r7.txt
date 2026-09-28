@@ -1,0 +1,16 @@
+ATLAS Installation Server 3.0.0 r7 - QA
+=========================================
+
+Fix:
+- Rocky Linux httpd default Listen 80 disabled in Dockerfile/Containerfile.
+- Runtime entrypoint guard disables/refuses an active Listen 80.
+- Container remains HTTPS-only on unprivileged port 8443.
+- Kubernetes Service maps 443 -> 8443.
+- NET_BIND_SERVICE is intentionally not granted.
+
+Validation:
+- tests/ci-static.sh: PASS
+- shell syntax: PASS
+- Kubernetes/GitHub YAML parse: PASS
+- Dockerfile == container/Containerfile: PASS
+- application version remains 3.0.0
