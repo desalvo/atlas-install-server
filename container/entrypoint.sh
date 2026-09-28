@@ -105,7 +105,37 @@ s=Path(src).read_text()
 for k,v in {'@PUBLIC_HOSTNAME@':host,'@HOST_CERT@':cert,'@HOST_KEY@':key,'@HTTPS_PORT@':port}.items():
     s=s.replace(k,v)
 Path(dst).write_text(s)
+Path(dst).chmod(0o644)
 PY
+}
+
+ensure_httpd_container_config() {
+  local generated=/etc/httpd/conf.d/25-atlas-install-container.conf
+  local main=/etc/httpd/conf/httpd.conf
+  local dump
+
+  [[ -s "$generated" ]] || die "generated Apache container config is missing or empty: $generated"
+  grep -Eq "^[[:space:]]*Listen[[:space:]]+${HTTPS_PORT}([[:space:]]+https)?[[:space:]]*$" "$generated" \
+    || die "generated Apache config does not contain Listen ${HTTPS_PORT}"
+  grep -Eq "<VirtualHost[^>]*:${HTTPS_PORT}>" "$generated" \
+    || die "generated Apache config does not contain VirtualHost on ${HTTPS_PORT}"
+
+  dump=$(/usr/sbin/httpd -t -D DUMP_VHOSTS 2>&1 || true)
+  if ! printf '%s\n' "$dump" | grep -Eq "(:|\*)${HTTPS_PORT}([^0-9]|$)"; then
+    log "Apache is not loading $generated through its normal includes; adding an explicit Include."
+    if ! grep -Fq "Include \"$generated\"" "$main"; then
+      printf '\n# ATLAS container-generated HTTPS configuration\nInclude \"%s\"\n' "$generated" >> "$main"
+    fi
+  fi
+
+  dump=$(/usr/sbin/httpd -t -D DUMP_VHOSTS 2>&1) || {
+    printf '%s\n' "$dump" >&2
+    die "Apache virtual-host validation failed"
+  }
+  printf '%s\n' "$dump" | grep -Eq "(:|\*)${HTTPS_PORT}([^0-9]|$)" \
+    || { printf '%s\n' "$dump" >&2; die "Apache still has no VirtualHost on ${HTTPS_PORT}"; }
+
+  log "Apache listener/VHost validation passed for HTTPS port ${HTTPS_PORT}."
 }
 
 igtf_refresh_once() {
@@ -142,6 +172,7 @@ case "${1:-serve}" in
     ATLAS_IGTF_SKIP_CRL=1 /usr/local/sbin/atlas-update-igtf
     disable_default_http_listener
     render_httpd
+    ensure_httpd_container_config
     /usr/sbin/httpd -t
     log "Starting PHP-FPM."
     /usr/sbin/php-fpm --nodaemonize --fpm-config /etc/php-fpm.conf &

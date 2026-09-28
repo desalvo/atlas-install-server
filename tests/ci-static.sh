@@ -164,3 +164,16 @@ if grep -Eq '^[[:space:]]*Listen[[:space:]]+80([[:space:]]*)$' container/httpd-c
   echo "ERROR: container Apache template enables privileged port 80" >&2
   exit 1
 fi
+
+grep -Fq 'ensure_httpd_container_config' container/entrypoint.sh || {
+  echo "ERROR: entrypoint lacks Apache generated-config validation" >&2
+  exit 1
+}
+grep -Fq 'generated Apache config does not contain Listen' container/entrypoint.sh || {
+  echo "ERROR: entrypoint lacks HTTPS Listen validation" >&2
+  exit 1
+}
+grep -Fq 'Apache still has no VirtualHost' container/entrypoint.sh || {
+  echo "ERROR: entrypoint lacks effective VirtualHost validation" >&2
+  exit 1
+}

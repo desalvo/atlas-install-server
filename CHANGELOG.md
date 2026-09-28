@@ -1,3 +1,10 @@
+## 3.0.0-r8
+
+- Hardened Apache startup: generated HTTPS config is validated for an active `Listen` and VirtualHost before launch.
+- If Rocky Linux does not load `/etc/httpd/conf.d/25-atlas-install-container.conf` through its normal include chain, the entrypoint adds one explicit `Include` idempotently.
+- Generated Apache config is mode 0644 and startup logs now report listener/VHost validation explicitly.
+- Prevents the misleading `Syntax OK` followed by `no listening sockets available`.
+
 # Changelog
 
 ## 3.0.0 r7

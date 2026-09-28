@@ -43,3 +43,7 @@ Self-update behavior
 - ATLAS_WIZARD_AUTO_UPDATE=1 enables it for unattended execution;
 - downloaded wizard is installed only if scripts/atlas-install-k8s-wizard.sh.sha256 matches;
 - replacement is atomic and becomes active on the following execution.
+
+Apache generated config validation: PASS (static)
+Apache explicit include fallback: PRESENT
+HTTPS Listen/VHost guard: PRESENT
