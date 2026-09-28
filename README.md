@@ -137,3 +137,8 @@ The Kubernetes wizard is idempotent and preserves existing Secrets by default. H
 ### Container ports
 
 The Kubernetes/container deployment serves HTTPS only on unprivileged port `8443` inside the pod. The Rocky Linux default Apache `Listen 80` is explicitly disabled; the Kubernetes Service maps port 443 to container port 8443. No `NET_BIND_SERVICE` capability is required.
+
+
+### Container CRL handling (r9)
+
+Apache uses `/etc/grid-security/certificates` as both `SSLCACertificatePath` and `SSLCARevocationPath`; `fetch-crl` refreshes CRLs asynchronously with a bounded timeout.

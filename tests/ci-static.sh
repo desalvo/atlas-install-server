@@ -177,3 +177,7 @@ grep -Fq 'Apache still has no VirtualHost' container/entrypoint.sh || {
   echo "ERROR: entrypoint lacks effective VirtualHost validation" >&2
   exit 1
 }
+
+# Apache CRL configuration invariant.
+grep -Eq '^[[:space:]]*SSLCARevocationCheck[[:space:]]+' container/httpd-container.conf.template
+grep -Eq '^[[:space:]]*SSLCARevocation(Path|File)[[:space:]]+' container/httpd-container.conf.template

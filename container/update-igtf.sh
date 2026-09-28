@@ -114,7 +114,12 @@ if [[ "$SKIP_CRL" != 1 ]] && command -v fetch-crl >/dev/null 2>&1; then
   rc=$?
   set -e
   case "$rc" in
-    0)   log "CRL refresh completed" ;;
+    0)
+      log "CRL refresh completed"
+      if ! find "$CA_DIR" -maxdepth 1 -name '*.r0' -print -quit | grep -q .; then
+        echo "WARNING: fetch-crl completed but no hashed CRL (*.r0) is present in $CA_DIR" >&2
+      fi
+      ;;
     124|137) echo "WARNING: fetch-crl timed out after ${CRL_TIMEOUT_SECONDS}s; existing CRLs are retained" >&2 ;;
     *)   echo "WARNING: fetch-crl returned rc=${rc}; existing CRLs are retained" >&2 ;;
   esac

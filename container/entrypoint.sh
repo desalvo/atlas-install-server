@@ -119,6 +119,10 @@ ensure_httpd_container_config() {
     || die "generated Apache config does not contain Listen ${HTTPS_PORT}"
   grep -Eq "<VirtualHost[^>]*:${HTTPS_PORT}>" "$generated" \
     || die "generated Apache config does not contain VirtualHost on ${HTTPS_PORT}"
+  if grep -Eq '^[[:space:]]*SSLCARevocationCheck[[:space:]]+' "$generated"; then
+    grep -Eq '^[[:space:]]*SSLCARevocation(Path|File)[[:space:]]+' "$generated" \
+      || die "SSLCARevocationCheck is enabled but neither SSLCARevocationPath nor SSLCARevocationFile is configured"
+  fi
 
   dump=$(/usr/sbin/httpd -t -D DUMP_VHOSTS 2>&1 || true)
   if ! printf '%s\n' "$dump" | grep -Eq "(:|\*)${HTTPS_PORT}([^0-9]|$)"; then

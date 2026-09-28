@@ -1,3 +1,9 @@
+
+## 3.0.0 r9
+
+- Fix Apache mod_ssl startup with CRL checking by configuring `SSLCARevocationPath /etc/grid-security/certificates`.
+- Add entrypoint validation: `SSLCARevocationCheck` cannot be enabled without `SSLCARevocationPath` or `SSLCARevocationFile`.
+- Keep asynchronous, timeout-bounded `fetch-crl`; Apache can start while the initial CRL refresh completes in the background.
 ## 3.0.0-r8
 
 - Hardened Apache startup: generated HTTPS config is validated for an active `Listen` and VirtualHost before launch.

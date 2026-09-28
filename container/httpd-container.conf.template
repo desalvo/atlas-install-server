@@ -16,6 +16,7 @@ TraceEnable Off
   SSLVerifyClient optional
   SSLVerifyDepth 20
   SSLCACertificatePath "/etc/grid-security/certificates"
+  SSLCARevocationPath "/etc/grid-security/certificates"
   SSLCARevocationCheck chain
   SSLProtocol -all +TLSv1.2 +TLSv1.3
   SSLOptions +StdEnvVars +ExportCertData
