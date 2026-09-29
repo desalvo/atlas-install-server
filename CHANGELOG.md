@@ -1,3 +1,11 @@
+## 3.0.0-r27
+
+- Reliable PHP/application error streaming into Kubernetes logs through a tailed runtime log.
+- Local authenticated users are idempotently mapped into the legacy user table for protected legacy pages.
+- Language switching uses a dedicated safe redirect endpoint and remains functional for authenticated sessions.
+- list.php literal \n text regression removed and installation-state colours restored in responsive cards.
+- req.php startup/dependency checkpoints expanded for diagnostics.
+
 # 3.0.0-r26
 
 - Reworked `list.php`: filters moved to a collapsed search/sort panel; row expansion uses a compact leading icon; full-width responsive cards and sortable fields.

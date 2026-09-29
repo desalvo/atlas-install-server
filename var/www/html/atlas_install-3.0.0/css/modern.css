@@ -573,3 +573,20 @@ body.atlas-list-page #atlas-list-results td[data-label="Num"] .atlas-row-num { g
 .atlas-totp-qr figcaption { margin-top:6px; color:var(--atlas-muted); font-size:12px; }
 @media (max-width:900px){ body.atlas-list-page #atlas-list-results tr.atlas-mobile-record, body.atlas-list-page #atlas-list-results tr.atlas-mobile-record.atlas-mobile-expanded { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media (max-width:600px){ body.atlas-list-page #main.atlas-list-main{padding:0 4px 18px!important;} body.atlas-list-page #site_content1.atlas-list-site-content{padding:8px!important;} body.atlas-list-page #atlas-list-results tr.atlas-mobile-record,body.atlas-list-page #atlas-list-results tr.atlas-mobile-record.atlas-mobile-expanded{grid-template-columns:1fr;} .atlas-list-search-form{grid-template-columns:1fr;} }
+
+/* r27: preserve legacy installation-state colours on the responsive list cards. */
+body.atlas-list-page #atlas-list-results tr.atlas-mobile-record.installedTask { background:#00ff00 !important; }
+body.atlas-list-page #atlas-list-results tr.atlas-mobile-record.failedTask { background:#ff0000 !important; }
+body.atlas-list-page #atlas-list-results tr.atlas-mobile-record.abortedTask { background:#00aaff !important; }
+body.atlas-list-page #atlas-list-results tr.atlas-mobile-record.removedTask { background:#7f7f7f !important; }
+body.atlas-list-page #atlas-list-results tr.atlas-mobile-record.pendingTask { background:#ffff00 !important; }
+body.atlas-list-page #atlas-list-results tr.atlas-mobile-record.maxinstretryTask { background:#ff9900 !important; }
+body.atlas-list-page #atlas-list-results tr.atlas-mobile-record.maxrmretryTask { background:#cc9900 !important; }
+body.atlas-list-page #atlas-list-results tr.atlas-mobile-record.inconsistentTask { background:#ff66ff !important; }
+body.atlas-list-page #atlas-list-results tr.atlas-mobile-record.otherTask { background:#dddddd !important; }
+body.atlas-list-page #atlas-list-results tr.atlas-mobile-record.installfailTask { background:#66ffff !important; }
+body.atlas-list-page #atlas-list-results tr.atlas-mobile-record.cancelledTask { background:#cccccc !important; }
+body.atlas-list-page #atlas-list-results tr.atlas-mobile-record.closedTask { background:#99cc99 !important; }
+body.atlas-list-page #atlas-list-results tr.atlas-mobile-record.waitingTask { background:#ffff99 !important; }
+body.atlas-list-page #atlas-list-results tr.atlas-mobile-record.failedTask,
+body.atlas-list-page #atlas-list-results tr.atlas-mobile-record.removedTask { color:#111 !important; }

@@ -249,6 +249,18 @@ grep -Fq "atlas_app_log('http_5xx_completed'" "$APP_DIR/security.php" || { print
 grep -Fq "atlas_app_log('req_data_query'" "$APP_DIR/protected/req.php" || { printf 'req.php diagnostic logging missing.\n' >&2; fail=1; }
 grep -Fq 'class="atlas-home-footer"' "$APP_DIR/index.php" || { printf 'Home footer flow marker missing.\n' >&2; fail=1; }
 
+printf '== r27 authenticated compatibility/logging/list regressions ==\n'
+for token in 'atlas_sync_local_legacy_user' 'local_legacy_identity_synced' 'local_legacy_identity_sync_failed'; do
+  grep -Fq "$token" var/www/html/atlas_install-3.0.0/local_auth.php || { printf 'r27 local legacy identity compatibility missing: %s\n' "$token" >&2; fail=1; }
+done
+[[ -f var/www/html/atlas_install-3.0.0/lang.php ]] || { printf 'r27 dedicated language endpoint missing\n' >&2; fail=1; }
+grep -Fq '/atlas_install/lang.php?lang=' var/www/html/atlas_install-3.0.0/i18n.php || { printf 'r27 language selector does not use dedicated endpoint\n' >&2; fail=1; }
+grep -Fq 'Application error log streaming enabled' container/entrypoint.sh || { printf 'r27 application log tail missing\n' >&2; fail=1; }
+grep -Fq 'php-application.log' Dockerfile || { printf 'r27 PHP-FPM application log path missing\n' >&2; fail=1; }
+if grep -Fq "</TD>\\n');" var/www/html/atlas_install-3.0.0/list.php; then printf 'r27 list.php still emits literal backslash-n text\n' >&2; fail=1; fi
+grep -Fq 'preserve legacy installation-state colours' var/www/html/atlas_install-3.0.0/css/modern.css || { printf 'r27 list status colour compatibility missing\n' >&2; fail=1; }
+for token in req_bootstrap_enter req_include_dependencies req_dependencies_loaded; do grep -Fq "$token" var/www/html/atlas_install-3.0.0/protected/req.php || { printf 'r27 req diagnostic checkpoint missing: %s\n' "$token" >&2; fail=1; }; done
+
 exit "$fail"
 
 # Container must never require a privileged HTTP listener.

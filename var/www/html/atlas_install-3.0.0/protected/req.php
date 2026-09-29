@@ -1,6 +1,8 @@
 <?php
+ require_once __DIR__.'/../config.php';
+ atlas_app_log('req_bootstrap_enter',['method'=>(string)($_SERVER['REQUEST_METHOD']??'GET')]);
  if (!isset($_POST['ws']) or $_POST['ws'] == '') { ?>
-<?php require("config.php"); atlas_app_log('req_enter',['method'=>(string)($_SERVER['REQUEST_METHOD']??'GET')]); ?>
+<?php atlas_app_log('req_enter',['method'=>(string)($_SERVER['REQUEST_METHOD']??'GET')]); ?>
 <HTML>
 <HEAD>
 <TITLE><?php echo $LJSFi_VO; ?> Installation Requests</TITLE>
@@ -23,11 +25,13 @@ function checkform(form) {
 <P>
 <?php } ?>
 <?php
-  require("db.php");
-  require("combo.php");
-  require("config.php");
-  require("user_info.php");
-  require (__DIR__."/../access_log.php");
+  atlas_app_log('req_include_dependencies');
+  require_once("db.php");
+  require_once("combo.php");
+  require_once("config.php");
+  require_once("user_info.php");
+  require_once (__DIR__."/../access_log.php");
+  atlas_app_log('req_dependencies_loaded');
 ?>
 <?php if (!isset($_POST['ws']) or $_POST['ws'] == '') { ?>
   <div id="main">

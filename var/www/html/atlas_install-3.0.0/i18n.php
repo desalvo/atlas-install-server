@@ -47,6 +47,10 @@ function atlas_lang_url(string $lang): string {
 }
 function atlas_language_selector_html(): string {
     $l=atlas_lang();
-    return '<div class="atlas-language"><span>'.htmlspecialchars(atlas_t('language'),ENT_QUOTES,'UTF-8').'</span><a href="'.htmlspecialchars(atlas_lang_url('it'),ENT_QUOTES,'UTF-8').'" class="'.($l==='it'?'active':'').'">IT</a><a href="'.htmlspecialchars(atlas_lang_url('en'),ENT_QUOTES,'UTF-8').'" class="'.($l==='en'?'active':'').'">EN</a></div>';
+    $uri=(string)($_SERVER['REQUEST_URI']??'/atlas_install/');
+    $p=parse_url($uri); $q=[]; parse_str((string)($p['query']??''),$q); unset($q['lang']);
+    $ret=($p['path']??'/atlas_install/').($q?'?'.http_build_query($q):'');
+    $mk=static fn(string $lang): string => '/atlas_install/lang.php?lang='.rawurlencode($lang).'&return='.rawurlencode($ret);
+    return '<div class="atlas-language"><span>'.htmlspecialchars(atlas_t('language'),ENT_QUOTES,'UTF-8').'</span><a href="'.htmlspecialchars($mk('it'),ENT_QUOTES,'UTF-8').'" class="'.($l==='it'?'active':'').'">IT</a><a href="'.htmlspecialchars($mk('en'),ENT_QUOTES,'UTF-8').'" class="'.($l==='en'?'active':'').'">EN</a></div>';
 }
 }

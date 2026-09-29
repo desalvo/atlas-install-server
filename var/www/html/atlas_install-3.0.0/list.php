@@ -163,7 +163,7 @@ function checkform(form) {
       'Installer<BR>' => array('u.name','user')
     );
   }
-  $cleanLabel = static fn($t) => trim(preg_replace('/<BR\s*\/?\s*>/i',' ',(string)$t));
+  $cleanLabel = static function($t){$v=preg_replace('/<BR\s*\/?\s*>/i',' ',(string)$t);$v=preg_replace('/(?:\\n|[\r\n\t ])+/',' ',$v);return trim((string)$v);};
   echo '<details class="atlas-list-search"><summary>'.atlas_h(atlas_lang()==='it'?'Ricerca, filtri e ordinamento':'Search, filters and sorting').'</summary>';
   echo '<form id="atlas-list-filter-form" method="get" action="list.php" class="atlas-list-search-form">';
   if (isset($_REQUEST['summary'])) echo '<input type="hidden" name="summary" value="'.atlas_h((string)$_REQUEST['summary']).'">';
@@ -492,7 +492,7 @@ function checkform(form) {
         if (isset($roleid) && $roleid > 1) echo ('<TD data-mobile-hidden="1"><input type="checkbox" name="relsel[]" value="'.$row[10].'" onclick="enableDisableField(this,'.$row[10].');"></td>');
         for ($i=0; $i<9; $i++) {
           if ($i == 0) {
-            echo ('<TD data-mobile-primary="1" data-label="Num"><button type="button" class="atlas-row-toggle" aria-expanded="false" aria-label="'.atlas_h(atlas_lang()==='it'?'Espandi riga':'Expand row').'">▸</button><span class="atlas-row-num">'.$category[$row[5]].'</span></TD>\n');
+            echo ('<TD data-mobile-primary="1" data-label="Num"><button type="button" class="atlas-row-toggle" aria-expanded="false" aria-label="'.atlas_h(atlas_lang()==='it'?'Espandi riga':'Expand row').'">▸</button><span class="atlas-row-num">'.$category[$row[5]].'</span></TD>');
             echo ('<TD data-mobile-primary="1" data-label="Release number">');
           } else {
             $attrs = '';

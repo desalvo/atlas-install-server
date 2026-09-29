@@ -1,0 +1,30 @@
+ATLAS Installation Server 3.0.0 r27 - validation
+================================================
+
+Scope
+-----
+- Reliable Kubernetes-visible application/PHP error logging.
+- Compatibility mapping for local-auth users into the legacy user/role model.
+- Authenticated-session-safe language switching.
+- list.php literal backslash-newline cleanup and legacy installation-state colours.
+- req.php early diagnostic checkpoints.
+
+Validation
+----------
+- PHP syntax: PASS (129 PHP files)
+- shell syntax: PASS
+- static CI suite: PASS
+- Kubernetes YAML: PASS
+- GitHub workflow YAML: PASS
+- Docker Compose YAML: PASS
+- wizard SHA256 sidecar: PASS
+- list.php literal \\n regression check: PASS
+- local legacy-user mapping regression check: PASS
+- runtime error-log tail configuration: PASS
+
+Runtime notes
+-------------
+PHP/application errors are written to /var/lib/atlas-install/log/php-application.log.
+The container entrypoint follows that file and mirrors it to stderr, therefore the
+same events are visible with kubectl logs. The file remains available on the
+application volume for diagnostics if container log collection is interrupted.

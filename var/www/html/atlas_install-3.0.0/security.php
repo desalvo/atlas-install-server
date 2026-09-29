@@ -174,13 +174,17 @@ function atlas_request_id(): string {
 
 function atlas_log_line(string $message): void {
     $line = rtrim($message, "\r\n");
-    // Write directly to the worker stderr used by Kubernetes logging. Keep
-    // error_log as a fallback for non-container/native installations.
+    // Always write to the persistent runtime log as the authoritative channel.
+    // The container entrypoint tails this file to stderr, so PHP-FPM worker
+    // descriptor handling cannot hide application errors from kubectl logs.
+    $logFile = (string)atlas_env('ATLAS_APP_ERROR_LOG','/var/lib/atlas-install/log/php-application.log');
     $written = false;
     try {
-        $n = @file_put_contents('php://stderr', $line.PHP_EOL, FILE_APPEND);
+        $n = @file_put_contents($logFile, $line.PHP_EOL, FILE_APPEND | LOCK_EX);
         $written = ($n !== false);
     } catch (Throwable $e) { $written = false; }
+    // Also try the worker stderr for native/non-container deployments.
+    try { @file_put_contents('php://stderr', $line.PHP_EOL, FILE_APPEND); } catch (Throwable $e) {}
     if (!$written) @error_log($line);
 }
 

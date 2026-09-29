@@ -231,6 +231,13 @@ case "${1:-serve}" in
       log "Automatic database/schema bootstrap disabled by ATLAS_DB_AUTO_INIT."
     fi
     install -d -o root -g atlas-install -m 2770 /var/lib/atlas-install/log /var/lib/atlas-install/logbackup /var/lib/atlas-install/igtf-cache /var/cache/atlas-install
+    app_error_log="$(read_env_value ATLAS_APP_ERROR_LOG /var/lib/atlas-install/log/php-application.log)"
+    install -o apache -g atlas-install -m 0660 /dev/null "$app_error_log"
+    # Follow the authoritative application log into container stderr. This is
+    # intentionally independent from PHP-FPM worker descriptor forwarding.
+    tail -n 0 -F "$app_error_log" >&2 &
+    app_log_tail_pid=$!
+    log "Application error log streaming enabled: $app_error_log"
     log "Startup phase 5/8: restoring IGTF cache and running initial trust-anchor/fetch-crl refresh."
     restore_igtf_cache
     if /usr/local/sbin/atlas-update-igtf; then
@@ -246,7 +253,7 @@ case "${1:-serve}" in
     log "Startup phase 7/8: starting PHP-FPM."
     /usr/sbin/php-fpm --nodaemonize --fpm-config /etc/php-fpm.conf &
     fpm_pid=$!
-    trap 'kill "$fpm_pid" 2>/dev/null || true' EXIT TERM INT
+    trap 'kill "$fpm_pid" "${app_log_tail_pid:-}" 2>/dev/null || true' EXIT TERM INT
     bootstrap_sync_loop &
     bootstrap_sync_pid=$!
     igtf_refresh_loop &

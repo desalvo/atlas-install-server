@@ -51,7 +51,7 @@ function db_conn($dest='rw') {
 
 function db_err($err, $query='') {
     global $logprefix;
-    $msg=$logprefix . ' database error: ' . $err . ($query !== '' ? ' [query hash=' . hash('sha256',$query) . ']' : ''); if(function_exists('atlas_log_line')) atlas_log_line($msg); else error_log($msg);
+    $msg=$logprefix . ' database error: ' . $err . ($query !== '' ? ' [query hash=' . hash('sha256',$query) . ']' : ''); if(function_exists('atlas_app_log')) atlas_app_log('database_error',['message'=>(string)$err,'query_hash'=>$query!==''?hash('sha256',$query):'']); if(function_exists('atlas_log_line')) atlas_log_line($msg); else error_log($msg);
     if (!atlas_is_cli()) {
         http_response_code(500);
         echo '<p>Database operation failed.</p>';
