@@ -5,6 +5,7 @@ metadata:
   namespace: {{NAMESPACE}}
   annotations:
     haproxy-ingress.github.io/ssl-passthrough: "true"
+{{INGRESS_CLASS_ANNOTATION}}
 spec:
   ingressClassName: {{INGRESS_CLASS}}
   rules:

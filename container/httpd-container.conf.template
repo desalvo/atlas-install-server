@@ -7,6 +7,9 @@ TraceEnable Off
   ServerName @PUBLIC_HOSTNAME@
   DocumentRoot "/var/www/html"
 
+  # The public entrypoint is the ATLAS Installation application.
+  RedirectMatch 302 ^/$ /atlas_install/
+
   SSLEngine on
   SSLCertificateFile    "@HOST_CERT@"
   SSLCertificateKeyFile "@HOST_KEY@"

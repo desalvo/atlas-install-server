@@ -1,3 +1,21 @@
+## 3.0.0-r16
+
+- Fix the landing-page search to use HTTP GET rather than POST, so read-only searches are not rejected by the same-origin guard for state-changing requests.
+- Give the autocomplete search fields real form names (`rel`, `sitename`, `resource`) and remove the legacy JavaScript query-string workaround.
+- Redirect the HTTPS virtual-host root `/` to `/atlas_install/` with HTTP 302, so the Ingress hostname opens the application directly.
+- Add regression tests for the GET search form and root redirect.
+
+## 3.0.0-r15
+
+- HAProxy Ingress rendering now always emits both `spec.ingressClassName: haproxy` and the compatibility annotation `kubernetes.io/ingress.class: haproxy`.
+- Added static regression checks for the HAProxy ingress-class annotation in generated and example manifests.
+
+## 3.0.0-r14
+
+- Fix Kubernetes `ReadWriteOnce` maintenance scheduling: maintenance CronJobs now use required pod affinity to the running server pod on `kubernetes.io/hostname`, keeping all users of the shared PVC on the same node and avoiding CSI multi-attach failures.
+- Refuse the incompatible combination `ReadWriteOncePod` + maintenance CronJobs.
+- Keeps r13 database TLS and wizard self-update behavior unchanged.
+
 ## 3.0.0-r13
 
 - Fix Kubernetes `bootstrap-secret.example.yaml` indentation for the DB TLS keys so GitHub CI YAML validation succeeds.

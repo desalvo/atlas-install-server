@@ -37,26 +37,7 @@ function closeWin() {
     self.close();
 }
 function checkform(form) {
-  var retval=true;
-  var getstring="";
-  if (form.sitename.value != "") {
-    if (getstring == "") getstring += "?"; else getstring += "&";
-    getstring += "sitename="+form.sitename.value;
-  }
-  if (form.rel.value != "") {
-    if (getstring == "") getstring += "?"; else getstring += "&";
-    getstring += "rel="+form.rel.value;
-  }
-  if (form.resource.value != "") {
-    if (getstring == "") getstring += "?"; else getstring += "&";
-    getstring += "resource="+form.resource.value;
-  }
-  if (form.fstype.value != "") {
-    if (getstring == "") getstring += "?"; else getstring += "&";
-    getstring += "fstype="+form.fstype.value;
-  }
-  if (getstring != "") form.action += getstring;
-  return retval;
+  return true;
 }
 </script>
 </HEAD>
@@ -80,12 +61,12 @@ function checkform(form) {
       <div id="content">
         <!-- insert the page content here -->
         <h1>Installation Status Search</h1>
-        <form method="post" name="select" action="list.php" onsubmit="return checkform(this);">
+        <form method="get" name="select" action="list.php" onsubmit="return checkform(this);">
           <TABLE id='select_tbl' border="1" rules="groups">
             <COLGROUP width="200"></COLGROUP>
 <tr><td class="selection">Release</td><td>
 <div class="ui-widget">
-<input id="rel" />
+<input id="rel" name="rel" />
 <script>
 $(function() {
 var availableReleases = [
@@ -121,7 +102,7 @@ $( "#rel" ).autocomplete({
 </td></tr>
 <tr><td class="selection">Site name</td><td>
 <div class="ui-widget">
-<input id="sitename" size="40"/>
+<input id="sitename" name="sitename" size="40"/>
 <script>
 $(function() {
 var availableSitenames = [
@@ -157,7 +138,7 @@ $( "#sitename" ).autocomplete({
 </td></tr>
 <tr><td class="selection">Resource</td><td>
 <div class="ui-widget">
-<input id="resource" size="40"/>
+<input id="resource" name="resource" size="40"/>
 <script>
 $(function() {
 var availableResources = [

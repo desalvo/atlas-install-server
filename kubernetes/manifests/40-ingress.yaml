@@ -5,6 +5,7 @@ metadata:
   namespace: atlas-install
   annotations:
     haproxy-ingress.github.io/ssl-passthrough: "true"
+    kubernetes.io/ingress.class: "haproxy"
 spec:
   ingressClassName: haproxy
   rules:

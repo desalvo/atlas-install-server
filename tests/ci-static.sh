@@ -64,6 +64,19 @@ for token in NODE_SELECTOR_BLOCK; do
     fail=1
   fi
 done
+
+if ! grep -q '{{INGRESS_CLASS_ANNOTATION}}' kubernetes/templates/40-ingress.yaml.tpl; then
+  printf 'Ingress template must expose the legacy ingress-class annotation placeholder.\n' >&2
+  fail=1
+fi
+if ! grep -Fq 'kubernetes.io/ingress.class: "haproxy"' kubernetes/manifests/40-ingress.yaml; then
+  printf 'Rendered HAProxy Ingress must include kubernetes.io/ingress.class: haproxy.\n' >&2
+  fail=1
+fi
+if ! grep -Fq 'kubernetes.io/ingress.class: "haproxy"' kubernetes/haproxy-ingress-tls-passthrough.yaml; then
+  printf 'HAProxy passthrough example must include kubernetes.io/ingress.class: haproxy.\n' >&2
+  fail=1
+fi
 if ! grep -Fq 'kubectl apply -k "$OUTPUT_DIR"' scripts/atlas-install-k8s-wizard.sh; then
   printf 'Wizard must apply generated resources through Kustomize.\n' >&2
   fail=1
@@ -199,3 +212,10 @@ grep -Fq 'Bootstrap configuration changed; restarting deployment' scripts/atlas-
   echo "ERROR: Kubernetes wizard does not restart after bootstrap Secret changes" >&2
   exit 1
 }
+
+echo "Landing search / root redirect checks"
+grep -Fq '<form method="get" name="select" action="list.php"' var/www/html/atlas_install/index.php
+grep -Fq '<input id="rel" name="rel"' var/www/html/atlas_install/index.php
+grep -Fq '<input id="sitename" name="sitename"' var/www/html/atlas_install/index.php
+grep -Fq '<input id="resource" name="resource"' var/www/html/atlas_install/index.php
+grep -Fq 'RedirectMatch 302 ^/$ /atlas_install/' container/httpd-container.conf.template

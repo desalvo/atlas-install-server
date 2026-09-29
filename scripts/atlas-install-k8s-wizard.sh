@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-WIZARD_VERSION="3.0.0-r13"
+WIZARD_VERSION="3.0.0-r16"
 DEFAULT_REPO="desalvo/atlas-install-server"
 DEFAULT_REF="main"
 DEFAULT_NAMESPACE="atlas-install"
@@ -252,6 +252,28 @@ render_node_selector_block() {
   done
 }
 
+render_maintenance_scheduling_block() {
+  case "$PVC_ACCESS_MODE" in
+    ReadWriteOnce)
+      cat <<EOF
+          affinity:
+            podAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchLabels:
+                      app: ${APP_NAME}
+                  topologyKey: kubernetes.io/hostname
+EOF
+      ;;
+    ReadWriteOncePod)
+      die "maintenance CronJobs cannot share a ReadWriteOncePod PVC with the server; use ReadWriteOnce/ReadWriteMany or disable maintenance CronJobs"
+      ;;
+    *)
+      :
+      ;;
+  esac
+}
+
 self_script_path() {
   local src="${BASH_SOURCE[0]}"
   if command -v readlink >/dev/null 2>&1; then
@@ -338,7 +360,7 @@ fetch_template() {
 }
 
 render_template() {
-  local src="$1" dst="$2" content storage_block node_selector_block maintenance_resource_block tmp
+  local src="$1" dst="$2" content storage_block node_selector_block maintenance_resource_block maintenance_scheduling_block ingress_class_annotation tmp
   content="$(cat "$src")"
   [[ -n "$STORAGE_CLASS" ]] && storage_block="  storageClassName: ${STORAGE_CLASS}"$'\n' || storage_block=""
   node_selector_block=""
@@ -346,14 +368,21 @@ render_template() {
     node_selector_block="$(render_node_selector_block "$NODE_SELECTOR")"
   fi
   maintenance_resource_block=""
+  maintenance_scheduling_block=""
+  ingress_class_annotation=""
+  if [[ "${INGRESS_CLASS,,}" == "haproxy" ]]; then
+    ingress_class_annotation='    kubernetes.io/ingress.class: "haproxy"'
+  fi
   if [[ "$ENABLE_MAINTENANCE" == yes ]]; then
     maintenance_resource_block="  - 50-maintenance-cronjobs.yaml"
+    maintenance_scheduling_block="$(render_maintenance_scheduling_block)"
   fi
   content="${content//\{\{NAMESPACE\}\}/$NAMESPACE}"
   content="${content//\{\{APP_NAME\}\}/$APP_NAME}"
   content="${content//\{\{IMAGE\}\}/$IMAGE}"
   content="${content//\{\{PUBLIC_HOSTNAME\}\}/$PUBLIC_HOSTNAME}"
   content="${content//\{\{INGRESS_CLASS\}\}/$INGRESS_CLASS}"
+  content="${content//\{\{INGRESS_CLASS_ANNOTATION\}\}/$ingress_class_annotation}"
   content="${content//\{\{STORAGE_SIZE\}\}/$STORAGE_SIZE}"
   content="${content//\{\{STORAGE_CLASS_BLOCK\}\}/$storage_block}"
   content="${content//\{\{PVC_ACCESS_MODE\}\}/$PVC_ACCESS_MODE}"
@@ -365,6 +394,7 @@ render_template() {
   content="${content//\{\{REPLICAS\}\}/$REPLICAS}"
   content="${content//\{\{NODE_SELECTOR_BLOCK\}\}/$node_selector_block}"
   content="${content//\{\{MAINTENANCE_RESOURCE_BLOCK\}\}/$maintenance_resource_block}"
+  content="${content//\{\{MAINTENANCE_SCHEDULING_BLOCK\}\}/$maintenance_scheduling_block}"
   content="${content//\{\{PLOTS_SCHEDULE\}\}/$PLOTS_SCHEDULE}"
   content="${content//\{\{CLEANUP_SCHEDULE\}\}/$CLEANUP_SCHEDULE}"
   grep -q '{{[A-Z0-9_]*}}' <<<"$content" && die "unresolved placeholder while rendering $src"

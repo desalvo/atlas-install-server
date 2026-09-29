@@ -10,6 +10,7 @@ spec:
     spec:
       template:
         spec:
+{{MAINTENANCE_SCHEDULING_BLOCK}}
           restartPolicy: OnFailure
           containers:
             - name: plots
@@ -43,6 +44,7 @@ spec:
     spec:
       template:
         spec:
+{{MAINTENANCE_SCHEDULING_BLOCK}}
           restartPolicy: OnFailure
           containers:
             - name: cleanup

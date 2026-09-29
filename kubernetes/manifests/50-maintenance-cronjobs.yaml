@@ -10,6 +10,13 @@ spec:
     spec:
       template:
         spec:
+          affinity:
+            podAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchLabels:
+                      app: atlas-install
+                  topologyKey: kubernetes.io/hostname
           restartPolicy: OnFailure
           containers:
             - name: plots
@@ -43,6 +50,13 @@ spec:
     spec:
       template:
         spec:
+          affinity:
+            podAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchLabels:
+                      app: atlas-install
+                  topologyKey: kubernetes.io/hostname
           restartPolicy: OnFailure
           containers:
             - name: cleanup
