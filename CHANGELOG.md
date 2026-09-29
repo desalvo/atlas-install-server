@@ -128,6 +128,15 @@
 - Application/authentication errors are forwarded to container stderr for kubectl logs.
 - Persistent IGTF/CRL cache avoids unnecessary fetch-crl runs on pod restart.
 
-## 3.0.0-r20
+## 3.0.0-r22
+
+- Added versioned JSON REST API v1 alongside all existing legacy GET/POST/PUT endpoints.
+- Added resource endpoints for releases, sites, requests, tasks, architectures, targets, certificate users and local users, with filtering, pagination, CRUD methods and standard HTTP status codes.
+- REST API authentication supports X.509 identity, local Web sessions and HTTPS HTTP Basic local users; TOTP-enabled accounts require `X-ATLAS-TOTP`.
+- Added Italian and English REST API documentation and an OpenAPI discovery endpoint.
+- Reworked wide mobile data tables into compact per-row cards, collapsed by default, with expandable labelled details and no normal horizontal overflow.
+- Desktop table rendering and browser-only 200-row pagination remain unchanged.
+
+## 3.0.0-r21
 
 LJSF 3 user-interface and runtime consolidation release. The application uses local LJSF 3 branding/favicons, browser-language Italian/English UI chrome and documentation, a right-side mobile navigation drawer with one item per row, collapsible identity details and explicit authentication guidance on access-denied pages. Database bootstrap supports a temporary administrator credential for creating a missing application schema or local-auth tables and the Kubernetes wizard removes the temporary password after a successful rollout. Charts are rendered locally as SVG/HTML; maintenance jobs produce only summary/cache data. Startup logs now identify each startup phase, including the initial IGTF/fetch-crl run.

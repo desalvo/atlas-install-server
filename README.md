@@ -65,3 +65,9 @@ The image is based on Rocky Linux 10. Runtime database passwords, host TLS priva
 ## Licence
 
 EUPL-1.2. See `LICENSE` and `NOTICE`.
+
+## REST API v1
+
+LJSF 3 keeps all historical GET/POST/PUT interfaces and additionally exposes a versioned JSON REST API at `/atlas_install/api/v1/`. Core resources include releases, sites, requests, tasks, architectures, targets and users. See `docs/REST-API.it.md` and `docs/REST-API.en.md`. The discovery document is available at `/atlas_install/api/v1/openapi`.
+
+On mobile, wide data tables are rendered as compact collapsible records: key fields remain visible while secondary columns are expanded vertically on demand, avoiding horizontal scrolling where practical.

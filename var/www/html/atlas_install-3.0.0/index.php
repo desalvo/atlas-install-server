@@ -65,14 +65,12 @@ function checkform(form) {
 <input id="rel" name="rel" />
 <script>
 $(function() {
-var availableReleases = [
-<?php
+var availableReleases = <?php
+  $vals=[];
   $qry_res = db_query("SELECT ref,name as value FROM release_data WHERE typefk > 1 ORDER BY value","ro");
-  while ($row = mysqli_fetch_row($qry_res)) {
-    echo '"'.$row[1].'",';
-  }
-?>
-];
+  while ($row = mysqli_fetch_row($qry_res)) { $vals[]=(string)$row[1]; }
+  echo json_encode($vals, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT);
+?>;
 $( "#rel" ).autocomplete({
    source: availableReleases
 });
@@ -101,14 +99,12 @@ $( "#rel" ).autocomplete({
 <input id="sitename" name="sitename" size="40"/>
 <script>
 $(function() {
-var availableSitenames = [
-<?php
+var availableSitenames = <?php
+  $vals=[];
   $qry_res = db_query("SELECT DISTINCT(name) as value FROM site WHERE name <> '' ORDER BY value","ro");
-  while ($row = mysqli_fetch_row($qry_res)) {
-    echo '"'.$row[0].'",';
-  }
-?>
-];
+  while ($row = mysqli_fetch_row($qry_res)) { $vals[]=(string)$row[0]; }
+  echo json_encode($vals, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT);
+?>;
 $( "#sitename" ).autocomplete({
    source: availableSitenames
 });
@@ -137,14 +133,12 @@ $( "#sitename" ).autocomplete({
 <input id="resource" name="resource" size="40"/>
 <script>
 $(function() {
-var availableResources = [
-<?php
+var availableResources = <?php
+  $vals=[];
   $qry_res = db_query("SELECT DISTINCT(cename) as value FROM site WHERE cename <> '' ORDER BY value","ro");
-  while ($row = mysqli_fetch_row($qry_res)) {
-    echo '"'.$row[0].'",';
-  }
-?>
-];
+  while ($row = mysqli_fetch_row($qry_res)) { $vals[]=(string)$row[0]; }
+  echo json_encode($vals, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT);
+?>;
 $( "#resource" ).autocomplete({
    source: availableResources
 });

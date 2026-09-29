@@ -35,6 +35,14 @@ TraceEnable Off
     Require all granted
   </Directory>
 
+  # REST API v1: route resource-oriented paths to the central JSON router.
+  <Directory "/var/www/html/atlas_install/api/v1">
+    Options -Indexes -ExecCGI
+    AllowOverride None
+    Require all granted
+    FallbackResource /atlas_install/api/v1/index.php
+  </Directory>
+
   <Directory "/var/www/html/atlas_install/conf">
     Require all denied
   </Directory>

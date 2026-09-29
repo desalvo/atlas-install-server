@@ -27,3 +27,6 @@ This documentation describes the current behavior of LJSF 3 rather than the hist
 - `GITHUB-CI.md` — CI/CD and image publication.
 
 The Web application exposes the corresponding functional documentation at `/atlas_install/documentation.php`, automatically in Italian or English according to browser language, with a manual language selector.
+
+- `REST-API.it.md` — REST API v1 (Italiano)
+- `REST-API.en.md` — REST API v1 (English)

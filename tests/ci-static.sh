@@ -186,6 +186,16 @@ fi
 grep -q 'atlas_chart_line' "$APP_DIR/chart_local.php" || { printf 'Local chart renderer missing.\n' >&2; fail=1; }
 grep -q 'plot summaries refreshed; no external chart service used' "$APP_DIR/create_ljsfi_plots.php" || { printf 'Summary-only maintenance marker missing.\n' >&2; fail=1; }
 grep -q 'kubernetes.io/ingress.class' kubernetes/haproxy-ingress-tls-passthrough.yaml || { printf 'HAProxy legacy ingress class annotation missing.\n' >&2; fail=1; }
+
+printf '== r22 REST API and compact mobile tables ==\n'
+[[ -s "$APP_DIR/api/v1/index.php" ]] || { printf 'REST API router missing.\n' >&2; fail=1; }
+grep -q "'releases'=>" "$APP_DIR/api/v1/index.php" || { printf 'REST releases resource missing.\n' >&2; fail=1; }
+grep -q "'local-users'=>" "$APP_DIR/api/v1/index.php" || { printf 'REST local-users resource missing.\n' >&2; fail=1; }
+grep -q "X-ATLAS-TOTP" "$APP_DIR/api/v1/index.php" || { printf 'REST TOTP support missing.\n' >&2; fail=1; }
+grep -q "FallbackResource /atlas_install/api/v1/index.php" container/httpd-container.conf.template || { printf 'REST pretty-path routing missing.\n' >&2; fail=1; }
+[[ -s docs/REST-API.it.md && -s docs/REST-API.en.md ]] || { printf 'REST API documentation missing.\n' >&2; fail=1; }
+grep -q 'atlas-mobile-collapsible-table' "$APP_DIR/css/page_header.php" || { printf 'Mobile table adapter missing.\n' >&2; fail=1; }
+grep -q 'atlas-mobile-record' "$APP_DIR/css/modern.css" || { printf 'Mobile compact table CSS missing.\n' >&2; fail=1; }
 exit "$fail"
 
 # Container must never require a privileged HTTP listener.

@@ -305,3 +305,21 @@ td.selection { background: #eef4ff !important; color: #274267; font-weight: 700;
 }
 .atlas-local-chart{display:inline-block;vertical-align:top;width:min(100%,650px);margin:10px;padding:12px;border:1px solid var(--atlas-border);border-radius:12px;background:#fff;overflow:hidden}.atlas-local-chart h3{margin:0 0 8px}.atlas-local-chart svg{display:block;width:100%;height:auto}.atlas-local-chart svg text{font:11px system-ui,sans-serif;fill:#59677d}.atlas-local-chart .axis{stroke:#cbd5e1;stroke-width:1}.atlas-local-chart .series{stroke:#155eef;stroke-width:3;stroke-linejoin:round;stroke-linecap:round}.atlas-local-chart .bar{fill:#155eef}
 .atlas-menu-logo>a{padding:5px 8px!important}.atlas-menu-logo img{display:block;width:28px;height:28px;border-radius:50%}@media(max-width:760px){.atlas-menu-logo{display:none!important}}
+
+/* r22: compact mobile rendering for wide data tables. Desktop layout remains a normal table. */
+@media (max-width:760px) {
+  .atlas-table-scroll { overflow-x:visible!important; max-width:100%; }
+  table.atlas-mobile-collapsible-table { display:block; width:100%!important; min-width:0!important; border:0!important; background:transparent!important; }
+  table.atlas-mobile-collapsible-table > thead,
+  table.atlas-mobile-collapsible-table > tbody { display:block; width:100%; }
+  table.atlas-mobile-collapsible-table tr { width:100%; }
+  table.atlas-mobile-collapsible-table tr:has(th) { display:none!important; }
+  table.atlas-mobile-collapsible-table tr.atlas-mobile-record { display:block!important; position:relative; margin:0 0 10px; padding:10px 12px; border:1px solid var(--atlas-border); border-radius:12px; background:var(--atlas-surface); box-shadow:0 2px 8px rgba(15,35,70,.06); }
+  table.atlas-mobile-collapsible-table tr.atlas-mobile-record > td { display:none!important; width:auto!important; max-width:100%!important; min-width:0!important; border:0!important; padding:5px 0!important; white-space:normal!important; overflow-wrap:anywhere; word-break:break-word; }
+  table.atlas-mobile-collapsible-table tr.atlas-mobile-record > td.atlas-mobile-primary { display:grid!important; grid-template-columns:minmax(88px,36%) minmax(0,1fr); gap:8px; align-items:start; }
+  table.atlas-mobile-collapsible-table tr.atlas-mobile-record > td::before { content:attr(data-label); font-weight:750; color:var(--atlas-muted); font-size:.84em; }
+  table.atlas-mobile-collapsible-table tr.atlas-mobile-record.atlas-mobile-expanded > td { display:grid!important; grid-template-columns:minmax(88px,36%) minmax(0,1fr); gap:8px; align-items:start; border-top:1px solid rgba(120,140,170,.14)!important; }
+  table.atlas-mobile-collapsible-table tr.atlas-mobile-record.atlas-mobile-expanded > td:first-child { border-top:0!important; }
+  .atlas-row-toggle { grid-column:1 / -1; justify-self:start; margin:6px 0 2px; min-height:34px; padding:5px 10px; border-radius:8px; font-size:.86rem; }
+  table.atlas-mobile-collapsible-table a, table.atlas-mobile-collapsible-table button, table.atlas-mobile-collapsible-table input, table.atlas-mobile-collapsible-table select { max-width:100%; }
+}

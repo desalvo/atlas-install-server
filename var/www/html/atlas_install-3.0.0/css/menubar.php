@@ -12,7 +12,7 @@ function menubar($path=".") {
     ['tasks','tasks',[[ 'define_task','/protected/taskdef.php?mode=define'],['update_task','/protected/taskdef.php?mode=update'],['delete_task','/protected/taskdef.php?mode=delete']]],
   ];
 ?>
-<button type="button" id="atlas-mobile-menu-toggle" class="atlas-mobile-menu-toggle" aria-controls="menubar" aria-expanded="false">☰ <?php echo atlas_h(atlas_t('menu')); ?></button>
+<button type="button" id="atlas-mobile-menu-toggle" class="atlas-mobile-menu-toggle" aria-controls="menubar" aria-expanded="false" onclick="return window.atlasToggleMobileMenu ? window.atlasToggleMobileMenu(event) : false">☰ <?php echo atlas_h(atlas_t('menu')); ?></button>
 <div id="atlas-mobile-menu-backdrop" class="atlas-mobile-menu-backdrop" hidden></div>
 <nav id="menubar" aria-label="<?php echo atlas_h(atlas_t('menu')); ?>">
   <div class="atlas-mobile-menu-title"><a class="atlas-menu-brand" href="<?php echo $path; ?>/"><img src="<?php echo $path; ?>/img/ljsf3-logo.png" alt="LJSF 3"></a><button type="button" id="atlas-mobile-menu-close" aria-label="<?php echo atlas_h(atlas_t('close_menu')); ?>">×</button></div>
@@ -36,19 +36,5 @@ function menubar($path=".") {
     <li class="atlas-menu-single"><a href="#" id="trigger"><?php echo atlas_h(atlas_t('help')); ?></a></li>
   </ul>
 </nav>
-<script>
-(function(){
-  function mobile(){ return window.matchMedia('(max-width:760px)').matches; }
-  var bar=document.getElementById('menubar'), toggle=document.getElementById('atlas-mobile-menu-toggle'), close=document.getElementById('atlas-mobile-menu-close'), backdrop=document.getElementById('atlas-mobile-menu-backdrop');
-  if(!bar||!toggle) return;
-  function setOpen(open){bar.classList.toggle('atlas-mobile-open',open);toggle.setAttribute('aria-expanded',open?'true':'false');if(backdrop){backdrop.hidden=!open;backdrop.classList.toggle('is-open',open);}document.documentElement.classList.toggle('atlas-menu-open',open);}
-  toggle.addEventListener('click',function(){setOpen(!bar.classList.contains('atlas-mobile-open'));});
-  if(close) close.addEventListener('click',function(){setOpen(false);});
-  if(backdrop) backdrop.addEventListener('click',function(){setOpen(false);});
-  document.addEventListener('keydown',function(e){if(e.key==='Escape')setOpen(false);});
-  bar.querySelectorAll('#menu > li > a.dir').forEach(function(a){a.addEventListener('click',function(e){if(!mobile())return;var li=a.parentElement, submenu=li.querySelector(':scope > ul');if(!submenu)return;e.preventDefault();bar.querySelectorAll('#menu > li.atlas-mobile-section-open').forEach(function(x){if(x!==li)x.classList.remove('atlas-mobile-section-open');});li.classList.toggle('atlas-mobile-section-open');});});
-  bar.querySelectorAll('#menu ul a, #menu > li.atlas-menu-single > a:not(#trigger)').forEach(function(a){a.addEventListener('click',function(){if(mobile())setOpen(false);});});
-  window.addEventListener('resize',function(){if(!mobile())setOpen(false);});
-})();
-</script>
+
 <?php } ?>

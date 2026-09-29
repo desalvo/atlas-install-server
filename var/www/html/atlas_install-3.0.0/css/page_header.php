@@ -11,6 +11,7 @@ function page_header($path=".") {
   <link href="<?php echo $path ?>/css/dropdown/themes/ljsf.css" media="screen" rel="stylesheet" type="text/css" />
   <link rel="stylesheet" type="text/css" href="<?php echo $path ?>/css/modern.css">
   <script type="text/javascript" src="<?php echo $path ?>/js/jquery-1.9.1.min.js"></script>
+  <script type="text/javascript" src="<?php echo $path ?>/js/atlas-ui.js" defer></script>
 
   <script type="text/javascript">
     $(function() {
@@ -28,7 +29,7 @@ function page_header($path=".") {
   </script>
   <script type="text/javascript">
   document.addEventListener('DOMContentLoaded', function () {
-    var atlasI18n = {recordsPerPage: <?php echo json_encode(atlas_t('records_per_page')); ?>, all: <?php echo json_encode(atlas_t('all')); ?>, previous: <?php echo json_encode(atlas_t('previous')); ?>, next: <?php echo json_encode(atlas_t('next')); ?>, page: <?php echo json_encode(atlas_t('page')); ?>, of: <?php echo json_encode(atlas_t('of')); ?>, records: <?php echo json_encode(atlas_t('records')); ?>};
+    var atlasI18n = {recordsPerPage: <?php echo json_encode(atlas_t('records_per_page')); ?>, all: <?php echo json_encode(atlas_t('all')); ?>, previous: <?php echo json_encode(atlas_t('previous')); ?>, next: <?php echo json_encode(atlas_t('next')); ?>, page: <?php echo json_encode(atlas_t('page')); ?>, of: <?php echo json_encode(atlas_t('of')); ?>, records: <?php echo json_encode(atlas_t('records')); ?>, details: <?php echo json_encode(atlas_t('details')); ?>, hideDetails: <?php echo json_encode(atlas_t('hide_details')); ?>};
     var allowed = ['50','100','200','500','1000','all'];
     var params = new URLSearchParams(window.location.search);
     var requested = (params.get('per_page') || '200').toLowerCase();
@@ -40,6 +41,39 @@ function page_header($path=".") {
       wrapper.className = 'atlas-table-scroll';
       table.parentNode.insertBefore(wrapper, table);
       wrapper.appendChild(table);
+
+      // Mobile wide-table adaptation: keep desktop tables unchanged, but on narrow
+      // screens present each data row as a compact collapsible record.
+      (function enableMobileRows(){
+        if (table.dataset.noMobileCollapse === '1' || table.id === 'select_tbl' || table.id === 'toolbar_tbl' || table.classList.contains('ui-datepicker-calendar')) return;
+        var allRows = Array.prototype.slice.call(table.querySelectorAll('tr'));
+        if (allRows.length < 2) return;
+        var headerRow = null;
+        for (var hr=0; hr<allRows.length; hr++) { if (allRows[hr].querySelectorAll('th').length >= 3) { headerRow=allRows[hr]; break; } }
+        if (!headerRow) return;
+        var headers = Array.prototype.slice.call(headerRow.children).map(function(c,i){ return (c.textContent||'').trim() || ('#'+(i+1)); });
+        if (headers.length < 4) return;
+        var data = allRows.filter(function(r){ return r!==headerRow && r.querySelectorAll('td').length >= 4; });
+        if (!data.length) return;
+        var controlCount=table.querySelectorAll('input,select,textarea').length;
+        if (controlCount > data.length * 2) return; // forms/search matrices are not data tables
+        var preferred=[];
+        var priority=/^(id|ref|release|name|nome|site|sito|status|stato|date|data|architecture|architettura|task|request|richiesta|resource|risorsa)$/i;
+        headers.forEach(function(h,i){ if(priority.test(h) && preferred.length<4) preferred.push(i); });
+        for(var pi=0; preferred.length<3 && pi<headers.length; pi++) if(preferred.indexOf(pi)<0) preferred.push(pi);
+        data.forEach(function(row){
+          var cells=Array.prototype.slice.call(row.children);
+          row.classList.add('atlas-mobile-record'); row.setAttribute('aria-expanded','false');
+          cells.forEach(function(cell,i){ cell.setAttribute('data-label',headers[i]||('#'+(i+1))); if(preferred.indexOf(i)>=0) cell.classList.add('atlas-mobile-primary'); });
+          var first=cells[preferred[0]||0] || cells[0];
+          if(first && !first.querySelector('.atlas-row-toggle')){
+            var b=document.createElement('button'); b.type='button'; b.className='atlas-row-toggle'; b.textContent=atlasI18n.details; b.setAttribute('aria-expanded','false');
+            b.addEventListener('click',function(e){ e.preventDefault(); e.stopPropagation(); var open=row.classList.toggle('atlas-mobile-expanded'); row.setAttribute('aria-expanded',open?'true':'false'); b.setAttribute('aria-expanded',open?'true':'false'); b.textContent=open?atlasI18n.hideDetails:atlasI18n.details; });
+            first.appendChild(b);
+          }
+        });
+        table.classList.add('atlas-mobile-collapsible-table');
+      })();
 
       if (table.dataset.noPagination === '1' || table.id === 'select_tbl' || table.id === 'toolbar_tbl') return;
       var rows = Array.prototype.slice.call(table.querySelectorAll('tr'));

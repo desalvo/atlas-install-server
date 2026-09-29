@@ -1,0 +1,18 @@
+ATLAS Installation Server 3.0.0-r22 QA scope
+============================================
+
+Added:
+- REST API v1 JSON router with resource-oriented paths and standard HTTP methods/status codes.
+- X.509/session/HTTP Basic API authentication, with TOTP header support for MFA users.
+- REST resources: releases, sites, requests, tasks, architectures, targets, users, local-users.
+- Filtering, q search, limit/offset pagination, sort/order, Location on create, JSON errors with request IDs.
+- OpenAPI discovery and bilingual API guides.
+- Compact collapsible mobile rendering for wide data tables; desktop tables unchanged.
+
+Security invariants:
+- Existing legacy endpoints are unchanged.
+- API writes require authentication; user administration requires master role.
+- Local password hashes are never returned.
+- API JSON bodies reject unknown/immutable fields.
+- SQL identifiers come only from static resource maps; values use prepared statements.
+- Browser cross-origin state-changing protection remains active.

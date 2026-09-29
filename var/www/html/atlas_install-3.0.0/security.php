@@ -111,11 +111,24 @@ function atlas_same_origin_guard(): void {
     if (!in_array($method, ['POST','PUT','PATCH','DELETE'], true)) return;
     $origin = (string)($_SERVER['HTTP_ORIGIN'] ?? '');
     if ($origin === '') return; // preserve non-browser API/agent clients
-    $host = (string)($_SERVER['HTTP_HOST'] ?? '');
-    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-    $expected = $scheme . '://' . $host;
-    if (!hash_equals($expected, rtrim($origin, '/'))) {
-        error_log('[ATLAS_APP] same_origin_rejected uri=' . (string)($_SERVER['REQUEST_URI'] ?? '') . ' origin=' . $origin);
+    $originParts = parse_url($origin);
+    $originHost = strtolower((string)($originParts['host'] ?? ''));
+    $originScheme = strtolower((string)($originParts['scheme'] ?? ''));
+    $originPort = isset($originParts['port']) ? (int)$originParts['port'] : (($originScheme === 'https') ? 443 : 80);
+    $requestHostRaw = trim((string)($_SERVER['HTTP_HOST'] ?? ''));
+    $requestHost = strtolower(preg_replace('/:\d+$/', '', $requestHostRaw));
+    $requestPort = (int)($_SERVER['SERVER_PORT'] ?? 0);
+    $forwardedProto = strtolower(trim(explode(',', (string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''))[0] ?? ''));
+    $https = (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off') || $forwardedProto === 'https' || (string)($_SERVER['REQUEST_SCHEME'] ?? '') === 'https';
+    if ($requestPort <= 0) $requestPort = $https ? 443 : 80;
+    // Behind TLS passthrough/FastCGI, PHP may not receive HTTPS=on. The browser Origin
+    // is authoritative for scheme while the Host header remains the authority boundary.
+    $sameHost = $originHost !== '' && $requestHost !== '' && hash_equals($requestHost, $originHost);
+    $standardOriginPort = ($originScheme === 'https' && $originPort === 443) || ($originScheme === 'http' && $originPort === 80);
+    $hostHeaderHasPort = (bool)preg_match('/:(\d+)$/', $requestHostRaw, $hm);
+    $samePort = !$hostHeaderHasPort || ((int)$hm[1] === $originPort) || $standardOriginPort;
+    if (!in_array($originScheme, ['http','https'], true) || !$sameHost || !$samePort) {
+        error_log('[ATLAS_APP] same_origin_rejected uri=' . (string)($_SERVER['REQUEST_URI'] ?? '') . ' origin=' . $origin . ' host=' . $requestHostRaw);
         http_response_code(403);
         exit('Cross-origin state-changing request rejected');
     }
@@ -197,7 +210,15 @@ function atlas_append_identity_footer(): void {
     if(stripos($body,'<html')===false){ echo $body; return; }
     if(stripos($body,'name="viewport"')===false && stripos($body,"name='viewport'")===false) $body=preg_replace('~<head([^>]*)>~i','<head$1><meta name="viewport" content="width=device-width,initial-scale=1">',$body,1);
     if(stripos($body,'modern.css')===false) $body=preg_replace('~</head>~i','<link rel="stylesheet" href="/atlas_install/css/modern.css"></head>',$body,1);
-    if(stripos($body,'atlas-identity-footer')===false){$footer=atlas_identity_details_html(); if(stripos($body,'</body>')!==false)$body=preg_replace('~</body>~i',$footer.'</body>',$body,1);else$body.=$footer;}
+    if(stripos($body,'atlas-identity-footer')===false){
+        try {
+            $footer=atlas_identity_details_html();
+        } catch (Throwable $e) {
+            error_log('[ATLAS_APP] '.json_encode(['event'=>'identity_footer_failed','request_id'=>atlas_request_id(),'message'=>$e->getMessage(),'uri'=>(string)($_SERVER['REQUEST_URI']??'')],JSON_UNESCAPED_SLASHES));
+            $footer='<details class="atlas-identity-footer"><summary>'.atlas_h(atlas_t('current_user_details')).'</summary><div class="atlas-identity-body">'.atlas_h(atlas_t('identity_unavailable')).'</div></details>';
+        }
+        if(stripos($body,'</body>')!==false)$body=preg_replace('~</body>~i',$footer.'</body>',$body,1);else$body.=$footer;
+    }
     echo $body;
 }
 if(!atlas_is_cli()) { atlas_request_id(); ob_start(); register_shutdown_function('atlas_append_identity_footer'); atlas_export_legacy_identity(); }
