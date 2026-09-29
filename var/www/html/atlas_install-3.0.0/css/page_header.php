@@ -4,7 +4,8 @@ function page_header($path=".") {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <link rel="shortcut icon" href="<?php echo $path ?>/img/favicon.ico">
+  <link rel="icon" href="<?php echo $path ?>/img/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="<?php echo $path ?>/img/ljsf3-icon.png">
   <link rel="stylesheet" type="text/css" href="<?php echo $path ?>/css/ljsf.css">
   <link href="<?php echo $path ?>/css/dropdown/dropdown.css" media="screen" rel="stylesheet" type="text/css" />
   <link href="<?php echo $path ?>/css/dropdown/themes/ljsf.css" media="screen" rel="stylesheet" type="text/css" />
@@ -27,6 +28,7 @@ function page_header($path=".") {
   </script>
   <script type="text/javascript">
   document.addEventListener('DOMContentLoaded', function () {
+    var atlasI18n = {recordsPerPage: <?php echo json_encode(atlas_t('records_per_page')); ?>, all: <?php echo json_encode(atlas_t('all')); ?>, previous: <?php echo json_encode(atlas_t('previous')); ?>, next: <?php echo json_encode(atlas_t('next')); ?>, page: <?php echo json_encode(atlas_t('page')); ?>, of: <?php echo json_encode(atlas_t('of')); ?>, records: <?php echo json_encode(atlas_t('records')); ?>};
     var allowed = ['50','100','200','500','1000','all'];
     var params = new URLSearchParams(window.location.search);
     var requested = (params.get('per_page') || '200').toLowerCase();
@@ -55,16 +57,16 @@ function page_header($path=".") {
       controls.className = 'atlas-pagination';
       controls.setAttribute('aria-label','Paginazione tabella');
       var label = document.createElement('label');
-      label.textContent = 'Record per pagina: ';
+      label.textContent = atlasI18n.recordsPerPage + ': ';
       var select = document.createElement('select');
       select.className = 'atlas-per-page';
-      [['50','50'],['100','100'],['200','200'],['500','500'],['1000','1000'],['all','Tutti']].forEach(function(opt){
+      [['50','50'],['100','100'],['200','200'],['500','500'],['1000','1000'],['all',atlasI18n.all]].forEach(function(opt){
         var o=document.createElement('option'); o.value=opt[0]; o.textContent=opt[1]; if(opt[0]===requested)o.selected=true; select.appendChild(o);
       });
       label.appendChild(select); controls.appendChild(label);
       var status=document.createElement('span'); status.className='atlas-pagination-status'; controls.appendChild(status);
-      var prev=document.createElement('button'); prev.type='button'; prev.textContent='‹ Precedente';
-      var next=document.createElement('button'); next.type='button'; next.textContent='Successiva ›';
+      var prev=document.createElement('button'); prev.type='button'; prev.textContent='‹ '+atlasI18n.previous;
+      var next=document.createElement('button'); next.type='button'; next.textContent=atlasI18n.next+' ›';
       controls.appendChild(prev); controls.appendChild(next);
       wrapper.parentNode.insertBefore(controls, wrapper);
 
@@ -72,7 +74,7 @@ function page_header($path=".") {
         pages=Math.max(1,Math.ceil(dataRows.length/perPage)); page=Math.min(page,pages);
         var start=(page-1)*perPage, end=Math.min(dataRows.length,start+perPage);
         dataRows.forEach(function(r,i){r.style.display=(i>=start&&i<end)?'':'none';});
-        status.textContent = requested==='all' ? dataRows.length+' record' : 'Pagina '+page+' di '+pages+' · '+(start+1)+'–'+end+' di '+dataRows.length;
+        status.textContent = requested==='all' ? dataRows.length+' '+atlasI18n.records : atlasI18n.page+' '+page+' '+atlasI18n.of+' '+pages+' · '+(start+1)+'–'+end+' '+atlasI18n.of+' '+dataRows.length;
         prev.disabled=page<=1; next.disabled=page>=pages;
       }
       prev.addEventListener('click',function(){if(page>1){page--;render();controls.scrollIntoView({block:'nearest'});}});

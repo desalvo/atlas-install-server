@@ -3,6 +3,7 @@
  * Security/bootstrap helpers for the RHEL 10 / PHP 8.3 migration.
  */
 declare(strict_types=0);
+require_once __DIR__ . '/i18n.php';
 
 function atlas_env(string $name, ?string $default = null): ?string {
     $value = getenv($name);
@@ -145,16 +146,19 @@ set_error_handler(function($severity,$message,$file,$line){
 });
 set_exception_handler(function(Throwable $e){
     error_log('[ATLAS_APP] '.json_encode(['event'=>'uncaught_exception','request_id'=>atlas_request_id(),'type'=>get_class($e),'message'=>$e->getMessage(),'file'=>basename($e->getFile()),'line'=>$e->getLine(),'uri'=>(string)($_SERVER['REQUEST_URI']??'cli')],JSON_UNESCAPED_SLASHES));
-    if (!atlas_is_cli()) { http_response_code(500); atlas_render_message_page('Errore applicativo','Si è verificato un errore interno. Riprova o contatta l’amministratore.','error'); }
+    if (!atlas_is_cli()) { http_response_code(500); atlas_render_message_page(atlas_t('app_error'),atlas_t('app_error_msg'),'error'); }
 });
 
 require_once __DIR__ . '/local_auth.php';
 
 function atlas_identity_summary_html(): string {
     $i=atlas_current_identity();
-    if(!$i) return '<strong>Sessione pubblica</strong> · nessuna utenza autenticata';
-    if(($i['source']??'')==='certificate') return '<strong>Certificato:</strong> '.atlas_h($i['name']??''). ' · <strong>DN:</strong> <span class="atlas-code">'.atlas_h($i['dn']??'').'</span> · <strong>Ruolo:</strong> '.atlas_h($i['role']?:'non assegnato');
-    return '<strong>Utente locale:</strong> '.atlas_h($i['username']??'').' · '.atlas_h($i['name']??'').' · <strong>Email:</strong> '.atlas_h($i['email']??'').' · <strong>Ruolo:</strong> '.atlas_h($i['role']??'');
+    if(!$i) return '<strong>'.atlas_h(atlas_t('public_session')).'</strong> · '.atlas_h(atlas_t('no_authenticated_user'));
+    if(($i['source']??'')==='certificate') return '<strong>'.atlas_h(atlas_t('certificate')).':</strong> '.atlas_h($i['name']??''). ' · <strong>DN:</strong> <span class="atlas-code">'.atlas_h($i['dn']??'').'</span> · <strong>'.atlas_h(atlas_t('role')).':</strong> '.atlas_h($i['role']?:atlas_t('not_assigned'));
+    return '<strong>'.atlas_h(atlas_t('local_user')).':</strong> '.atlas_h($i['username']??'').' · '.atlas_h($i['name']??'').' · <strong>'.atlas_h(atlas_t('email')).':</strong> '.atlas_h($i['email']??'').' · <strong>'.atlas_h(atlas_t('role')).':</strong> '.atlas_h($i['role']??'');
+}
+function atlas_identity_details_html(): string {
+    return '<details class="atlas-identity-footer"><summary>'.atlas_h(atlas_t('current_user_details')).'</summary><div class="atlas-identity-body">'.atlas_identity_summary_html().'</div></details>';
 }
 function atlas_render_message_page(string $title,string $message,string $kind='warning'): never {
     if(!headers_sent()) header('Content-Type: text/html; charset=UTF-8');
@@ -162,19 +166,22 @@ function atlas_render_message_page(string $title,string $message,string $kind='w
     require_once __DIR__.'/css/page_header.php';
     require_once __DIR__.'/css/main_header.php';
     require_once __DIR__.'/css/menubar.php';
-    echo '<!doctype html><html lang="it"><head><title>'.atlas_h($title).'</title>';
+    echo '<!doctype html><html lang="'.atlas_h(atlas_lang()).'"><head><title>'.atlas_h($title).'</title>';
     page_header('/atlas_install');
     echo '</head><body><div id="main"><div id="header">';
     main_header($vo,'/atlas_install');
     menubar('/atlas_install');
     echo '</div><div id="site_content"><div id="content" style="width:100%;float:none"><h1>'.atlas_h($title).'</h1><div class="atlas-alert '.atlas_h($kind).'">'.atlas_h($message).'</div>';
-    if(!$i) echo '<p>Non disponi delle autorizzazioni necessarie. Se ritieni di dover accedere a questa funzione, contatta l’amministratore.</p>';
-    echo '</div></div><div class="atlas-identity-footer">'.atlas_identity_summary_html().'</div><div id="footer"><p>ATLAS Installation System · request '.atlas_h(atlas_request_id()).'</p></div></div></body></html>';
+    if($kind==='warning' || str_contains(strtolower($title),'access') || str_contains(strtolower($title),'autoriz')) {
+        echo '<div class="atlas-access-help"><p>'.atlas_h(atlas_t('unauth_howto')).'</p><p><a class="atlas-button" href="/atlas_install/auth/login.php">'.atlas_h(atlas_t('go_login')).'</a></p></div>';
+    }
+    echo '</div></div>'.atlas_identity_details_html().'<div id="footer"><p>LJSF 3 · ATLAS Installation System · request '.atlas_h(atlas_request_id()).'</p></div></div></body></html>';
     exit;
 }
-function atlas_access_denied(string $detail='Non disponi delle autorizzazioni necessarie per accedere a questa pagina o funzione.'): never {
+function atlas_access_denied(string $detail=''): never {
     http_response_code(403); $i=atlas_current_identity(); atlas_auth_log('access_denied',['auth_source'=>$i['source']??'none','username'=>$i['username']??'','role'=>$i['role']??'']);
-    atlas_render_message_page('Accesso non autorizzato',$detail.' Contatta l’amministratore se ritieni che i privilegi debbano essere modificati.','warning');
+    if($detail==='') $detail=atlas_t('unauthorized_default');
+    atlas_render_message_page(atlas_t('unauthorized'),$detail.' '.atlas_t('contact_admin'),'warning');
 }
 function atlas_require_client_certificate(): void { if(atlas_is_cli())return; $i=atlas_cert_identity(); if(!$i)atlas_access_denied('Questa funzione richiede un certificato client valido.'); }
 function atlas_require_authenticated(): void { if(atlas_is_cli())return; if(!atlas_is_authenticated())atlas_access_denied('È necessario autenticarsi con un certificato autorizzato oppure con un’utenza locale.'); $i=atlas_current_identity(); if(($i['source']??'')==='local' && !empty($i['must_change_password']) && !str_contains((string)($_SERVER['REQUEST_URI']??''),'/auth/change_password.php')) { header('Location: /atlas_install/auth/change_password.php'); exit; } }
@@ -190,7 +197,7 @@ function atlas_append_identity_footer(): void {
     if(stripos($body,'<html')===false){ echo $body; return; }
     if(stripos($body,'name="viewport"')===false && stripos($body,"name='viewport'")===false) $body=preg_replace('~<head([^>]*)>~i','<head$1><meta name="viewport" content="width=device-width,initial-scale=1">',$body,1);
     if(stripos($body,'modern.css')===false) $body=preg_replace('~</head>~i','<link rel="stylesheet" href="/atlas_install/css/modern.css"></head>',$body,1);
-    if(stripos($body,'atlas-identity-footer')===false){$footer='<div class="atlas-identity-footer">'.atlas_identity_summary_html().'</div>'; if(stripos($body,'</body>')!==false)$body=preg_replace('~</body>~i',$footer.'</body>',$body,1);else$body.=$footer;}
+    if(stripos($body,'atlas-identity-footer')===false){$footer=atlas_identity_details_html(); if(stripos($body,'</body>')!==false)$body=preg_replace('~</body>~i',$footer.'</body>',$body,1);else$body.=$footer;}
     echo $body;
 }
 if(!atlas_is_cli()) { atlas_request_id(); ob_start(); register_shutdown_function('atlas_append_identity_footer'); atlas_export_legacy_identity(); }

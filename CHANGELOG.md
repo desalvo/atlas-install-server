@@ -127,3 +127,7 @@
 - Identity/role footer and mobile-responsive UI across PHP pages.
 - Application/authentication errors are forwarded to container stderr for kubectl logs.
 - Persistent IGTF/CRL cache avoids unnecessary fetch-crl runs on pod restart.
+
+## 3.0.0-r20
+
+LJSF 3 user-interface and runtime consolidation release. The application uses local LJSF 3 branding/favicons, browser-language Italian/English UI chrome and documentation, a right-side mobile navigation drawer with one item per row, collapsible identity details and explicit authentication guidance on access-denied pages. Database bootstrap supports a temporary administrator credential for creating a missing application schema or local-auth tables and the Kubernetes wizard removes the temporary password after a successful rollout. Charts are rendered locally as SVG/HTML; maintenance jobs produce only summary/cache data. Startup logs now identify each startup phase, including the initial IGTF/fetch-crl run.

@@ -138,3 +138,9 @@ When the wizard itself changes the bootstrap Secret, it also performs a Deployme
 The wizard can enable TLS independently from server HTTPS. It stores `ATLAS_DB_SSL`, `ATLAS_DB_SSL_VERIFY`, and `ATLAS_DB_SSL_CA` in the bootstrap Secret. When TLS is enabled, every mysqli connection, including readiness, uses `MYSQLI_CLIENT_SSL`. Certificate verification is optional; when enabled, `ATLAS_DB_SSL_CA` may reference a CA bundle inside the application container (blank uses the system trust store).
 
 The wizard checks its configured GitHub source automatically at invocation. A candidate is accepted only when its published SHA-256 matches and its `WIZARD_VERSION` is newer than the local version. After atomic replacement the wizard immediately re-executes itself once; an environment guard prevents update loops. `--no-self-update` disables the check for that invocation.
+
+## Database schema bootstrap
+
+With `ATLAS_DB_AUTO_INIT=1`, the server verifies the application schema and local-authentication tables before becoming Ready. The normal RW account remains the runtime account. If schema creation requires additional DDL privileges, the wizard can request a one-time bootstrap/admin database user (default `root`) and password. The password is never written to the wizard state file. It is temporarily added to the Kubernetes bootstrap Secret, used by startup bootstrap, and removed automatically after the Deployment reports a successful rollout.
+
+If the application database already exists, it is never dropped or rebuilt. Only missing local-authentication tables are created. The full default application schema is loaded only when the configured application database does not exist.

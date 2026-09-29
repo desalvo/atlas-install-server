@@ -1,0 +1,35 @@
+LJSF 3 / ATLAS Installation Server 3.0.0 r20 - delivery validation
+================================================================
+
+Scope
+-----
+- LJSF 3 photographic/globe branding, header/menu/home logo and favicon
+- browser-language IT/EN UI chrome and in-app documentation with manual selector
+- collapsible current identity/role footer
+- mobile drawer with one navigation item per row
+- explicit login/certificate guidance on access-denied pages
+- local-auth/application-schema bootstrap with optional one-time DB admin credential
+- one-time DB bootstrap password removed from Kubernetes Secret after successful rollout
+- local SVG/HTML chart rendering; no Google Charts dependency
+- maintenance jobs reduced to summary/cache generation
+- explicit startup phase logging including initial IGTF/fetch-crl run
+- browser-only table pagination retained at 200 rows by default
+
+Validation
+----------
+- shell syntax: PASS
+- PHP syntax: PASS
+- static CI suite: PASS
+- Kubernetes YAML parse: PASS
+- GitHub workflow YAML parse: PASS
+- wizard SHA-256 sidecar: PASS
+- LJSF 3 logo/favicon assets present: PASS
+- external Google chart rendering references: NONE (legacy Google Earth map is separate from chart rendering)
+- HAProxy ingress legacy class annotation retained: PASS
+- ReadWriteOnce maintenance affinity retained: PASS
+- bootstrap Secret contains DB TLS and auto-init settings: PASS
+- readiness checks local-auth schema when auto-init is enabled: PASS
+
+Operational note
+----------------
+When application/auth schema creation needs privileges not granted to dbwriter, the r20 Kubernetes wizard can accept a one-time database bootstrap/admin user and password. The password is placed in the bootstrap Secret only for rollout/bootstrap, then removed automatically after the Deployment becomes Ready. It is not stored in the wizard state file.

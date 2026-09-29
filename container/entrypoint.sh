@@ -65,6 +65,8 @@ init_config() {
     cat >"$ENV_FILE" <<'CFG'
 ATLAS_PUBLIC_HOSTNAME="atlas-install-el10.apps.desalvo.eu"
 ATLAS_DB_NAME="atlas_install_panda"
+ATLAS_DB_BOOTSTRAP_USER="root"
+ATLAS_DB_BOOTSTRAP_PASSWORD=""
 ATLAS_DB_RW_HOST="192.168.1.145"
 ATLAS_DB_RW_USER="atlas_rw"
 ATLAS_DB_RW_PASSWORD=""
@@ -212,12 +214,16 @@ case "${1:-serve}" in
     exec /usr/local/sbin/atlas-maintenance "$@"
     ;;
   serve)
+    log "Startup phase 1/8: synchronizing managed configuration."
     init_config
+    log "Startup phase 2/8: ensuring local-auth encryption key."
     init_local_auth_key
+    log "Startup phase 3/8: validating HTTPS certificate and key."
     validate_tls
+    log "Startup phase 4/8: checking database and application/auth schemas."
     if [[ "$(read_env_value ATLAS_DB_AUTO_INIT 1)" =~ ^(1|true|TRUE|yes|YES|y|Y)$ ]]; then
       if /usr/bin/php /opt/atlas/bootstrap-db.php; then
-        log "Database/bootstrap schema check completed."
+        log "Database/bootstrap schema check completed successfully."
       else
         log "WARNING: automatic database/schema bootstrap did not complete; continuing so diagnostics remain available."
       fi
@@ -225,20 +231,27 @@ case "${1:-serve}" in
       log "Automatic database/schema bootstrap disabled by ATLAS_DB_AUTO_INIT."
     fi
     install -d -o root -g atlas-install -m 2770 /var/lib/atlas-install/log /var/lib/atlas-install/logbackup /var/lib/atlas-install/igtf-cache /var/cache/atlas-install
+    log "Startup phase 5/8: restoring IGTF cache and running initial trust-anchor/fetch-crl refresh."
     restore_igtf_cache
-    ATLAS_IGTF_SKIP_CRL=1 /usr/local/sbin/atlas-update-igtf
+    if /usr/local/sbin/atlas-update-igtf; then
+      log "Initial IGTF trust-anchor and fetch-crl run completed successfully."
+    else
+      log "WARNING: initial IGTF/fetch-crl refresh failed; existing trust store will be used if available."
+    fi
+    log "Startup phase 6/8: rendering and validating Apache HTTPS configuration."
     disable_default_http_listener
     render_httpd
     ensure_httpd_container_config
     /usr/sbin/httpd -t
-    log "Starting PHP-FPM."
+    log "Startup phase 7/8: starting PHP-FPM."
     /usr/sbin/php-fpm --nodaemonize --fpm-config /etc/php-fpm.conf &
     fpm_pid=$!
     trap 'kill "$fpm_pid" 2>/dev/null || true' EXIT TERM INT
     bootstrap_sync_loop &
     bootstrap_sync_pid=$!
     igtf_refresh_loop &
-    log "Starting Apache HTTPS on port $HTTPS_PORT."
+    log "Startup phase 8/8: starting Apache HTTPS on port $HTTPS_PORT."
+    log "LJSF 3 startup sequence complete; entering foreground web service."
     exec /usr/sbin/httpd -DFOREGROUND
     ;;
   *)

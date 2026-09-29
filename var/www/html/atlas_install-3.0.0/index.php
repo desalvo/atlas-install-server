@@ -1,6 +1,7 @@
 <?php
 require('dbsetup.php');     // database connect script.
 require('config.php');      // Main configuration
+$it = atlas_lang()==='it';
 ?>
 
 <HTML>
@@ -8,19 +9,14 @@ require('config.php');      // Main configuration
 <?php
 
 require('reqchart.php');     // Request chart
-reqplot(500,300);
 
 require('relchart.php');     // Release chart
-relplot(600,500);
 
 require('jobratechart.php'); // Job Rate chart
-jobrateplot(600,500);
 
 require('jobstatchart.php'); // Job Status chart
-jobstatplot(600,500);
 
 require('jobrunchart.php');  // Job Running chart
-jobrunplot(600,500);
 
 ?>
 <TITLE><?php echo $LJSFi_VO; ?> Installation System</TITLE>
@@ -52,19 +48,19 @@ function checkform(form) {
     <div id="site_content">
       <div class="sidebar">
         <!-- insert your sidebar items here -->
-        <h3><img src="css/LJSFi2_logo.png" width="200"></h3>
-        <h5>Help</h5>
-        <p>Select an item from the top menu or use the search facility to select the records.
-        <p>Type on the input boxes to see hints about the values.
-        <ul><li><a href="documentation.php">LJSFi Documentation</a></li></ul>
+        <h3><img src="img/ljsf3-logo.png" width="220"></h3>
+        <h5><?php echo $it?'Aiuto':'Help'; ?></h5>
+        <p><?php echo $it?'Seleziona una voce dal menu oppure usa la ricerca per filtrare i record.':'Select an item from the menu or use the search facility to filter records.'; ?>
+        <p><?php echo $it?'Digita nei campi per visualizzare i suggerimenti disponibili.':'Type in the input boxes to see available suggestions.'; ?>
+        <ul><li><a href="documentation.php"><?php echo atlas_h(atlas_t('documentation')); ?></a></li></ul>
       </div>
       <div id="content">
         <!-- insert the page content here -->
-        <h1>Installation Status Search</h1>
+        <h1><?php echo $it?'Ricerca stato installazioni':'Installation status search'; ?></h1>
         <form method="get" name="select" action="list.php" onsubmit="return checkform(this);">
           <TABLE id='select_tbl' border="1" rules="groups">
-            <COLGROUP width="200"></COLGROUP>
-<tr><td class="selection">Release</td><td>
+            <COLGROUP width="220"></COLGROUP>
+<tr><td class="selection"><?php echo $it?'Release':'Release'; ?></td><td>
 <div class="ui-widget">
 <input id="rel" name="rel" />
 <script>
@@ -84,7 +80,7 @@ $( "#rel" ).autocomplete({
 </script>
 </div>
 </td></tr>
-<tr><td class="selection">Grid name</td><td>
+<tr><td class="selection"><?php echo $it?'Nome grid':'Grid name'; ?></td><td>
 <?php
   echo ('<select name="gridname">');
   $rowsel='';
@@ -100,7 +96,7 @@ $( "#rel" ).autocomplete({
   echo ('</select>');
 ?>
 </td></tr>
-<tr><td class="selection">Site name</td><td>
+<tr><td class="selection"><?php echo $it?'Nome sito':'Site name'; ?></td><td>
 <div class="ui-widget">
 <input id="sitename" name="sitename" size="40"/>
 <script>
@@ -120,7 +116,7 @@ $( "#sitename" ).autocomplete({
 </script>
 </div>
 </td></tr>
-<tr><td class="selection">Site arch</td><td>
+<tr><td class="selection"><?php echo $it?'Architettura sito':'Site arch'; ?></td><td>
 <?php
   echo ('<select name="arch">');
   $rowsel='';
@@ -136,7 +132,7 @@ $( "#sitename" ).autocomplete({
   echo ('</select>');
 ?>
 </td></tr>
-<tr><td class="selection">Resource</td><td>
+<tr><td class="selection"><?php echo $it?'Risorsa':'Resource'; ?></td><td>
 <div class="ui-widget">
 <input id="resource" name="resource" size="40"/>
 <script>
@@ -156,7 +152,7 @@ $( "#resource" ).autocomplete({
 </script>
 </div>
 </td></tr>
-<tr><td class="selection">Filesystem Type</td><td>
+<tr><td class="selection"><?php echo $it?'Tipo filesystem':'Filesystem Type'; ?></td><td>
 <?php
   echo ('<select name="fstype">');
   $rowsel='';
@@ -172,7 +168,7 @@ $( "#resource" ).autocomplete({
   echo ('</select>');
 ?>
 </td></tr>
-<tr><td class="selection">OS type</td><td>
+<tr><td class="selection"><?php echo $it?'Tipo OS':'OS type'; ?></td><td>
 <?php
   echo ('<select name="ostype">');
   $rowsel='';
@@ -188,7 +184,7 @@ $( "#resource" ).autocomplete({
   echo ('</select>');
 ?>
 </td></tr>
-<tr><td class="selection">User</td><td>
+<tr><td class="selection"><?php echo $it?'Utente':'User'; ?></td><td>
 <?php
   echo ('<select name="user">');
   $rowsel='';
@@ -207,25 +203,25 @@ $( "#resource" ).autocomplete({
 </TABLE>
 <P>
 
-<input type="submit" name="submit" value="Search">
-<input type="reset" name="reset" value="Reset">
+<input type="submit" name="submit" value="<?php echo $it?'Cerca':'Search'; ?>">
+<input type="reset" name="reset" value="<?php echo $it?'Reimposta':'Reset'; ?>">
 </form>
 <P>
 <HR>
 <P>
-<img>
 <?php
-  $plot1 = $cache_path . "/LJSFi_jobs_14.html";
-  $plot2 = $cache_path . "/LJSFi_jobs_7.html";
-  if (file_exists($plot1)) include($plot1);
-  if (file_exists($plot2)) include($plot2);
+require_once __DIR__.'/chart_local.php';
+foreach ([14,7] as $days) {
+  $f=$cache_path."/LJSFi_jobs_{$days}.json";
+  if (is_readable($f)) { $j=json_decode((string)file_get_contents($f),true); if(is_array($j)&&isset($j['data'])) echo atlas_chart_line(array_map(fn($r)=>[substr((string)$r[0],5),(float)$r[1]],$j['data']),$j['title']??("Jobs {$days} days"),600,300); }
+  else { jobplot((string)$days,$LJSFi_VO." installation jobs in the last {$days} days"); }
+}
 ?>
-</img>
-<div id="reqchart_div" style="float: left"></div>
-<div id="relchart_div" style="float: left"></div>
-<div id="jobratechart_div" style="float: left"></div>
-<div id="jobstatchart_div" style="float: left"></div>
-<div id="jobrunchart_div" style="float: left"></div>
+<?php reqplot(500,300); ?>
+<?php relplot(600,500); ?>
+<?php jobrateplot(600,500); ?>
+<?php jobstatplot(600,500); ?>
+<?php jobrunplot(600,500); ?>
 </CENTER>
 </TD></TR>
 <TR><TD height="30" background="img/bar2.gif">&nbsp;</TD><TD>&nbsp;</TD></TR>
@@ -235,7 +231,7 @@ $( "#resource" ).autocomplete({
     </div>
     <div id="content_footer"></div>
     <div id="footer">
-      <p><a href="mailto:Alessandro.DeSalvo@roma1.infn.it">Contact the installation team</a></p>
+      <p><a href="mailto:Alessandro.DeSalvo@roma1.infn.it"><?php echo $it?'Contatta il team di installazione':'Contact the installation team'; ?></a></p>
       <p>SERVICE NAME: <?php echo gethostname(); ?></p>
     </div>
   </div>

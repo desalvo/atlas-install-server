@@ -1,6 +1,7 @@
 <?php
 require('db.php');     // database connect script.
 require('config.php'); // Main configuration
+require('jobchart.php');
 ?>
 
 <HTML>
@@ -14,11 +15,6 @@ require("gridchart.php");
 require("gkchart.php");
 require("mailchart.php");
 require("reqchart.php");
-fsplot();
-gridplot();
-gkplot();
-mailplot();
-reqplot();
 ?>
 </HEAD>
 <BODY>
@@ -33,20 +29,20 @@ reqplot();
       <div id="content">
         <!-- insert the page content here -->
         <h3><?php echo $LJSFi_VO; ?> Installation System Usage</h3>
-<img>
 <?php
-  $plot1 = $cache_path . "/LJSFi_jobs_14.html";
-  $plot2 = $cache_path . "/LJSFi_jobs_7.html";
-  if (file_exists($plot1)) include($plot1);
-  if (file_exists($plot2)) include($plot2);
+require_once __DIR__.'/chart_local.php';
+foreach ([14,7] as $days) {
+  $f=$cache_path."/LJSFi_jobs_{$days}.json";
+  if (is_readable($f)) { $j=json_decode((string)file_get_contents($f),true); if(is_array($j)&&isset($j['data'])) echo atlas_chart_line(array_map(fn($r)=>[substr((string)$r[0],5),(float)$r[1]],$j['data']),$j['title']??("Jobs {$days} days"),600,300); }
+  else { jobplot((string)$days,$LJSFi_VO." installation jobs in the last {$days} days"); }
+}
 ?>
-</img>
-<div id="fschart_div" style="float: left"></div>
-<div id="fssitechart_div" style="float: left"></div>
-<div id="gridchart_div" style="float: left"></div>
-<div id="gkchart_div" style="float: left"></div>
-<div id="mailchart_div" style="float: left"></div>
-<div id="reqchart_div" style="float: left"></div>
+<?php fsplot(); ?>
+
+<?php gridplot(); ?>
+<?php gkplot(); ?>
+<?php mailplot(); ?>
+<?php reqplot(); ?>
       </div>
     </div>
     <div id="content_footer"></div>

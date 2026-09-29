@@ -163,22 +163,29 @@ if [[ -n "$unsafe" ]]; then
 fi
 
 
-printf '== r19 local auth/bootstrap/mobile/table/documentation regressions ==\n'
-for token in 'atlas-mobile-menu-toggle' 'atlas-mobile-menu-backdrop'; do
+printf '== r20 branding/i18n/auth/charts/mobile/documentation regressions ==\n'
+for token in 'atlas-mobile-menu-toggle' 'atlas-mobile-menu-backdrop' 'atlas-menu-brand'; do
   grep -q "$token" "$APP_DIR/css/menubar.php" || { printf 'Mobile menu token missing: %s\n' "$token" >&2; fail=1; }
 done
 grep -q "params.get('per_page')" "$APP_DIR/css/page_header.php" || { printf 'Browser pagination missing.\n' >&2; fail=1; }
 grep -q 'href="documentation.php"' "$APP_DIR/index.php" || { printf 'Home documentation link is not local.\n' >&2; fail=1; }
 [[ -s "$APP_DIR/documentation.php" ]] || { printf 'In-app documentation page missing.\n' >&2; fail=1; }
+[[ -s "$APP_DIR/i18n.php" ]] || { printf 'i18n helper missing.\n' >&2; fail=1; }
+[[ -s "$APP_DIR/img/ljsf3-logo.png" && -s "$APP_DIR/img/ljsf3-icon.png" && -s "$APP_DIR/img/favicon.ico" ]] || { printf 'LJSF 3 logo/favicon assets missing.\n' >&2; fail=1; }
+grep -q 'atlas_language_selector_html' "$APP_DIR/css/main_header.php" || { printf 'Language selector missing from header.\n' >&2; fail=1; }
+grep -q 'atlas_identity_details_html' "$APP_DIR/security.php" || { printf 'Collapsible identity details missing.\n' >&2; fail=1; }
+grep -q 'go_login' "$APP_DIR/security.php" || { printf 'Access-denied login guidance missing.\n' >&2; fail=1; }
 [[ -s sql/local-auth-schema.sql ]] || { printf 'Local auth schema SQL missing.\n' >&2; fail=1; }
-[[ -x scripts/init-local-auth-schema.sh ]] || { printf 'Local auth schema initializer missing/not executable.\n' >&2; fail=1; }
-
-
-grep -q 'atlas_local_auth_install_schema' "$APP_DIR/local_auth.php" || { printf 'Local auth auto-init missing.\n' >&2; fail=1; }
 grep -q 'bootstrap-db.php' container/entrypoint.sh || { printf 'Application DB startup bootstrap missing.\n' >&2; fail=1; }
-grep -q 'ATLAS_DB_AUTO_INIT' kubernetes/bootstrap-secret.example.yaml || { printf 'ATLAS_DB_AUTO_INIT missing from bootstrap example.\n' >&2; fail=1; }
-grep -q "menubar('/atlas_install')" "$APP_DIR/security.php" || { printf 'Access-denied pages do not render full menu.\n' >&2; fail=1; }
-grep -q 'Definisci architettura' "$APP_DIR/css/menubar.php" || { printf 'Descriptive mobile menu labels missing.\n' >&2; fail=1; }
+grep -q 'ATLAS_DB_BOOTSTRAP_USER' scripts/atlas-install-k8s-wizard.sh || { printf 'Temporary DB bootstrap user support missing.\n' >&2; fail=1; }
+grep -q 'clear_bootstrap_admin_password' scripts/atlas-install-k8s-wizard.sh || { printf 'Temporary DB bootstrap password cleanup missing.\n' >&2; fail=1; }
+grep -q 'initial trust-anchor/fetch-crl' container/entrypoint.sh || { printf 'Initial fetch-crl startup logging missing.\n' >&2; fail=1; }
+if grep -RInE --include='*.php' --include='*.sh' 'chart\.apis\.google|google\.com/jsapi|google\.visualization|google\.load' "$APP_DIR" | grep -v '/emap.php:' | grep -q .; then
+  printf 'External Google chart rendering reference remains.\n' >&2; fail=1
+fi
+grep -q 'atlas_chart_line' "$APP_DIR/chart_local.php" || { printf 'Local chart renderer missing.\n' >&2; fail=1; }
+grep -q 'plot summaries refreshed; no external chart service used' "$APP_DIR/create_ljsfi_plots.php" || { printf 'Summary-only maintenance marker missing.\n' >&2; fail=1; }
+grep -q 'kubernetes.io/ingress.class' kubernetes/haproxy-ingress-tls-passthrough.yaml || { printf 'HAProxy legacy ingress class annotation missing.\n' >&2; fail=1; }
 exit "$fail"
 
 # Container must never require a privileged HTTP listener.

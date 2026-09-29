@@ -19,7 +19,7 @@ function envfile(string $name, string $default=''): string {
 function boolenv(string $name, bool $default=false): bool {
     return filter_var(envfile($name,$default?'1':'0'), FILTER_VALIDATE_BOOL);
 }
-function connect_db(string $db=''): mysqli {
+function connect_db(string $db='', bool $bootstrap=false): mysqli {
     mysqli_report(MYSQLI_REPORT_OFF);
     $m=mysqli_init(); if(!$m) throw new RuntimeException('mysqli_init failed');
     $flags=0;
@@ -28,7 +28,10 @@ function connect_db(string $db=''): mysqli {
         if(defined('MYSQLI_OPT_SSL_VERIFY_SERVER_CERT')) @$m->options(MYSQLI_OPT_SSL_VERIFY_SERVER_CERT,$verify);
         @mysqli_ssl_set($m,null,null,$ca!==''?$ca:null,null,null); $flags|=MYSQLI_CLIENT_SSL;
     }
-    @$m->real_connect(envfile('ATLAS_DB_RW_HOST','127.0.0.1'),envfile('ATLAS_DB_RW_USER',''),envfile('ATLAS_DB_RW_PASSWORD',''),$db,3306,null,$flags);
+    
+    $user=$bootstrap ? envfile('ATLAS_DB_BOOTSTRAP_USER',envfile('ATLAS_DB_RW_USER','')) : envfile('ATLAS_DB_RW_USER','');
+    $pass=$bootstrap ? envfile('ATLAS_DB_BOOTSTRAP_PASSWORD',envfile('ATLAS_DB_RW_PASSWORD','')) : envfile('ATLAS_DB_RW_PASSWORD','');
+    @$m->real_connect(envfile('ATLAS_DB_RW_HOST','127.0.0.1'),$user,$pass,$db,3306,null,$flags);
     if($m->connect_errno) throw new RuntimeException('DB connect failed '.$m->connect_errno.': '.$m->connect_error);
     return $m;
 }
@@ -48,7 +51,8 @@ $schema="$root/conf/sql/create_install_db.sql.template";
 $auth='/opt/atlas/local-auth-schema.sql';
 
 try {
-    $server=connect_db('');
+    $server=connect_db('', true);
+    logmsg('using database bootstrap account '.envfile('ATLAS_DB_BOOTSTRAP_USER',envfile('ATLAS_DB_RW_USER','')).' for schema checks');
     $q=$server->prepare('SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME=?');
     $q->bind_param('s',$dbname); $q->execute(); $exists=(bool)$q->get_result()->fetch_row();
     if(!$exists) {
@@ -64,7 +68,7 @@ try {
         run_multi($server,$sql,'application schema initialization');
         logmsg("default application schema initialized in $dbname");
     }
-    $db=connect_db($dbname);
+    $db=connect_db($dbname, true);
     $required=['atlas_local_user','atlas_local_totp','atlas_local_session','atlas_auth_setting']; $missing=[];
     foreach($required as $t) {
         $st=$db->prepare('SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA=? AND TABLE_NAME=? LIMIT 1');

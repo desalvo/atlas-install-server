@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-WIZARD_VERSION="3.0.0-r19"
+WIZARD_VERSION="3.0.0-r20"
 DEFAULT_REPO="desalvo/atlas-install-server"
 DEFAULT_REF="main"
 DEFAULT_NAMESPACE="atlas-install"
@@ -24,6 +24,7 @@ DEFAULT_DB_HOST="192.168.1.145"
 DEFAULT_DB_RW_USER="atlas_rw"
 DEFAULT_DB_RO_USER="atlas_ro"
 DEFAULT_DB_BROKER_USER="atlas_rw"
+DEFAULT_DB_BOOTSTRAP_USER="root"
 DEFAULT_DB_SSL="no"
 DEFAULT_DB_SSL_VERIFY="no"
 DEFAULT_DB_SSL_CA=""
@@ -92,6 +93,8 @@ Optional environment variables for automation:
   ATLAS_DB_RO_PASSWORD                Bootstrap RO database password
   ATLAS_DB_BROKER_PASSWORD            Bootstrap broker database password
   ATLAS_LOCAL_ADMIN_PASSWORD           Initial/reset local admin password
+  ATLAS_DB_BOOTSTRAP_USER              One-time schema bootstrap DB user (default: root)
+  ATLAS_DB_BOOTSTRAP_PASSWORD          One-time schema bootstrap DB password; removed from Secret after successful rollout
   ATLAS_TLS_CERT_FILE                 Host certificate/full-chain PEM path
   ATLAS_TLS_KEY_FILE                  Host private-key PEM path
   ATLAS_WIZARD_AUTO_UPDATE=1           Enable self-update in non-interactive mode
@@ -186,6 +189,7 @@ save_state() {
     printf 'ATLAS_EMAIL_VALUE=%q\n' "$ATLAS_EMAIL_VALUE"
     printf 'ATLAS_CONTACTS_VALUE=%q\n' "$ATLAS_CONTACTS_VALUE"
     printf 'ATLAS_DEFAULT_INFOSYS_VALUE=%q\n' "$ATLAS_DEFAULT_INFOSYS_VALUE"
+    printf 'DB_BOOTSTRAP_USER=%q\n' "$DB_BOOTSTRAP_USER"
     printf 'ATLAS_ACTIVITY_PERIOD_VALUE=%q\n' "$ATLAS_ACTIVITY_PERIOD_VALUE"
     printf 'ATLAS_DEBUG_VALUE=%q\n' "$ATLAS_DEBUG_VALUE"
     printf 'TLS_CERT_PATH=%q\n' "$TLS_CERT_PATH"
@@ -431,6 +435,9 @@ env_quote() {
 
 seed_bootstrap_defaults_from_secret() {
   local data="$1" raw plain
+  local existing_bootstrap_user
+  existing_bootstrap_user="$(env_plain_value "$(env_raw_value "$1" ATLAS_DB_BOOTSTRAP_USER)")"
+  [[ -n "$existing_bootstrap_user" ]] && DB_BOOTSTRAP_USER="$existing_bootstrap_user"
   # Pre-r12 bootstrap Secrets have no DB TLS keys; treat absence as TLS disabled.
   DB_SSL_RAW=""; DB_SSL_VERIFY_RAW=""; DB_SSL=no; DB_SSL_VERIFY=no; DB_SSL_CA=""
   while IFS='|' read -r key var; do
@@ -499,14 +506,26 @@ require_or_keep_password_raw() {
 }
 
 apply_bootstrap_secret_content() {
-  local existing="$1" rw_old ro_old broker_old rw_pw ro_pw broker_pw admin_old local_admin_pw tmp result
+  local existing="$1" rw_old ro_old broker_old rw_pw ro_pw broker_pw admin_old local_admin_pw bootstrap_user bootstrap_old bootstrap_pw tmp result
   rw_old="$(env_raw_value "$existing" ATLAS_DB_RW_PASSWORD)"
   ro_old="$(env_raw_value "$existing" ATLAS_DB_RO_PASSWORD)"
   broker_old="$(env_raw_value "$existing" ATLAS_DB_BROKER_PASSWORD)"
   admin_old="$(env_raw_value "$existing" ATLAS_LOCAL_ADMIN_PASSWORD)"
+  bootstrap_old="$(env_raw_value "$existing" ATLAS_DB_BOOTSTRAP_PASSWORD)"
+  bootstrap_user="${ATLAS_DB_BOOTSTRAP_USER:-$DB_BOOTSTRAP_USER}"
   rw_pw="$(require_or_keep_password_raw ATLAS_DB_RW_PASSWORD 'RW database password' "$rw_old")"
   ro_pw="$(require_or_keep_password_raw ATLAS_DB_RO_PASSWORD 'RO database password' "$ro_old")"
   broker_pw="$(require_or_keep_password_raw ATLAS_DB_BROKER_PASSWORD 'Broker database password' "$broker_old")"
+  bootstrap_pw=""
+  if [[ -n "${ATLAS_DB_BOOTSTRAP_PASSWORD:-}" ]]; then
+    bootstrap_pw="$(env_quote "$ATLAS_DB_BOOTSTRAP_PASSWORD")"
+  elif (( NON_INTERACTIVE )); then
+    [[ -n "$bootstrap_old" ]] && bootstrap_pw="$bootstrap_old" || true
+  else
+    local entered_bootstrap_pw
+    entered_bootstrap_pw="$(prompt_secret 'Database bootstrap/admin password (blank = try RW user; used only for schema initialization)')"
+    [[ -n "$entered_bootstrap_pw" ]] && bootstrap_pw="$(env_quote "$entered_bootstrap_pw")" || [[ -n "$bootstrap_old" ]] && bootstrap_pw="$bootstrap_old" || true
+  fi
   if [[ -n "${ATLAS_LOCAL_ADMIN_PASSWORD:-}" ]]; then
     local_admin_pw="$ATLAS_LOCAL_ADMIN_PASSWORD"
   elif (( NON_INTERACTIVE )); then
@@ -521,6 +540,8 @@ apply_bootstrap_secret_content() {
   {
     printf 'ATLAS_PUBLIC_HOSTNAME=%s\n' "$(env_quote "$PUBLIC_HOSTNAME")"
     printf 'ATLAS_DB_NAME=%s\n' "$(env_quote "$DB_NAME")"
+    printf 'ATLAS_DB_BOOTSTRAP_USER=%s\n' "$(env_quote "$bootstrap_user")"
+    if [[ -n "$bootstrap_pw" ]]; then printf 'ATLAS_DB_BOOTSTRAP_PASSWORD=%s\n' "$bootstrap_pw"; fi
     printf 'ATLAS_DB_RW_HOST=%s\n' "$(env_quote "$DB_RW_HOST")"
     printf 'ATLAS_DB_RW_USER=%s\n' "$(env_quote "$DB_RW_USER")"
     printf 'ATLAS_DB_RW_PASSWORD=%s\n' "$rw_pw"
@@ -598,7 +619,7 @@ manage_bootstrap_secret() {
     if (( NON_INTERACTIVE )); then
       truthy "${ATLAS_UPDATE_BOOTSTRAP_SECRET:-0}" && do_update=1 || do_update=0
     else
-      yesno "Update existing bootstrap secret?" n && do_update=1 || do_update=0
+      yesno "Update existing bootstrap secret?" y && do_update=1 || do_update=0
     fi
     if (( ! do_update )); then
       log "Bootstrap secret retained unchanged."
@@ -611,6 +632,18 @@ manage_bootstrap_secret() {
   fi
   prompt_bootstrap_nonsecrets
   apply_bootstrap_secret_content "$existing"
+}
+
+clear_bootstrap_admin_password() {
+  local secret="${APP_NAME}-bootstrap" existing tmp result
+  existing="$(get_existing_bootstrap_env)"
+  [[ -n "$(env_raw_value "$existing" ATLAS_DB_BOOTSTRAP_PASSWORD)" ]] || return 0
+  tmp="$(mktemp)"; chmod 600 "$tmp"
+  printf '%s\n' "$existing" | grep -v '^ATLAS_DB_BOOTSTRAP_PASSWORD=' > "$tmp"
+  result="$(kubectl -n "$NAMESPACE" create secret generic "$secret" --from-file=atlas-install.env="$tmp" --dry-run=client -o yaml | kubectl apply -f -)"
+  rm -f "$tmp"
+  log "$result"
+  log "Removed one-time database bootstrap password from Kubernetes Secret after successful rollout."
 }
 
 validate_tls_pair() {
@@ -757,6 +790,7 @@ DB_RO_HOST="${DB_RO_HOST:-$DB_HOST}"
 DB_RO_USER="${DB_RO_USER:-$DEFAULT_DB_RO_USER}"
 DB_BROKER_HOST="${DB_BROKER_HOST:-$DB_HOST}"
 DB_BROKER_USER="${DB_BROKER_USER:-$DEFAULT_DB_BROKER_USER}"
+DB_BOOTSTRAP_USER="${DB_BOOTSTRAP_USER:-${ATLAS_DB_BOOTSTRAP_USER:-$DEFAULT_DB_BOOTSTRAP_USER}}"
 DB_SSL="${DB_SSL:-$DEFAULT_DB_SSL}"
 DB_SSL_VERIFY="${DB_SSL_VERIFY:-$DEFAULT_DB_SSL_VERIFY}"
 DB_SSL_CA="${DB_SSL_CA:-$DEFAULT_DB_SSL_CA}"
@@ -811,6 +845,7 @@ CPU_LIMIT="$(prompt 'CPU limit' "$CPU_LIMIT")"
 MEMORY_LIMIT="$(prompt 'Memory limit' "$MEMORY_LIMIT")"
 DB_HOST="$(prompt 'Database server/IP (RW, RO and broker)' "$DB_HOST")"
 validate_db_host "$DB_HOST"
+DB_BOOTSTRAP_USER="$(prompt 'Database bootstrap/admin user (used only when schema must be created)' "$DB_BOOTSTRAP_USER")"
 DB_RW_HOST="$DB_HOST"; DB_RO_HOST="$DB_HOST"; DB_BROKER_HOST="$DB_HOST"
 if (( ! NON_INTERACTIVE )); then
   if yesno "Use TLS/SSL for database connections?" "$([[ "$DB_SSL" == yes ]] && echo y || echo n)"; then
@@ -920,6 +955,15 @@ if (( BOOTSTRAP_SECRET_CHANGED || TLS_SECRET_CHANGED )) && kubectl -n "$NAMESPAC
     log "TLS material changed; restarting deployment so Apache loads the new certificate."
   fi
   kubectl -n "$NAMESPACE" rollout restart deployment "$APP_NAME"
+fi
+
+if [[ "$APPLY_MANIFESTS" == yes ]] && kubectl -n "$NAMESPACE" get deployment "$APP_NAME" >/dev/null 2>&1; then
+  log "Waiting for deployment rollout to complete."
+  if kubectl -n "$NAMESPACE" rollout status deployment "$APP_NAME" --timeout=300s; then
+    clear_bootstrap_admin_password
+  else
+    log "WARNING: rollout did not become ready; keeping bootstrap admin password in Secret for retry/diagnostics."
+  fi
 fi
 
 save_state

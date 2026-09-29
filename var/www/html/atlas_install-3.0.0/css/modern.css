@@ -283,3 +283,25 @@ td.selection { background: #eef4ff !important; color: #274267; font-weight: 700;
   .atlas-pagination label, .atlas-pagination-status { width:100%; }
   .atlas-pagination button { flex:1 1 auto; }
 }
+
+/* LJSF 3 r20 brand, language and mobile navigation */
+.atlas-hero{display:flex;align-items:center;gap:18px;min-height:112px;padding:18px 22px!important;overflow:visible!important}
+.atlas-brand{display:flex;align-items:center;flex:0 0 auto;text-decoration:none!important}
+.atlas-brand-logo{display:block;width:220px;max-width:34vw;height:auto;border-radius:10px}
+.atlas-header-actions{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.atlas-language{display:flex;align-items:center;gap:4px;padding:5px 7px;border-radius:10px;background:rgba(255,255,255,.10);font-size:12px;color:#fff}
+.atlas-language span{opacity:.8;margin-right:2px}.atlas-language a{display:inline-block;padding:4px 7px;border-radius:7px;color:#fff!important;text-decoration:none!important;font-weight:700}.atlas-language a.active{background:#fff;color:#0d4fac!important}
+.atlas-menu-brand img{max-width:180px;height:auto;display:block}.atlas-mobile-menu-title .atlas-menu-brand{padding:0!important;background:none!important}
+.atlas-access-help{margin-top:18px;padding:16px;border:1px solid #dbe7f7;border-radius:12px;background:#f7fbff}.atlas-button{display:inline-block;padding:10px 14px;border-radius:9px;background:var(--atlas-primary);color:#fff!important;text-decoration:none!important;font-weight:700}
+.atlas-identity-footer{display:block}.atlas-identity-footer>summary{cursor:pointer;list-style:none;font-weight:700;color:var(--atlas-text);padding:2px 0}.atlas-identity-footer>summary::-webkit-details-marker{display:none}.atlas-identity-footer>summary::after{content:'▾';float:right}.atlas-identity-footer[open]>summary::after{content:'▴'}.atlas-identity-body{padding-top:10px}
+#menu li ul li{float:none!important;display:block!important;white-space:normal!important;width:100%!important}#menu li ul li a{display:block!important;width:100%!important;white-space:normal!important}
+@media(max-width:760px){
+  .atlas-hero{min-height:88px;padding:10px 12px!important;padding-right:100px!important;gap:9px}.atlas-brand-logo{width:145px;max-width:48vw}.atlas-hero #logo_text{display:none!important}.atlas-header-actions{position:absolute;right:8px;top:58px;z-index:1000}.atlas-auth-state{display:none!important}.atlas-language{background:rgba(8,34,75,.88)}
+  .atlas-mobile-menu-toggle{font-size:15px!important;padding:10px 13px!important}.atlas-mobile-menu-title{padding:12px 4px!important}.atlas-mobile-menu-title .atlas-menu-brand img{width:150px}
+  #menubar{width:min(92vw,390px)!important;max-width:390px!important;padding:0 14px 24px!important}
+  #menu.dropdown-horizontal{gap:7px!important}ul#menu>li{border:1px solid rgba(255,255,255,.10);border-radius:10px!important;background:rgba(255,255,255,.035)}ul#menu>li>a{font-size:16px!important;font-weight:750!important;line-height:1.25!important;padding:13px 14px!important;margin:0!important}
+  ul#menu>li>ul{padding:5px 8px 9px!important;margin:0!important;border-left:0!important;background:rgba(0,0,0,.16)!important}ul#menu ul li{display:block!important;width:100%!important;margin:0!important;padding:0!important;float:none!important}ul#menu ul li+li{border-top:1px solid rgba(255,255,255,.06)}ul#menu ul li a{display:block!important;width:100%!important;padding:11px 12px!important;font-size:14px!important;line-height:1.25!important;white-space:normal!important;letter-spacing:0!important;text-transform:none!important;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important}
+  .atlas-menu-single>a{display:block!important}.atlas-language span{display:none}.atlas-identity-footer{width:calc(100% - 20px)!important;margin:10px!important}
+}
+.atlas-local-chart{display:inline-block;vertical-align:top;width:min(100%,650px);margin:10px;padding:12px;border:1px solid var(--atlas-border);border-radius:12px;background:#fff;overflow:hidden}.atlas-local-chart h3{margin:0 0 8px}.atlas-local-chart svg{display:block;width:100%;height:auto}.atlas-local-chart svg text{font:11px system-ui,sans-serif;fill:#59677d}.atlas-local-chart .axis{stroke:#cbd5e1;stroke-width:1}.atlas-local-chart .series{stroke:#155eef;stroke-width:3;stroke-linejoin:round;stroke-linecap:round}.atlas-local-chart .bar{fill:#155eef}
+.atlas-menu-logo>a{padding:5px 8px!important}.atlas-menu-logo img{display:block;width:28px;height:28px;border-radius:50%}@media(max-width:760px){.atlas-menu-logo{display:none!important}}

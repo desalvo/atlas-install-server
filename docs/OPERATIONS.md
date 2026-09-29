@@ -101,3 +101,11 @@ The script reads database host/name/TLS settings from `atlas-install.env` and as
 - The RW account therefore needs the relevant `CREATE` privileges for automatic initialization. If it does not, startup continues and the exact failure is written to Kubernetes logs with the `[atlas-db-bootstrap]` prefix.
 - Access-denied/error pages render the same full navigation menu as ordinary pages.
 - The mobile drawer uses descriptive, section-specific menu labels rather than generic `Definition/Update/Removal` entries.
+
+## Startup diagnostics
+
+The serving container logs a numbered startup sequence covering configuration synchronization, local-auth key initialization, HTTPS validation, database/schema bootstrap, IGTF trust restoration and the initial `fetch-crl` refresh, Apache configuration validation, PHP-FPM and Apache startup. Search the pod logs for `[atlas-container]`, `[atlas-db-bootstrap]` and `[ATLAS_APP]`.
+
+## Charts and maintenance
+
+The Web application renders charts locally as SVG/HTML on demand. Maintenance CronJobs do not call external chart services and do not create chart images; they refresh historical database summaries and compact JSON cache data that the browser pages can read dynamically.
