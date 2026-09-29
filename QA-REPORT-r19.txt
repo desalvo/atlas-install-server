@@ -1,0 +1,24 @@
+ATLAS Installation Server 3.0.0-r19 QA
+======================================
+Baseline: 3.0.0-r18 (itself based on the previously produced r17 feature line)
+
+Validated:
+- Shell syntax: PASS
+- PHP lint: PASS
+- Static security/regression suite: PASS
+- Kubernetes YAML: PASS
+- GitHub workflow YAML: PASS
+- docker-compose YAML: PASS
+- Wizard SHA-256 sidecar: PASS
+- Automatic application-schema bootstrap hook: PRESENT
+- Automatic local-auth schema creation: PRESENT
+- Existing application DB is never dropped/reset by auto-init: ENFORCED BY CONTROL FLOW
+- Full menu on access-denied/application-message pages: PRESENT
+- Mobile drawer descriptive section/action labels: PRESENT
+- Browser-only table pagination/mobile horizontal scrolling retained: PRESENT
+
+Runtime note:
+Automatic schema initialization uses the configured RW database account and therefore
+requires the corresponding CREATE privileges. Failures are logged with
+[atlas-db-bootstrap] / [ATLAS_APP] diagnostics; the container continues starting so
+operators can inspect and remediate permissions.

@@ -113,3 +113,11 @@ Local authentication uses dedicated `atlas_local_*` tables. They are installed o
 ## In-application documentation
 
 The **LJSFi Documentation** link on the application home page opens `/atlas_install/documentation.php`, which contains the current user-facing operational documentation shipped with the running release.
+
+## r19 automatic schema bootstrap and navigation
+
+- `ATLAS_DB_AUTO_INIT=1` (default) makes the container check the configured application database at startup. If `atlas_install_panda` is absent, the bundled default schema is installed using the configured RW database account. Existing application databases are never replaced or reset.
+- If only the local-authentication tables are missing, they are created automatically in the existing application database.
+- The RW account therefore needs the relevant `CREATE` privileges for automatic initialization. If it does not, startup continues and the exact failure is written to Kubernetes logs with the `[atlas-db-bootstrap]` prefix.
+- Access-denied/error pages render the same full navigation menu as ordinary pages.
+- The mobile drawer uses descriptive, section-specific menu labels rather than generic `Definition/Update/Removal` entries.

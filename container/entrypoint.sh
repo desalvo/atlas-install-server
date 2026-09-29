@@ -77,6 +77,7 @@ ATLAS_DB_BROKER_PASSWORD=""
 ATLAS_DB_SSL="0"
 ATLAS_DB_SSL_VERIFY="0"
 ATLAS_DB_SSL_CA=""
+ATLAS_DB_AUTO_INIT="1"
 ATLAS_VO="ATLAS"
 ATLAS_DEBUG="0"
 ATLAS_UPLOAD_PATH="/var/lib/atlas-install/log"
@@ -214,6 +215,15 @@ case "${1:-serve}" in
     init_config
     init_local_auth_key
     validate_tls
+    if [[ "$(read_env_value ATLAS_DB_AUTO_INIT 1)" =~ ^(1|true|TRUE|yes|YES|y|Y)$ ]]; then
+      if /usr/bin/php /opt/atlas/bootstrap-db.php; then
+        log "Database/bootstrap schema check completed."
+      else
+        log "WARNING: automatic database/schema bootstrap did not complete; continuing so diagnostics remain available."
+      fi
+    else
+      log "Automatic database/schema bootstrap disabled by ATLAS_DB_AUTO_INIT."
+    fi
     install -d -o root -g atlas-install -m 2770 /var/lib/atlas-install/log /var/lib/atlas-install/logbackup /var/lib/atlas-install/igtf-cache /var/cache/atlas-install
     restore_igtf_cache
     ATLAS_IGTF_SKIP_CRL=1 /usr/local/sbin/atlas-update-igtf

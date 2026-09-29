@@ -165,3 +165,11 @@ The Kubernetes wizard checks its configured GitHub source at startup by default.
 ## r14: ReadWriteOnce-safe maintenance scheduling
 
 When the shared data PVC uses `ReadWriteOnce`, generated maintenance CronJobs are required to run on the same Kubernetes node as the `atlas-install` server pod. This matches Kubernetes RWO semantics and prevents cross-node CSI `Multi-Attach` failures. `ReadWriteOncePod` cannot be shared with separate maintenance pods and is therefore rejected when maintenance CronJobs are enabled.
+
+## r19 automatic schema bootstrap and navigation
+
+- `ATLAS_DB_AUTO_INIT=1` (default) makes the container check the configured application database at startup. If `atlas_install_panda` is absent, the bundled default schema is installed using the configured RW database account. Existing application databases are never replaced or reset.
+- If only the local-authentication tables are missing, they are created automatically in the existing application database.
+- The RW account therefore needs the relevant `CREATE` privileges for automatic initialization. If it does not, startup continues and the exact failure is written to Kubernetes logs with the `[atlas-db-bootstrap]` prefix.
+- Access-denied/error pages render the same full navigation menu as ordinary pages.
+- The mobile drawer uses descriptive, section-specific menu labels rather than generic `Definition/Update/Removal` entries.

@@ -29,6 +29,8 @@ RUN getent group atlas-install >/dev/null || groupadd --system atlas-install \
 
 COPY var/www/html/atlas_install-3.0.0/ /var/www/html/atlas_install-3.0.0/
 COPY container/httpd-container.conf.template /opt/atlas/httpd-container.conf.template
+COPY container/bootstrap-db.php /opt/atlas/bootstrap-db.php
+COPY sql/local-auth-schema.sql /opt/atlas/local-auth-schema.sql
 COPY container/entrypoint.sh /usr/local/sbin/atlas-container-entrypoint
 COPY container/update-igtf.sh /usr/local/sbin/atlas-update-igtf
 COPY container/maintenance.sh /usr/local/sbin/atlas-maintenance

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-WIZARD_VERSION="3.0.0-r18"
+WIZARD_VERSION="3.0.0-r19"
 DEFAULT_REPO="desalvo/atlas-install-server"
 DEFAULT_REF="main"
 DEFAULT_NAMESPACE="atlas-install"
@@ -533,6 +533,7 @@ apply_bootstrap_secret_content() {
     printf 'ATLAS_DB_SSL=%s\n' "$(env_quote "$([[ "$DB_SSL" == yes ]] && echo 1 || echo 0)")"
     printf 'ATLAS_DB_SSL_VERIFY=%s\n' "$(env_quote "$([[ "$DB_SSL_VERIFY" == yes ]] && echo 1 || echo 0)")"
     printf 'ATLAS_DB_SSL_CA=%s\n' "$(env_quote "$DB_SSL_CA")"
+    printf 'ATLAS_DB_AUTO_INIT="1"\n'
     printf 'ATLAS_VO=%s\n' "$(env_quote "$ATLAS_VO_VALUE")"
     printf 'ATLAS_EMAIL=%s\n' "$(env_quote "$ATLAS_EMAIL_VALUE")"
     printf 'ATLAS_CONTACTS=%s\n' "$(env_quote "$ATLAS_CONTACTS_VALUE")"

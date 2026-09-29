@@ -184,3 +184,11 @@ For Kubernetes deployments, prefer `scripts/atlas-install-k8s-wizard.sh`; see `d
 On repeated runs, the Kubernetes wizard keeps existing bootstrap and TLS Secrets unless the administrator explicitly chooses to update them. Existing bootstrap values are offered as defaults when an update is requested. The TLS certificate/key paths selected on first configuration are remembered locally and remain unchanged until the administrator explicitly chooses new paths. This allows the wizard to be safely re-run after template updates without rotating credentials or certificates unintentionally.
 
 The container also refreshes IGTF trust anchors and CRLs automatically; see `KUBERNETES.md` and `OPERATIONS.md` for the default intervals and failure policy.
+
+## r19 automatic schema bootstrap and navigation
+
+- `ATLAS_DB_AUTO_INIT=1` (default) makes the container check the configured application database at startup. If `atlas_install_panda` is absent, the bundled default schema is installed using the configured RW database account. Existing application databases are never replaced or reset.
+- If only the local-authentication tables are missing, they are created automatically in the existing application database.
+- The RW account therefore needs the relevant `CREATE` privileges for automatic initialization. If it does not, startup continues and the exact failure is written to Kubernetes logs with the `[atlas-db-bootstrap]` prefix.
+- Access-denied/error pages render the same full navigation menu as ordinary pages.
+- The mobile drawer uses descriptive, section-specific menu labels rather than generic `Definition/Update/Removal` entries.

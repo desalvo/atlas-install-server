@@ -159,7 +159,15 @@ function atlas_identity_summary_html(): string {
 function atlas_render_message_page(string $title,string $message,string $kind='warning'): never {
     if(!headers_sent()) header('Content-Type: text/html; charset=UTF-8');
     $vo=atlas_env('ATLAS_VO','ATLAS'); $i=atlas_current_identity();
-    echo '<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'.atlas_h($title).'</title><link rel="stylesheet" href="/atlas_install/css/ljsf.css"><link rel="stylesheet" href="/atlas_install/css/modern.css"></head><body><div id="main"><div id="header"><div id="logo" class="atlas-hero"><div class="atlas-brandmark">A</div><div id="logo_text"><h1><a>'.atlas_h($vo).' <span class="logo_colour">Installation System</span></a></h1><h2>Software deployment, validation and site operations</h2></div></div><div id="menubar"><ul id="menu" class="dropdown dropdown-horizontal"><li><a href="/atlas_install/">Home</a></li><li><a href="/atlas_install/auth/login.php">Login locale</a></li></ul></div></div><div id="site_content"><div id="content" style="width:100%;float:none"><h1>'.atlas_h($title).'</h1><div class="atlas-alert '.atlas_h($kind).'">'.atlas_h($message).'</div>';
+    require_once __DIR__.'/css/page_header.php';
+    require_once __DIR__.'/css/main_header.php';
+    require_once __DIR__.'/css/menubar.php';
+    echo '<!doctype html><html lang="it"><head><title>'.atlas_h($title).'</title>';
+    page_header('/atlas_install');
+    echo '</head><body><div id="main"><div id="header">';
+    main_header($vo,'/atlas_install');
+    menubar('/atlas_install');
+    echo '</div><div id="site_content"><div id="content" style="width:100%;float:none"><h1>'.atlas_h($title).'</h1><div class="atlas-alert '.atlas_h($kind).'">'.atlas_h($message).'</div>';
     if(!$i) echo '<p>Non disponi delle autorizzazioni necessarie. Se ritieni di dover accedere a questa funzione, contatta l’amministratore.</p>';
     echo '</div></div><div class="atlas-identity-footer">'.atlas_identity_summary_html().'</div><div id="footer"><p>ATLAS Installation System · request '.atlas_h(atlas_request_id()).'</p></div></div></body></html>';
     exit;

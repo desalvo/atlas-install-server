@@ -93,3 +93,11 @@ ATLAS_SCHEMA_ADMIN_USER=root ./scripts/init-local-auth-schema.sh
 ```
 
 The script reads database host/name/TLS settings from `atlas-install.env` and asks interactively for the administrative database password. Passwords are not stored. After schema creation, the application creates/updates the bootstrap `admin` record using normal DML.
+
+## r19 automatic schema bootstrap and navigation
+
+- `ATLAS_DB_AUTO_INIT=1` (default) makes the container check the configured application database at startup. If `atlas_install_panda` is absent, the bundled default schema is installed using the configured RW database account. Existing application databases are never replaced or reset.
+- If only the local-authentication tables are missing, they are created automatically in the existing application database.
+- The RW account therefore needs the relevant `CREATE` privileges for automatic initialization. If it does not, startup continues and the exact failure is written to Kubernetes logs with the `[atlas-db-bootstrap]` prefix.
+- Access-denied/error pages render the same full navigation menu as ordinary pages.
+- The mobile drawer uses descriptive, section-specific menu labels rather than generic `Definition/Update/Removal` entries.

@@ -163,10 +163,7 @@ if [[ -n "$unsafe" ]]; then
 fi
 
 
-printf '== r18 local auth/mobile/table/documentation regressions ==\n'
-if grep -q 'CREATE TABLE' "$APP_DIR/local_auth.php"; then
-  printf 'Runtime local_auth.php must not perform DDL.\n' >&2; fail=1
-fi
+printf '== r19 local auth/bootstrap/mobile/table/documentation regressions ==\n'
 for token in 'atlas-mobile-menu-toggle' 'atlas-mobile-menu-backdrop'; do
   grep -q "$token" "$APP_DIR/css/menubar.php" || { printf 'Mobile menu token missing: %s\n' "$token" >&2; fail=1; }
 done
@@ -176,6 +173,12 @@ grep -q 'href="documentation.php"' "$APP_DIR/index.php" || { printf 'Home docume
 [[ -s sql/local-auth-schema.sql ]] || { printf 'Local auth schema SQL missing.\n' >&2; fail=1; }
 [[ -x scripts/init-local-auth-schema.sh ]] || { printf 'Local auth schema initializer missing/not executable.\n' >&2; fail=1; }
 
+
+grep -q 'atlas_local_auth_install_schema' "$APP_DIR/local_auth.php" || { printf 'Local auth auto-init missing.\n' >&2; fail=1; }
+grep -q 'bootstrap-db.php' container/entrypoint.sh || { printf 'Application DB startup bootstrap missing.\n' >&2; fail=1; }
+grep -q 'ATLAS_DB_AUTO_INIT' kubernetes/bootstrap-secret.example.yaml || { printf 'ATLAS_DB_AUTO_INIT missing from bootstrap example.\n' >&2; fail=1; }
+grep -q "menubar('/atlas_install')" "$APP_DIR/security.php" || { printf 'Access-denied pages do not render full menu.\n' >&2; fail=1; }
+grep -q 'Definisci architettura' "$APP_DIR/css/menubar.php" || { printf 'Descriptive mobile menu labels missing.\n' >&2; fail=1; }
 exit "$fail"
 
 # Container must never require a privileged HTTP listener.

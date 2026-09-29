@@ -1,3 +1,12 @@
+
+## 3.0.0-r19
+
+- Automatically initializes the bundled application schema when the configured application database is absent.
+- Automatically creates missing local-authentication tables in an existing application database.
+- Adds `ATLAS_DB_AUTO_INIT` (default `1`) and explicit bootstrap diagnostics. Existing databases are never dropped or reset.
+- Renders the full application header/menu on access-denied and application-message pages.
+- Reworks mobile navigation labels into descriptive section-specific actions.
+
 ## 3.0.0-r18
 
 - Fix local-login GET failures caused by implicit DDL: runtime now verifies the local-auth schema and logs a clear diagnostic instead of issuing CREATE TABLE on each request.
