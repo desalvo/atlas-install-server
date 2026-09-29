@@ -1,3 +1,8 @@
+## 3.0.0-r13
+
+- Fix Kubernetes `bootstrap-secret.example.yaml` indentation for the DB TLS keys so GitHub CI YAML validation succeeds.
+- No runtime behavior change from r12; retains optional DB TLS and wizard self-update/re-exec.
+
 ## 3.0.0-r12
 
 - Added optional TLS/SSL for all MariaDB connections with `ATLAS_DB_SSL`, optional certificate verification via `ATLAS_DB_SSL_VERIFY`, and optional CA bundle `ATLAS_DB_SSL_CA`.
