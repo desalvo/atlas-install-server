@@ -253,3 +253,9 @@ grep -Fq '<input id="rel" name="rel"' var/www/html/atlas_install/index.php
 grep -Fq '<input id="sitename" name="sitename"' var/www/html/atlas_install/index.php
 grep -Fq '<input id="resource" name="resource"' var/www/html/atlas_install/index.php
 grep -Fq 'RedirectMatch 302 ^/$ /atlas_install/' container/httpd-container.conf.template
+
+# r23 mobile/login regressions
+grep -q 'ATLAS_PUBLIC_HOSTNAME' "$APP_ROOT/security.php" || { echo "ERROR: configured public host missing from same-origin guard" >&2; exit 1; }
+grep -q 'data-atlas-datalist' "$APP_ROOT/index.php" || { echo "ERROR: home autocomplete fallback missing" >&2; exit 1; }
+grep -q 'atlas-autocomplete-popup' "$APP_ROOT/css/modern.css" || { echo "ERROR: mobile autocomplete CSS missing" >&2; exit 1; }
+grep -q 'atlasFallbackBound' "$APP_ROOT/css/menubar.php" || { echo "ERROR: common mobile menu fallback missing" >&2; exit 1; }

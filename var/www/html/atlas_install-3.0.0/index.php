@@ -62,18 +62,18 @@ function checkform(form) {
             <COLGROUP width="220"></COLGROUP>
 <tr><td class="selection"><?php echo $it?'Release':'Release'; ?></td><td>
 <div class="ui-widget">
-<input id="rel" name="rel" />
-<script>
-$(function() {
-var availableReleases = <?php
+<input id="rel" name="rel" list="atlas-rel-list" data-atlas-datalist="atlas-rel-list" autocomplete="off" />
+<datalist id="atlas-rel-list">
+<?php
   $vals=[];
   $qry_res = db_query("SELECT ref,name as value FROM release_data WHERE typefk > 1 ORDER BY value","ro");
-  while ($row = mysqli_fetch_row($qry_res)) { $vals[]=(string)$row[1]; }
-  echo json_encode($vals, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT);
-?>;
-$( "#rel" ).autocomplete({
-   source: availableReleases
-});
+  while ($row = mysqli_fetch_row($qry_res)) { $vals[]=(string)$row[1]; echo '<option value="'.atlas_h((string)$row[1]).'">'; }
+?>
+</datalist>
+<script>
+$(function() {
+var availableReleases = <?php echo json_encode($vals, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT); ?>;
+if ($.fn && $.fn.autocomplete) { $( "#rel" ).autocomplete({ source: availableReleases }); }
 });
 </script>
 </div>
@@ -96,18 +96,18 @@ $( "#rel" ).autocomplete({
 </td></tr>
 <tr><td class="selection"><?php echo $it?'Nome sito':'Site name'; ?></td><td>
 <div class="ui-widget">
-<input id="sitename" name="sitename" size="40"/>
-<script>
-$(function() {
-var availableSitenames = <?php
+<input id="sitename" name="sitename" size="40" list="atlas-sitename-list" data-atlas-datalist="atlas-sitename-list" autocomplete="off" />
+<datalist id="atlas-sitename-list">
+<?php
   $vals=[];
   $qry_res = db_query("SELECT DISTINCT(name) as value FROM site WHERE name <> '' ORDER BY value","ro");
-  while ($row = mysqli_fetch_row($qry_res)) { $vals[]=(string)$row[0]; }
-  echo json_encode($vals, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT);
-?>;
-$( "#sitename" ).autocomplete({
-   source: availableSitenames
-});
+  while ($row = mysqli_fetch_row($qry_res)) { $vals[]=(string)$row[0]; echo '<option value="'.atlas_h((string)$row[0]).'">'; }
+?>
+</datalist>
+<script>
+$(function() {
+var availableSitenames = <?php echo json_encode($vals, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT); ?>;
+if ($.fn && $.fn.autocomplete) { $( "#sitename" ).autocomplete({ source: availableSitenames }); }
 });
 </script>
 </div>
@@ -130,18 +130,18 @@ $( "#sitename" ).autocomplete({
 </td></tr>
 <tr><td class="selection"><?php echo $it?'Risorsa':'Resource'; ?></td><td>
 <div class="ui-widget">
-<input id="resource" name="resource" size="40"/>
-<script>
-$(function() {
-var availableResources = <?php
+<input id="resource" name="resource" size="40" list="atlas-resource-list" data-atlas-datalist="atlas-resource-list" autocomplete="off" />
+<datalist id="atlas-resource-list">
+<?php
   $vals=[];
   $qry_res = db_query("SELECT DISTINCT(cename) as value FROM site WHERE cename <> '' ORDER BY value","ro");
-  while ($row = mysqli_fetch_row($qry_res)) { $vals[]=(string)$row[0]; }
-  echo json_encode($vals, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT);
-?>;
-$( "#resource" ).autocomplete({
-   source: availableResources
-});
+  while ($row = mysqli_fetch_row($qry_res)) { $vals[]=(string)$row[0]; echo '<option value="'.atlas_h((string)$row[0]).'">'; }
+?>
+</datalist>
+<script>
+$(function() {
+var availableResources = <?php echo json_encode($vals, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT); ?>;
+if ($.fn && $.fn.autocomplete) { $( "#resource" ).autocomplete({ source: availableResources }); }
 });
 </script>
 </div>

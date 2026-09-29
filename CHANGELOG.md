@@ -128,6 +128,13 @@
 - Application/authentication errors are forwarded to container stderr for kubectl logs.
 - Persistent IGTF/CRL cache avoids unnecessary fetch-crl runs on pod restart.
 
+## 3.0.0-r23
+
+- Fixed mobile drawer initialization on all application pages, with a self-contained fallback in the common menu renderer.
+- Restored home search suggestions with safe server-generated datalists plus a vanilla-JavaScript autocomplete fallback; jQuery UI remains optional.
+- Fixed same-origin validation behind HAProxy/TLS passthrough by accepting Host, X-Forwarded-Host, or the configured public hostname, with same-host Referer fallback for WebKit form POSTs.
+- Reworked the home search matrix for portrait mobile so labels and controls stack within the viewport instead of overflowing horizontally.
+
 ## 3.0.0-r22
 
 - Added versioned JSON REST API v1 alongside all existing legacy GET/POST/PUT endpoints.

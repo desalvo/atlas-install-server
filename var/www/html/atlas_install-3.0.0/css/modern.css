@@ -323,3 +323,22 @@ td.selection { background: #eef4ff !important; color: #274267; font-weight: 700;
   .atlas-row-toggle { grid-column:1 / -1; justify-self:start; margin:6px 0 2px; min-height:34px; padding:5px 10px; border-radius:8px; font-size:.86rem; }
   table.atlas-mobile-collapsible-table a, table.atlas-mobile-collapsible-table button, table.atlas-mobile-collapsible-table input, table.atlas-mobile-collapsible-table select { max-width:100%; }
 }
+
+
+/* r23: portrait-safe home search form and JS-independent autocomplete. */
+.ui-widget { position:relative; max-width:100%; }
+.atlas-autocomplete-popup { position:absolute; z-index:1200; left:0; right:0; top:calc(100% + 4px); max-height:260px; overflow:auto; border:1px solid var(--atlas-border); border-radius:10px; background:#fff; box-shadow:0 12px 28px rgba(15,35,70,.16); }
+.atlas-autocomplete-option { display:block; width:100%; text-align:left; padding:9px 11px; border:0; border-radius:0; box-shadow:none; background:#fff; color:var(--atlas-text); font-weight:500; }
+.atlas-autocomplete-option:hover,.atlas-autocomplete-option:focus { background:#eef4ff; color:var(--atlas-text); }
+@media (max-width:760px) {
+  .atlas-table-scroll:has(#select_tbl) { overflow:visible!important; width:100%!important; max-width:100%!important; }
+  #select_tbl { display:block!important; width:100%!important; min-width:0!important; max-width:100%!important; white-space:normal!important; overflow:visible!important; border:0!important; background:transparent!important; }
+  #select_tbl colgroup { display:none!important; }
+  #select_tbl tbody, #select_tbl tr { display:block!important; width:100%!important; max-width:100%!important; }
+  #select_tbl tr { margin:0 0 12px!important; padding:0!important; border:1px solid var(--atlas-border); border-radius:10px; overflow:visible; background:#fff; }
+  #select_tbl td { display:block!important; width:100%!important; max-width:100%!important; min-width:0!important; box-sizing:border-box!important; white-space:normal!important; padding:10px 12px!important; }
+  #select_tbl td.selection { border-radius:10px 10px 0 0; }
+  #select_tbl input:not([type=checkbox]):not([type=radio]), #select_tbl select, #select_tbl textarea { display:block; width:100%!important; max-width:100%!important; min-width:0!important; box-sizing:border-box!important; }
+  #select_tbl .ui-widget { width:100%!important; max-width:100%!important; }
+  #select_tbl + p, #select_tbl ~ p { max-width:100%; }
+}

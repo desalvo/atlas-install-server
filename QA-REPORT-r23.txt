@@ -1,0 +1,16 @@
+ATLAS Installation Server 3.0.0-r23 QA scope
+============================================
+
+Regression fixes validated:
+- mobile drawer common fallback present in menubar renderer
+- mobile drawer JS syntax validated
+- home autocomplete server datalists present for release/site/resource
+- vanilla autocomplete fallback present
+- home portrait search form constrained to viewport width
+- same-origin guard trusts Host, X-Forwarded-Host, and configured ATLAS_PUBLIC_HOSTNAME
+- same-host Referer fallback present for WebKit/browser form POSTs
+- PHP syntax: PASS
+- shell syntax: PASS
+- static CI: PASS
+- Kubernetes/GitHub/Compose YAML parse: PASS
+- wizard SHA256: PASS

@@ -116,19 +116,44 @@ function atlas_same_origin_guard(): void {
     $originScheme = strtolower((string)($originParts['scheme'] ?? ''));
     $originPort = isset($originParts['port']) ? (int)$originParts['port'] : (($originScheme === 'https') ? 443 : 80);
     $requestHostRaw = trim((string)($_SERVER['HTTP_HOST'] ?? ''));
-    $requestHost = strtolower(preg_replace('/:\d+$/', '', $requestHostRaw));
-    $requestPort = (int)($_SERVER['SERVER_PORT'] ?? 0);
-    $forwardedProto = strtolower(trim(explode(',', (string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''))[0] ?? ''));
-    $https = (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off') || $forwardedProto === 'https' || (string)($_SERVER['REQUEST_SCHEME'] ?? '') === 'https';
-    if ($requestPort <= 0) $requestPort = $https ? 443 : 80;
-    // Behind TLS passthrough/FastCGI, PHP may not receive HTTPS=on. The browser Origin
-    // is authoritative for scheme while the Host header remains the authority boundary.
-    $sameHost = $originHost !== '' && $requestHost !== '' && hash_equals($requestHost, $originHost);
+    $forwardedHostRaw = trim(explode(',', (string)($_SERVER['HTTP_X_FORWARDED_HOST'] ?? ''))[0] ?? '');
+    $configuredHostRaw = trim((string)atlas_env('ATLAS_PUBLIC_HOSTNAME', ''));
+    $normalizeHost = static function(string $raw): string {
+        $raw = trim(strtolower($raw));
+        if ($raw === '') return '';
+        if ($raw[0] === '[') { // IPv6 host[:port]
+            $end = strpos($raw, ']');
+            return $end === false ? $raw : substr($raw, 1, $end - 1);
+        }
+        return preg_replace('/:\d+$/', '', $raw) ?? $raw;
+    };
+    $allowedHosts = array_values(array_unique(array_filter([
+        $normalizeHost($requestHostRaw),
+        $normalizeHost($forwardedHostRaw),
+        $normalizeHost($configuredHostRaw),
+    ])));
+    $sameHost = $originHost !== '' && in_array($normalizeHost($originHost), $allowedHosts, true);
+
+    // Some WebKit/privacy configurations omit or sanitize Origin on ordinary form POSTs.
+    // In that case accept a same-host Referer. We still never trust an arbitrary proxy host:
+    // it must match Host, X-Forwarded-Host, or the configured ATLAS public hostname.
+    if (!$sameHost) {
+        $referer = (string)($_SERVER['HTTP_REFERER'] ?? '');
+        if ($referer !== '') {
+            $refParts = parse_url($referer);
+            $refHost = $normalizeHost((string)($refParts['host'] ?? ''));
+            if ($refHost !== '' && in_array($refHost, $allowedHosts, true)) $sameHost = true;
+        }
+    }
+
     $standardOriginPort = ($originScheme === 'https' && $originPort === 443) || ($originScheme === 'http' && $originPort === 80);
-    $hostHeaderHasPort = (bool)preg_match('/:(\d+)$/', $requestHostRaw, $hm);
-    $samePort = !$hostHeaderHasPort || ((int)$hm[1] === $originPort) || $standardOriginPort;
+    $explicitPublicPort = null;
+    foreach ([$forwardedHostRaw, $requestHostRaw] as $candidateHost) {
+        if (preg_match('/:(\d+)$/', $candidateHost, $hm)) { $explicitPublicPort = (int)$hm[1]; break; }
+    }
+    $samePort = $explicitPublicPort === null || $explicitPublicPort === $originPort || $standardOriginPort;
     if (!in_array($originScheme, ['http','https'], true) || !$sameHost || !$samePort) {
-        error_log('[ATLAS_APP] same_origin_rejected uri=' . (string)($_SERVER['REQUEST_URI'] ?? '') . ' origin=' . $origin . ' host=' . $requestHostRaw);
+        error_log('[ATLAS_APP] same_origin_rejected uri=' . (string)($_SERVER['REQUEST_URI'] ?? '') . ' origin=' . $origin . ' host=' . $requestHostRaw . ' forwarded_host=' . $forwardedHostRaw . ' configured_host=' . $configuredHostRaw);
         http_response_code(403);
         exit('Cross-origin state-changing request rejected');
     }
