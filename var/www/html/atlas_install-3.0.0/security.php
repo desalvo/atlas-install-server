@@ -30,6 +30,36 @@ function atlas_env(string $name, ?string $default = null): ?string {
     return isset($fileEnv[$name]) && $fileEnv[$name] !== '' ? (string)$fileEnv[$name] : $default;
 }
 
+function atlas_db_bool(string $name, bool $default = false): bool {
+    $raw = atlas_env($name, $default ? '1' : '0');
+    return filter_var((string)$raw, FILTER_VALIDATE_BOOL);
+}
+
+/**
+ * Open a MariaDB/MySQL connection using the common ATLAS TLS policy.
+ * ATLAS_DB_SSL=1 enables TLS. ATLAS_DB_SSL_VERIFY=1 enables server certificate
+ * verification; ATLAS_DB_SSL_CA may point to a CA bundle inside the container.
+ */
+function atlas_mysqli_connect(string $host, string $user, string $password, string $db, int $port = 3306): mysqli {
+    mysqli_report(MYSQLI_REPORT_OFF);
+    $conn = mysqli_init();
+    if (!$conn) throw new RuntimeException('mysqli_init failed');
+
+    $flags = 0;
+    if (atlas_db_bool('ATLAS_DB_SSL', false)) {
+        $verify = atlas_db_bool('ATLAS_DB_SSL_VERIFY', false);
+        $ca = trim((string)atlas_env('ATLAS_DB_SSL_CA', ''));
+        if (defined('MYSQLI_OPT_SSL_VERIFY_SERVER_CERT')) {
+            @$conn->options(MYSQLI_OPT_SSL_VERIFY_SERVER_CERT, $verify);
+        }
+        @mysqli_ssl_set($conn, null, null, $ca !== '' ? $ca : null, null, null);
+        $flags |= MYSQLI_CLIENT_SSL;
+    }
+
+    @$conn->real_connect($host, $user, $password, $db, $port, null, $flags);
+    return $conn;
+}
+
 function atlas_h(mixed $value): string {
     return htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }

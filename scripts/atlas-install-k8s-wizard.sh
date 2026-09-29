@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-WIZARD_VERSION="3.0.0-r11"
+WIZARD_VERSION="3.0.0-r12"
 DEFAULT_REPO="desalvo/atlas-install-server"
 DEFAULT_REF="main"
 DEFAULT_NAMESPACE="atlas-install"
@@ -24,12 +24,15 @@ DEFAULT_DB_HOST="192.168.1.145"
 DEFAULT_DB_RW_USER="atlas_rw"
 DEFAULT_DB_RO_USER="atlas_ro"
 DEFAULT_DB_BROKER_USER="atlas_rw"
+DEFAULT_DB_SSL="no"
+DEFAULT_DB_SSL_VERIFY="no"
+DEFAULT_DB_SSL_CA=""
 DEFAULT_VO="ATLAS"
 DEFAULT_EMAIL="no-reply@localhost"
 DEFAULT_INFOSYS="lcg-bdii.cern.ch"
 DEFAULT_ACTIVITY_PERIOD="3 DAY"
 DEFAULT_DEBUG="0"
-DEFAULT_AUTO_UPDATE_WIZARD="no"
+DEFAULT_AUTO_UPDATE_WIZARD="yes"
 DEFAULT_NODE_SELECTOR_ENABLED="no"
 DEFAULT_NODE_SELECTOR=""
 
@@ -40,6 +43,11 @@ OUTPUT_DIR="${PWD}/atlas-install-kubernetes"
 CLI_OUTPUT_DIR=""
 CLI_DB_HOST=""
 DB_HOST_EXPLICIT=0
+DB_SSL_EXPLICIT=0
+DB_SSL_VERIFY_EXPLICIT=0
+CLI_DB_SSL=""
+CLI_DB_SSL_VERIFY=""
+CLI_DB_SSL_CA=""
 PRESERVE_EXISTING_PASSWORDS=0
 APPLY_MANIFESTS=""
 MANAGE_SECRETS=""
@@ -58,6 +66,11 @@ Usage: $(basename "$0") [options]
 Options:
   --output-dir DIR       Directory where rendered manifests are written
   --db-host HOST         Database IP/hostname used for RW, RO and broker connections
+  --db-ssl               Enable TLS/SSL for database connections
+  --no-db-ssl            Disable TLS/SSL for database connections
+  --db-ssl-verify        Verify the database TLS server certificate
+  --no-db-ssl-verify     Do not verify the database TLS server certificate
+  --db-ssl-ca PATH       CA bundle path inside the application container
   --generate-only        Render manifests only; do not touch the cluster
   --apply                Render/apply manifests and manage secrets
   --non-interactive      Use stored/default values; existing secrets are kept unless explicitly requested
@@ -71,6 +84,9 @@ Optional environment variables for automation:
   ATLAS_UPDATE_BOOTSTRAP_SECRET=1     Update an existing bootstrap secret in non-interactive mode
   ATLAS_UPDATE_TLS_SECRET=1           Update an existing TLS secret in non-interactive mode
   ATLAS_DB_HOST                       Database IP/hostname used for RW, RO and broker connections
+  ATLAS_DB_SSL=1                      Enable database TLS/SSL
+  ATLAS_DB_SSL_VERIFY=1               Verify database TLS server certificate
+  ATLAS_DB_SSL_CA                     CA bundle path inside the application container
   ATLAS_DB_RW_PASSWORD                Bootstrap RW database password
   ATLAS_DB_RO_PASSWORD                Bootstrap RO database password
   ATLAS_DB_BROKER_PASSWORD            Bootstrap broker database password
@@ -161,6 +177,9 @@ save_state() {
     printf 'DB_RO_USER=%q\n' "$DB_RO_USER"
     printf 'DB_BROKER_HOST=%q\n' "$DB_BROKER_HOST"
     printf 'DB_BROKER_USER=%q\n' "$DB_BROKER_USER"
+    printf 'DB_SSL=%q\n' "$DB_SSL"
+    printf 'DB_SSL_VERIFY=%q\n' "$DB_SSL_VERIFY"
+    printf 'DB_SSL_CA=%q\n' "$DB_SSL_CA"
     printf 'ATLAS_VO_VALUE=%q\n' "$ATLAS_VO_VALUE"
     printf 'ATLAS_EMAIL_VALUE=%q\n' "$ATLAS_EMAIL_VALUE"
     printf 'ATLAS_CONTACTS_VALUE=%q\n' "$ATLAS_CONTACTS_VALUE"
@@ -271,16 +290,27 @@ maybe_self_update() {
     log "WARNING: remote wizard checksum verification failed; refusing self-update."
     return 0
   fi
-  if cmp -s "$self" "$tmp_script"; then
+  local remote_version newest
+  remote_version="$(sed -n 's/^WIZARD_VERSION="\([^"]*\)"/\1/p' "$tmp_script" | head -n1)"
+  [[ -n "$remote_version" ]] || { rm -f "$tmp_script" "$tmp_sum"; log "WARNING: remote wizard has no version marker; refusing self-update."; return 0; }
+  if [[ "$remote_version" == "$WIZARD_VERSION" ]]; then
     rm -f "$tmp_script" "$tmp_sum"
-    log "Wizard is already current."
+    log "Wizard is already current ($WIZARD_VERSION)."
+    return 0
+  fi
+  newest="$(printf '%s\n%s\n' "$WIZARD_VERSION" "$remote_version" | sort -V | tail -n1)"
+  if [[ "$newest" != "$remote_version" ]]; then
+    rm -f "$tmp_script" "$tmp_sum"
+    log "Remote wizard $remote_version is older than local $WIZARD_VERSION; keeping local copy."
     return 0
   fi
   chmod --reference="$self" "$tmp_script" 2>/dev/null || chmod 0755 "$tmp_script"
   mv -f "$tmp_script" "$self"
   rm -f "$tmp_sum"
-  log "Wizard updated from GitHub: $GITHUB_REPO@$GITHUB_REF"
-  log "The updated wizard will be used on the next execution."
+  log "Wizard updated from $WIZARD_VERSION to $remote_version via $GITHUB_REPO@$GITHUB_REF"
+  log "Restarting automatically with the updated wizard."
+  export ATLAS_WIZARD_SKIP_SELF_UPDATE=1
+  exec bash "$self" "${ORIGINAL_ARGS[@]}"
 }
 
 fetch_template() {
@@ -369,6 +399,8 @@ env_quote() {
 
 seed_bootstrap_defaults_from_secret() {
   local data="$1" raw plain
+  # Pre-r12 bootstrap Secrets have no DB TLS keys; treat absence as TLS disabled.
+  DB_SSL_RAW=""; DB_SSL_VERIFY_RAW=""; DB_SSL=no; DB_SSL_VERIFY=no; DB_SSL_CA=""
   while IFS='|' read -r key var; do
     raw="$(env_raw_value "$data" "$key")"
     [[ -n "$raw" ]] || continue
@@ -382,6 +414,9 @@ ATLAS_DB_RO_HOST|DB_RO_HOST
 ATLAS_DB_RO_USER|DB_RO_USER
 ATLAS_DB_BROKER_HOST|DB_BROKER_HOST
 ATLAS_DB_BROKER_USER|DB_BROKER_USER
+ATLAS_DB_SSL|DB_SSL_RAW
+ATLAS_DB_SSL_VERIFY|DB_SSL_VERIFY_RAW
+ATLAS_DB_SSL_CA|DB_SSL_CA
 ATLAS_VO|ATLAS_VO_VALUE
 ATLAS_EMAIL|ATLAS_EMAIL_VALUE
 ATLAS_CONTACTS|ATLAS_CONTACTS_VALUE
@@ -389,6 +424,8 @@ ATLAS_DEFAULT_INFOSYS|ATLAS_DEFAULT_INFOSYS_VALUE
 ATLAS_ACTIVITY_PERIOD|ATLAS_ACTIVITY_PERIOD_VALUE
 ATLAS_DEBUG|ATLAS_DEBUG_VALUE
 MAP
+  if [[ -n "${DB_SSL_RAW:-}" ]]; then truthy "$DB_SSL_RAW" && DB_SSL=yes || DB_SSL=no; fi
+  if [[ -n "${DB_SSL_VERIFY_RAW:-}" ]]; then truthy "$DB_SSL_VERIFY_RAW" && DB_SSL_VERIFY=yes || DB_SSL_VERIFY=no; fi
 }
 
 prompt_bootstrap_nonsecrets() {
@@ -450,6 +487,9 @@ apply_bootstrap_secret_content() {
     printf 'ATLAS_DB_BROKER_HOST=%s\n' "$(env_quote "$DB_BROKER_HOST")"
     printf 'ATLAS_DB_BROKER_USER=%s\n' "$(env_quote "$DB_BROKER_USER")"
     printf 'ATLAS_DB_BROKER_PASSWORD=%s\n' "$broker_pw"
+    printf 'ATLAS_DB_SSL=%s\n' "$(env_quote "$([[ "$DB_SSL" == yes ]] && echo 1 || echo 0)")"
+    printf 'ATLAS_DB_SSL_VERIFY=%s\n' "$(env_quote "$([[ "$DB_SSL_VERIFY" == yes ]] && echo 1 || echo 0)")"
+    printf 'ATLAS_DB_SSL_CA=%s\n' "$(env_quote "$DB_SSL_CA")"
     printf 'ATLAS_VO=%s\n' "$(env_quote "$ATLAS_VO_VALUE")"
     printf 'ATLAS_EMAIL=%s\n' "$(env_quote "$ATLAS_EMAIL_VALUE")"
     printf 'ATLAS_CONTACTS=%s\n' "$(env_quote "$ATLAS_CONTACTS_VALUE")"
@@ -471,27 +511,30 @@ apply_bootstrap_secret_content() {
 
 manage_bootstrap_secret() {
   local name="${APP_NAME}-bootstrap" existing="" do_update=1
-  local requested_host="$DB_HOST" old_rw="" old_ro="" old_broker="" endpoint_changed=0
+  local requested_host="$DB_HOST" requested_ssl="$DB_SSL" requested_verify="$DB_SSL_VERIFY" requested_ca="$DB_SSL_CA" old_rw="" old_ro="" old_broker="" endpoint_changed=0 tls_changed=0
   if secret_exists "$name"; then
     existing="$(get_existing_bootstrap_env)"
     log "Existing bootstrap secret found: ${NAMESPACE}/${name}"
     seed_bootstrap_defaults_from_secret "$existing"
     old_rw="$DB_RW_HOST"; old_ro="$DB_RO_HOST"; old_broker="$DB_BROKER_HOST"
+    local old_ssl="$DB_SSL" old_verify="$DB_SSL_VERIFY" old_ca="$DB_SSL_CA"
+    DB_SSL="$requested_ssl"; DB_SSL_VERIFY="$requested_verify"; DB_SSL_CA="$requested_ca"
+    [[ "$old_ssl" != "$DB_SSL" || "$old_verify" != "$DB_SSL_VERIFY" || "$old_ca" != "$DB_SSL_CA" ]] && tls_changed=1
 
     # The wizard exposes one database endpoint and maps it to all three application roles.
     DB_HOST="$requested_host"
     DB_RW_HOST="$DB_HOST"; DB_RO_HOST="$DB_HOST"; DB_BROKER_HOST="$DB_HOST"
-    if [[ "$old_rw" != "$DB_HOST" || "$old_ro" != "$DB_HOST" || "$old_broker" != "$DB_HOST" ]]; then
-      endpoint_changed=1
-      log "Database endpoint change requested: RW=${old_rw}, RO=${old_ro}, broker=${old_broker} -> ${DB_HOST}"
+    if [[ "$old_rw" != "$DB_HOST" || "$old_ro" != "$DB_HOST" || "$old_broker" != "$DB_HOST" || $tls_changed -eq 1 ]]; then
+      [[ "$old_rw" != "$DB_HOST" || "$old_ro" != "$DB_HOST" || "$old_broker" != "$DB_HOST" ]] && endpoint_changed=1
+      log "Database connection settings change requested: endpoint=${DB_HOST}, TLS=${DB_SSL}, verify=${DB_SSL_VERIFY}, CA=${DB_SSL_CA:-system/default}"
       if (( NON_INTERACTIVE )); then
-        if (( DB_HOST_EXPLICIT )) || truthy "${ATLAS_UPDATE_BOOTSTRAP_SECRET:-0}"; then
+        if (( DB_HOST_EXPLICIT || DB_SSL_EXPLICIT || DB_SSL_VERIFY_EXPLICIT )) || truthy "${ATLAS_UPDATE_BOOTSTRAP_SECRET:-0}"; then
           do_update=1
         else
           die "stored database endpoint differs from Kubernetes Secret; use --db-host/ATLAS_DB_HOST or ATLAS_UPDATE_BOOTSTRAP_SECRET=1"
         fi
       else
-        yesno "Update database endpoint in bootstrap Secret to '$DB_HOST' and keep existing DB passwords?" y && do_update=1 || do_update=0
+        yesno "Update database connection settings in bootstrap Secret and keep existing DB passwords?" y && do_update=1 || do_update=0
       fi
       if (( ! do_update )); then
         log "Bootstrap secret retained unchanged; database endpoint remains ${old_rw}."
@@ -501,7 +544,7 @@ manage_bootstrap_secret() {
       PRESERVE_EXISTING_PASSWORDS=1
       apply_bootstrap_secret_content "$existing"
       PRESERVE_EXISTING_PASSWORDS=0
-      log "Database endpoint updated without rotating database passwords."
+      log "Database connection settings updated without rotating database passwords."
       return 0
     fi
 
@@ -608,6 +651,11 @@ while (($#)); do
   case "$1" in
     --output-dir) [[ $# -ge 2 ]] || die "--output-dir requires a value"; CLI_OUTPUT_DIR="$2"; shift 2 ;;
     --db-host) [[ $# -ge 2 ]] || die "--db-host requires a value"; CLI_DB_HOST="$2"; DB_HOST_EXPLICIT=1; shift 2 ;;
+    --db-ssl) CLI_DB_SSL=yes; DB_SSL_EXPLICIT=1; shift ;;
+    --no-db-ssl) CLI_DB_SSL=no; DB_SSL_EXPLICIT=1; shift ;;
+    --db-ssl-verify) CLI_DB_SSL_VERIFY=yes; DB_SSL_VERIFY_EXPLICIT=1; shift ;;
+    --no-db-ssl-verify) CLI_DB_SSL_VERIFY=no; DB_SSL_VERIFY_EXPLICIT=1; shift ;;
+    --db-ssl-ca) [[ $# -ge 2 ]] || die "--db-ssl-ca requires a value"; CLI_DB_SSL_CA="$2"; DB_SSL_VERIFY_EXPLICIT=1; shift 2 ;;
     --generate-only) APPLY_MANIFESTS="no"; MANAGE_SECRETS="no"; shift ;;
     --apply) APPLY_MANIFESTS="yes"; MANAGE_SECRETS="yes"; shift ;;
     --non-interactive) NON_INTERACTIVE=1; shift ;;
@@ -622,6 +670,7 @@ done
 need_cmd curl
 need_cmd sha256sum
 need_cmd cmp
+need_cmd sort
 
 had_state=0
 load_state && had_state=1 || true
@@ -661,6 +710,15 @@ DB_RO_HOST="${DB_RO_HOST:-$DB_HOST}"
 DB_RO_USER="${DB_RO_USER:-$DEFAULT_DB_RO_USER}"
 DB_BROKER_HOST="${DB_BROKER_HOST:-$DB_HOST}"
 DB_BROKER_USER="${DB_BROKER_USER:-$DEFAULT_DB_BROKER_USER}"
+DB_SSL="${DB_SSL:-$DEFAULT_DB_SSL}"
+DB_SSL_VERIFY="${DB_SSL_VERIFY:-$DEFAULT_DB_SSL_VERIFY}"
+DB_SSL_CA="${DB_SSL_CA:-$DEFAULT_DB_SSL_CA}"
+if [[ -n "${ATLAS_DB_SSL:-}" ]]; then truthy "$ATLAS_DB_SSL" && DB_SSL=yes || DB_SSL=no; DB_SSL_EXPLICIT=1; fi
+if [[ -n "${ATLAS_DB_SSL_VERIFY:-}" ]]; then truthy "$ATLAS_DB_SSL_VERIFY" && DB_SSL_VERIFY=yes || DB_SSL_VERIFY=no; DB_SSL_VERIFY_EXPLICIT=1; fi
+[[ -n "${ATLAS_DB_SSL_CA:-}" ]] && DB_SSL_CA="$ATLAS_DB_SSL_CA"
+[[ -n "$CLI_DB_SSL" ]] && DB_SSL="$CLI_DB_SSL"
+[[ -n "$CLI_DB_SSL_VERIFY" ]] && DB_SSL_VERIFY="$CLI_DB_SSL_VERIFY"
+[[ -n "$CLI_DB_SSL_CA" ]] && DB_SSL_CA="$CLI_DB_SSL_CA"
 ATLAS_VO_VALUE="${ATLAS_VO_VALUE:-$DEFAULT_VO}"
 ATLAS_EMAIL_VALUE="${ATLAS_EMAIL_VALUE:-$DEFAULT_EMAIL}"
 ATLAS_CONTACTS_VALUE="${ATLAS_CONTACTS_VALUE:-}"
@@ -669,11 +727,14 @@ ATLAS_ACTIVITY_PERIOD_VALUE="${ATLAS_ACTIVITY_PERIOD_VALUE:-$DEFAULT_ACTIVITY_PE
 ATLAS_DEBUG_VALUE="${ATLAS_DEBUG_VALUE:-$DEFAULT_DEBUG}"
 TLS_CERT_PATH="${TLS_CERT_PATH:-}"
 TLS_KEY_PATH="${TLS_KEY_PATH:-}"
-AUTO_UPDATE_WIZARD="${AUTO_UPDATE_WIZARD:-$DEFAULT_AUTO_UPDATE_WIZARD}"
+AUTO_UPDATE_WIZARD="$DEFAULT_AUTO_UPDATE_WIZARD"
+[[ "$SELF_UPDATE_OVERRIDE" == no ]] && AUTO_UPDATE_WIZARD=no
+[[ "$SELF_UPDATE_OVERRIDE" == yes ]] && AUTO_UPDATE_WIZARD=yes
 NODE_SELECTOR_ENABLED="${NODE_SELECTOR_ENABLED:-$DEFAULT_NODE_SELECTOR_ENABLED}"
 NODE_SELECTOR="${NODE_SELECTOR:-$DEFAULT_NODE_SELECTOR}"
 OUTPUT_DIR="${CLI_OUTPUT_DIR:-${OUTPUT_DIR:-${PWD}/atlas-install-kubernetes}}"
 
+maybe_self_update
 log "ATLAS Installation Server Kubernetes wizard $WIZARD_VERSION"
 log "State: $STATE_FILE"
 
@@ -686,18 +747,6 @@ else
   validate_repo "$GITHUB_REPO"
 fi
 GITHUB_REF="$(prompt 'GitHub ref/branch/tag for Kubernetes templates' "$GITHUB_REF")"
-if [[ -n "$SELF_UPDATE_OVERRIDE" ]]; then
-  AUTO_UPDATE_WIZARD="$SELF_UPDATE_OVERRIDE"
-elif truthy "${ATLAS_WIZARD_AUTO_UPDATE:-0}"; then
-  AUTO_UPDATE_WIZARD=yes
-elif (( ! NON_INTERACTIVE )); then
-  if yesno "Automatically update this wizard from GitHub on future runs?" "$([[ "$AUTO_UPDATE_WIZARD" == yes ]] && echo y || echo n)"; then
-    AUTO_UPDATE_WIZARD=yes
-  else
-    AUTO_UPDATE_WIZARD=no
-  fi
-fi
-maybe_self_update
 NAMESPACE="$(prompt 'Kubernetes namespace' "$NAMESPACE")"
 APP_NAME="$(prompt 'Application resource prefix' "$APP_NAME")"
 validate_dns_label "$NAMESPACE"; validate_dns_label "$APP_NAME"
@@ -716,6 +765,19 @@ MEMORY_LIMIT="$(prompt 'Memory limit' "$MEMORY_LIMIT")"
 DB_HOST="$(prompt 'Database server/IP (RW, RO and broker)' "$DB_HOST")"
 validate_db_host "$DB_HOST"
 DB_RW_HOST="$DB_HOST"; DB_RO_HOST="$DB_HOST"; DB_BROKER_HOST="$DB_HOST"
+if (( ! NON_INTERACTIVE )); then
+  if yesno "Use TLS/SSL for database connections?" "$([[ "$DB_SSL" == yes ]] && echo y || echo n)"; then
+    DB_SSL=yes
+    if yesno "Verify database TLS server certificate?" "$([[ "$DB_SSL_VERIFY" == yes ]] && echo y || echo n)"; then
+      DB_SSL_VERIFY=yes
+      DB_SSL_CA="$(prompt 'Database TLS CA bundle path inside container (blank = system trust)' "$DB_SSL_CA")"
+    else
+      DB_SSL_VERIFY=no; DB_SSL_CA=""
+    fi
+  else
+    DB_SSL=no; DB_SSL_VERIFY=no; DB_SSL_CA=""
+  fi
+fi
 if [[ -n "${ATLAS_NODE_SELECTOR:-}" ]]; then
   NODE_SELECTOR_ENABLED=yes
   NODE_SELECTOR="$ATLAS_NODE_SELECTOR"
@@ -770,6 +832,7 @@ Application: $APP_NAME
 Image: $IMAGE
 Public hostname: $PUBLIC_HOSTNAME
 Database endpoint: $DB_HOST
+Database TLS: $DB_SSL (verify=$DB_SSL_VERIFY, ca=${DB_SSL_CA:-system/default})
 Kustomize entrypoint: $OUTPUT_DIR/kustomization.yaml
 Node selector: $([[ "$NODE_SELECTOR_ENABLED" == yes ]] && printf '%s' "$NODE_SELECTOR" || printf 'disabled')
 Wizard auto-update: $AUTO_UPDATE_WIZARD

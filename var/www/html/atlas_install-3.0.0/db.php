@@ -27,13 +27,13 @@ function db_conn($dest='rw') {
         if ($LJSFi_dbuser[$dest] === '') {
             throw new RuntimeException("Database credentials are not configured for '$dest'");
         }
-        $conn = @new mysqli($LJSFi_dbserv[$dest], $LJSFi_dbuser[$dest], $LJSFi_dbpass[$dest], $LJSFi_dbname);
+        $conn = atlas_mysqli_connect($LJSFi_dbserv[$dest], $LJSFi_dbuser[$dest], $LJSFi_dbpass[$dest], $LJSFi_dbname, 3306);
         $dbname = $LJSFi_dbname;
     } else {
         if (!preg_match('/^([^:]+):([^@]+)@([^\\/]+)\\/([A-Za-z0-9_]+)(?::([0-9]+))?$/', $dest, $m)) {
             throw new InvalidArgumentException('Invalid database destination');
         }
-        $conn = @new mysqli($m[3], $m[1], $m[2], $m[4], isset($m[5]) ? (int)$m[5] : 3306);
+        $conn = atlas_mysqli_connect($m[3], $m[1], $m[2], $m[4], isset($m[5]) ? (int)$m[5] : 3306);
         $dbname = $m[4];
     }
     if ($conn->connect_errno) {

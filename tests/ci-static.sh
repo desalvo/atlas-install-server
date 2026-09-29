@@ -68,7 +68,7 @@ if ! grep -Fq 'kubectl apply -k "$OUTPUT_DIR"' scripts/atlas-install-k8s-wizard.
   printf 'Wizard must apply generated resources through Kustomize.\n' >&2
   fail=1
 fi
-for token in '--self-update' 'ATLAS_WIZARD_AUTO_UPDATE' 'atlas-install-k8s-wizard.sh.sha256' 'Use an optional nodeSelector' 'ATLAS_NODE_SELECTOR' '--db-host' 'ATLAS_DB_HOST' 'Database server/IP (RW, RO and broker)' 'Database endpoint updated without rotating database passwords.'; do
+for token in '--self-update' 'ATLAS_WIZARD_AUTO_UPDATE' 'atlas-install-k8s-wizard.sh.sha256' 'Use an optional nodeSelector' 'ATLAS_NODE_SELECTOR' '--db-host' 'ATLAS_DB_HOST' '--db-ssl' 'ATLAS_DB_SSL' 'Restarting automatically with the updated wizard.' 'Database server/IP (RW, RO and broker)' 'Database connection settings updated without rotating database passwords.'; do
   if ! grep -Fq -- "$token" scripts/atlas-install-k8s-wizard.sh; then
     printf 'Wizard feature missing: %s\n' "$token" >&2
     fail=1

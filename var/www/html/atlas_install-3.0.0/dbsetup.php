@@ -5,7 +5,7 @@
   function db_conn($dest="rw") {
     require("config.php");
     global $dbconn;
-    $dbconn = new mysqli($LJSFi_dbserv[$dest],$LJSFi_dbuser[$dest],$LJSFi_dbpass[$dest],$LJSFi_dbname);
+    $dbconn = atlas_mysqli_connect($LJSFi_dbserv[$dest],$LJSFi_dbuser[$dest],$LJSFi_dbpass[$dest],$LJSFi_dbname,3306);
     if (!$dbconn) {
       echo ( "<P>Cannot connect to db server ".$LJSFi_dbserv[$dest]."</P>");
       exit();

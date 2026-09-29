@@ -131,3 +131,10 @@ Reset saved non-secret choices with:
 The Kubernetes bootstrap Secret is the authoritative source for the managed `atlas-install.env`. On container startup, the entrypoint compares the mounted Secret with `/var/lib/atlas-install/config/atlas-install.env` and atomically refreshes the persistent file when they differ. While the container is running, it checks the mounted Secret every 5 seconds by default (`ATLAS_BOOTSTRAP_SYNC_SECONDS`).
 
 When the wizard itself changes the bootstrap Secret, it also performs a Deployment rollout restart. This guarantees that settings consumed only during startup are reloaded as well as runtime database settings. Database passwords remain in the Secret and are not written to wizard state.
+
+
+## Database TLS and wizard self-update (r12)
+
+The wizard can enable TLS independently from server HTTPS. It stores `ATLAS_DB_SSL`, `ATLAS_DB_SSL_VERIFY`, and `ATLAS_DB_SSL_CA` in the bootstrap Secret. When TLS is enabled, every mysqli connection, including readiness, uses `MYSQLI_CLIENT_SSL`. Certificate verification is optional; when enabled, `ATLAS_DB_SSL_CA` may reference a CA bundle inside the application container (blank uses the system trust store).
+
+The wizard checks its configured GitHub source automatically at invocation. A candidate is accepted only when its published SHA-256 matches and its `WIZARD_VERSION` is newer than the local version. After atomic replacement the wizard immediately re-executes itself once; an environment guard prevents update loops. `--no-self-update` disables the check for that invocation.

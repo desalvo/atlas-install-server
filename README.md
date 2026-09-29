@@ -142,3 +142,17 @@ The Kubernetes/container deployment serves HTTPS only on unprivileged port `8443
 ### Container CRL handling (r9)
 
 Apache uses `/etc/grid-security/certificates` as both `SSLCACertificatePath` and `SSLCARevocationPath`; `fetch-crl` refreshes CRLs asynchronously with a bounded timeout.
+
+## r12: optional database TLS and automatic wizard restart
+
+The Kubernetes wizard can configure TLS independently for MariaDB connections. The bootstrap environment uses:
+
+```text
+ATLAS_DB_SSL="1"
+ATLAS_DB_SSL_VERIFY="0"
+ATLAS_DB_SSL_CA=""
+```
+
+`ATLAS_DB_SSL=1` enables `MYSQLI_CLIENT_SSL` for every application database role and for readiness. Set `ATLAS_DB_SSL_VERIFY=1` to verify the database server certificate; `ATLAS_DB_SSL_CA` may point to a CA bundle inside the container, or remain blank to use the system trust store.
+
+The Kubernetes wizard checks its configured GitHub source at startup by default. It accepts only a newer `WIZARD_VERSION` whose published SHA-256 matches, refuses downgrades, replaces itself atomically, and immediately restarts itself with the original arguments. Use `--no-self-update` to skip the check for a run.

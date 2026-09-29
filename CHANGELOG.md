@@ -1,3 +1,10 @@
+## 3.0.0-r12
+
+- Added optional TLS/SSL for all MariaDB connections with `ATLAS_DB_SSL`, optional certificate verification via `ATLAS_DB_SSL_VERIFY`, and optional CA bundle `ATLAS_DB_SSL_CA`.
+- Readiness, application RW/RO/broker connections, DB setup, and the protected configuration DB test now share the same TLS-aware mysqli connector.
+- Kubernetes wizard configures database TLS and preserves those settings in the bootstrap Secret.
+- Wizard self-update is enabled by default, refuses downgrades, verifies SHA-256, atomically replaces itself, and immediately re-execs the updated version.
+
 # Changelog
 
 ## 3.0.0-r11

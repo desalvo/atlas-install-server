@@ -80,6 +80,7 @@ function cfg_write_env_file(string $path, array $values): void {
         'ATLAS_DB_RW_HOST','ATLAS_DB_RW_USER','ATLAS_DB_RW_PASSWORD',
         'ATLAS_DB_RO_HOST','ATLAS_DB_RO_USER','ATLAS_DB_RO_PASSWORD',
         'ATLAS_DB_BROKER_HOST','ATLAS_DB_BROKER_USER','ATLAS_DB_BROKER_PASSWORD',
+        'ATLAS_DB_SSL','ATLAS_DB_SSL_VERIFY','ATLAS_DB_SSL_CA',
         'ATLAS_DB_GRANT_HOST','ATLAS_HOST_CERT_SOURCE','ATLAS_HOST_KEY_SOURCE',
         'ATLAS_HOST_CERT','ATLAS_HOST_KEY','ATLAS_UPLOAD_PATH','ATLAS_ARCHIVE_PATH',
         'ATLAS_CACHE_PATH','ATLAS_KML_CACHE','ATLAS_DEBUG','ATLAS_MAX_LOG_DIRS',
@@ -109,7 +110,7 @@ function cfg_write_env_file(string $path, array $values): void {
 
 function cfg_test_db(string $host, string $user, string $password, string $db): string {
     mysqli_report(MYSQLI_REPORT_OFF);
-    $conn = @new mysqli($host, $user, $password, $db, 3306);
+    $conn = atlas_mysqli_connect($host, $user, $password, $db, 3306);
     if ($conn->connect_errno) return 'Connection failed: ' . $conn->connect_error;
     if (!$conn->set_charset('utf8mb4')) { $conn->close(); return 'Connected, but utf8mb4 could not be enabled.'; }
     $ok = $conn->query('SELECT 1');
