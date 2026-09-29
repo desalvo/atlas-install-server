@@ -201,7 +201,7 @@ printf '== r24 mobile menu and list.php structural regressions ==\n'
 grep -q "function initAll(){initAutocompleteFallback();}" "$APP_DIR/js/atlas-ui.js" || { printf 'atlas-ui.js still owns duplicate menu handlers.\n' >&2; fail=1; }
 grep -q "bar.addEventListener('click'" "$APP_DIR/css/menubar.php" || { printf 'Delegated common mobile submenu handler missing.\n' >&2; fail=1; }
 grep -q 'id="atlas-list-filter-form"' "$APP_DIR/list.php" || { printf 'Valid external list filter form missing.\n' >&2; fail=1; }
-grep -q '<THEAD><TR class="atlas-list-filter-row">' "$APP_DIR/list.php" || { printf 'Valid list table header row missing.\n' >&2; fail=1; }
+grep -q '<THEAD><TR class="atlas-list-column-row">' "$APP_DIR/list.php" || { printf 'Valid list table header row missing.\n' >&2; fail=1; }
 if grep -q '</TR><TBODY>' "$APP_DIR/list.php"; then printf 'Repeated invalid TBODY markup remains in list.php.\n' >&2; fail=1; fi
 grep -q 'data-label="Num"' "$APP_DIR/list.php" || { printf 'Mobile Num primary field missing.\n' >&2; fail=1; }
 grep -q 'data-label="Release number"' "$APP_DIR/list.php" || { printf 'Mobile Release number primary field missing.\n' >&2; fail=1; }
@@ -211,10 +211,10 @@ grep -q 'row.addEventListener' "$APP_DIR/css/page_header.php" || { printf 'Whole
 grep -q 'max-width:1024px.*pointer:coarse' "$APP_DIR/css/modern.css" || { printf 'Landscape phone list rendering rule missing.\n' >&2; fail=1; }
 
 printf '== r25 auth/logging/layout regressions ==\n'
-if ! grep -Fq "'/atlas_install/auth/login.php','/atlas_install/auth/change_password.php'" var/www/html/atlas_install-3.0.0/security.php; then
+if ! grep -Fq "preg_match('~/auth/(?:login|change_password)\\.php/?$~'" var/www/html/atlas_install-3.0.0/security.php; then
   printf 'Local auth forms must be exempt from proxy-sensitive same-origin guard and protected by their own CSRF tokens.\n' >&2; fail=1
 fi
-if ! grep -Fq "event'=>'fatal_shutdown'" var/www/html/atlas_install-3.0.0/security.php || ! grep -Fq "event'=>'uncaught_exception'" var/www/html/atlas_install-3.0.0/security.php; then
+if ! grep -Fq "atlas_app_log('fatal_shutdown'" var/www/html/atlas_install-3.0.0/security.php || ! grep -Fq "atlas_app_log('uncaught_exception'" var/www/html/atlas_install-3.0.0/security.php; then
   printf 'PHP fatal/exception logging to container stderr is missing.\n' >&2; fail=1
 fi
 if ! grep -Fq "authentication_required" var/www/html/atlas_install-3.0.0/i18n.php || ! grep -Fq "You must authenticate with an authorized client certificate or a local account." var/www/html/atlas_install-3.0.0/i18n.php; then
@@ -237,6 +237,17 @@ fi
 if ! grep -Fq 'db_query_rest' var/www/html/atlas_install-3.0.0/access_log.php; then
   printf 'Access logging must be best-effort/non-fatal.\n' >&2; fail=1
 fi
+
+printf '== r26 list/search/OTP/logging regressions ==\n'
+grep -Fq 'class="atlas-list-search"' "$APP_DIR/list.php" || { printf 'Collapsed list search section missing.\n' >&2; fail=1; }
+if grep -Fq 'atlas-list-filter-row' "$APP_DIR/list.php"; then printf 'Per-column filter row must be removed from list.php.\n' >&2; fail=1; fi
+grep -Fq 'class="atlas-row-toggle"' "$APP_DIR/list.php" || { printf 'Leading compact list row toggle missing.\n' >&2; fail=1; }
+grep -Fq "return r.hasAttribute('data-atlas-list-record')" "$APP_DIR/css/page_header.php" || { printf 'list.php row adapter must ignore toolbar/filter rows.\n' >&2; fail=1; }
+grep -Fq 'function atlas_totp_qr_data_uri' "$APP_DIR/local_auth.php" || { printf 'Local TOTP QR rendering missing.\n' >&2; fail=1; }
+grep -Fq 'qrencode' Dockerfile || { printf 'Container QR encoder dependency missing.\n' >&2; fail=1; }
+grep -Fq "atlas_app_log('http_5xx_completed'" "$APP_DIR/security.php" || { printf 'HTTP 5xx completion logging missing.\n' >&2; fail=1; }
+grep -Fq "atlas_app_log('req_data_query'" "$APP_DIR/protected/req.php" || { printf 'req.php diagnostic logging missing.\n' >&2; fail=1; }
+grep -Fq 'class="atlas-home-footer"' "$APP_DIR/index.php" || { printf 'Home footer flow marker missing.\n' >&2; fail=1; }
 
 exit "$fail"
 

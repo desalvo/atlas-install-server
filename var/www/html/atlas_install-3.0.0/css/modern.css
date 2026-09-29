@@ -536,3 +536,40 @@ body.atlas-list-page .atlas-list-footer {
 
 /* r25: a late application error is an in-page alert, never a second page chrome. */
 .atlas-late-error { clear: both; width: min(100%, 1100px); margin: 18px auto; }
+
+
+/* r26: stable flow, full-width list cards, collapsible search and compact row toggles. */
+#site_content::after, #site_content1::after { content:""; display:block; clear:both; }
+#footer, .atlas-home-footer, .atlas-list-footer { clear:both!important; position:static!important; float:none!important; }
+body:not(.atlas-list-page) #footer { margin-top:24px!important; }
+body.atlas-list-page { overflow-x:hidden; }
+body.atlas-list-page #main.atlas-list-main { width:100%!important; max-width:none!important; margin:0!important; padding:0 10px 24px!important; }
+body.atlas-list-page #site_content1.atlas-list-site-content { width:100%!important; max-width:none!important; margin:12px 0 0!important; padding:14px!important; }
+body.atlas-list-page #content.atlas-list-content { width:100%!important; max-width:none!important; }
+body.atlas-list-page .atlas-table-scroll { width:100%!important; max-width:none!important; overflow:visible!important; }
+body.atlas-list-page #atlas-list-results { width:100%!important; max-width:none!important; }
+body.atlas-list-page #atlas-list-results > thead { display:none!important; }
+.atlas-list-search { width:100%; margin:8px 0 14px; border:1px solid var(--atlas-border); border-radius:12px; background:var(--atlas-surface-soft); }
+.atlas-list-search > summary { cursor:pointer; padding:12px 14px; font-weight:750; color:var(--atlas-text); list-style:none; }
+.atlas-list-search > summary::-webkit-details-marker { display:none; }
+.atlas-list-search > summary::after { content:'▾'; float:right; }
+.atlas-list-search[open] > summary::after { content:'▴'; }
+.atlas-list-search-form { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:10px; padding:0 14px 14px; }
+.atlas-list-search-form label { display:grid; gap:5px; min-width:0; font-weight:700; color:#334155; }
+.atlas-list-search-form label > span { font-size:12px; }
+.atlas-list-search-form select, .atlas-list-search-form input { width:100%; min-width:0; }
+.atlas-list-search-actions { display:flex; align-items:end; gap:8px; flex-wrap:wrap; }
+.atlas-secondary-button { background:#64748b!important; }
+body.atlas-list-page #atlas-list-results tr.atlas-mobile-record { grid-template-columns:repeat(4,minmax(0,1fr)); }
+body.atlas-list-page #atlas-list-results tr.atlas-mobile-record.atlas-mobile-expanded { grid-template-columns:repeat(3,minmax(0,1fr)); }
+body.atlas-list-page #atlas-list-results .atlas-row-toggle { display:inline-flex!important; align-items:center; justify-content:center; width:26px!important; height:26px!important; min-width:26px; padding:0!important; margin:0 7px 0 0!important; border-radius:50%; font-size:16px; line-height:1; box-shadow:none!important; vertical-align:middle; }
+body.atlas-list-page #atlas-list-results td[data-label="Num"] { grid-template-columns:auto auto 1fr!important; align-items:center!important; }
+body.atlas-list-page #atlas-list-results td[data-label="Num"]::before { grid-column:3; grid-row:1; }
+body.atlas-list-page #atlas-list-results td[data-label="Num"] .atlas-row-toggle { grid-column:1; grid-row:1; }
+body.atlas-list-page #atlas-list-results td[data-label="Num"] .atlas-row-num { grid-column:2; grid-row:1; font-weight:750; }
+.atlas-totp-enroll { display:flex; gap:20px; flex-wrap:wrap; align-items:center; }
+.atlas-totp-qr { margin:0; text-align:center; }
+.atlas-totp-qr img { width:min(260px,70vw); height:auto; image-rendering:pixelated; background:#fff; padding:10px; border:1px solid var(--atlas-border); border-radius:12px; }
+.atlas-totp-qr figcaption { margin-top:6px; color:var(--atlas-muted); font-size:12px; }
+@media (max-width:900px){ body.atlas-list-page #atlas-list-results tr.atlas-mobile-record, body.atlas-list-page #atlas-list-results tr.atlas-mobile-record.atlas-mobile-expanded { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media (max-width:600px){ body.atlas-list-page #main.atlas-list-main{padding:0 4px 18px!important;} body.atlas-list-page #site_content1.atlas-list-site-content{padding:8px!important;} body.atlas-list-page #atlas-list-results tr.atlas-mobile-record,body.atlas-list-page #atlas-list-results tr.atlas-mobile-record.atlas-mobile-expanded{grid-template-columns:1fr;} .atlas-list-search-form{grid-template-columns:1fr;} }

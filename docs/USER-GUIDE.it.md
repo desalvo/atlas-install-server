@@ -20,3 +20,10 @@ Le pagine con accesso negato mantengono header e menu e mostrano il link al logi
 ### Tabelle `list.php` su smartphone
 
 Su smartphone i risultati di `list.php` sono presentati come schede compatte, indipendentemente dall'orientamento dello schermo. A scheda chiusa sono sempre visibili **Num**, **Release number**, **Site name** e **Release arch**. Un tap sulla scheda o su **Dettagli** mostra gli altri campi; un secondo tap li richiude. I controlli tecnici e i campi hidden necessari al funzionamento della pagina non vengono mostrati come dati del record.
+
+
+## TOTP e QR code
+Durante la registrazione di un autenticatore TOTP vengono mostrati sia il secret testuale/URI `otpauth://` sia un QR code generato localmente dal server. Il QR non usa servizi esterni e può essere acquisito direttamente con la fotocamera dell’app Authenticator.
+
+## Elenco installazioni
+`list.php` mostra record collassati per default. I campi principali sono Num, Release number, Site name e Release arch; il controllo circolare a sinistra espande i dettagli. Filtri e ordinamento sono nella sezione **Ricerca, filtri e ordinamento**, collassata per default.

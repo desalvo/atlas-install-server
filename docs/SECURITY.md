@@ -87,3 +87,7 @@ Certificate authentication remains supported. In addition, interactive protected
 Protected HTML requests that fail authentication or authorization render the normal application shell and an explicit authorization message; they no longer terminate as a blank/plain response. The footer identifies the authenticated local account or client certificate and its effective role.
 
 Authentication failures, denied accesses and application errors are logged with the `[ATLAS_APP]` prefix and a request ID. Passwords, session tokens, TOTP codes and TOTP secrets are deliberately excluded from structured authentication log context.
+
+
+## TOTP enrollment
+TOTP QR codes are generated locally with `qrencode`; no secret is sent to an external chart/QR service. The QR encodes the same `otpauth://` URI displayed alongside the textual secret.

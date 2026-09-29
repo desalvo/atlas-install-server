@@ -1,0 +1,30 @@
+ATLAS Installation Server 3.0.0 r26 - validation summary
+=======================================================
+
+Validated changes
+-----------------
+- list.php search/filter controls moved to one collapsed section.
+- list.php rows collapsed by default with leading compact expand/collapse control.
+- Primary list fields remain Num, Release number, Site name, Release arch.
+- All list-visible columns can be selected for sorting where supported by the query.
+- list.php uses full available window width; hidden/admin controls are excluded from data cards.
+- Home and list footers are cleared from floated content and remain after page content.
+- TOTP enrollment shows textual secret/otpauth URI and a locally generated QR code.
+- QR generation uses local qrencode; no external QR service is contacted.
+- PHP/app/database/same-origin/HTTP-5xx diagnostics are written to stderr with request IDs.
+- protected/req.php adds request/query diagnostics and defensive handling around legacy status/assignee data.
+- Access-denied pages use localized generic authorization text plus localized login/certificate guidance.
+
+Validation
+----------
+- PHP lint: PASS (124 files)
+- Shell syntax: PASS
+- Kubernetes YAML parse: PASS
+- GitHub workflow YAML parse: PASS
+- Docker Compose YAML parse: PASS
+- Static CI suite: PASS
+- Wizard SHA256 sidecar: regenerated
+
+Runtime note
+------------
+A live MariaDB/Kubernetes runtime is not available in the authoring container, so req.php database-path behavior and qrencode package installation are validated statically and must also be exercised by the deployment CI/runtime smoke tests.

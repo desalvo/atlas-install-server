@@ -17,7 +17,7 @@ RUN dnf -y update \
       php php-cli php-fpm php-mysqlnd php-gd php-mbstring php-ldap php-xml \
       rsync curl openssl tar ca-certificates shadow-utils findutils procps-ng python3 \
  && dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm \
- && dnf -y install fetch-crl \
+ && dnf -y install fetch-crl qrencode \
  && dnf clean all \
  && rm -rf /var/cache/dnf /etc/httpd/conf.d/ssl.conf /var/www/html/* \
  && sed -ri 's|^[[:space:]]*Listen[[:space:]]+80([[:space:]]*)$|# disabled in container: Listen 80|' /etc/httpd/conf/httpd.conf

@@ -37,7 +37,7 @@ function db_conn($dest='rw') {
         $dbname = $m[4];
     }
     if ($conn->connect_errno) {
-        error_log($logprefix . ' database connection failed for ' . $dest . ': ' . $conn->connect_error);
+        $msg=$logprefix . ' database connection failed for ' . $dest . ': ' . $conn->connect_error; if(function_exists('atlas_log_line')) atlas_log_line($msg); else error_log($msg);
         throw new RuntimeException('Database connection failed');
     }
     if (!$conn->set_charset('utf8mb4')) {
@@ -51,7 +51,7 @@ function db_conn($dest='rw') {
 
 function db_err($err, $query='') {
     global $logprefix;
-    error_log($logprefix . ' database error: ' . $err . ($query !== '' ? ' [query hash=' . hash('sha256',$query) . ']' : ''));
+    $msg=$logprefix . ' database error: ' . $err . ($query !== '' ? ' [query hash=' . hash('sha256',$query) . ']' : ''); if(function_exists('atlas_log_line')) atlas_log_line($msg); else error_log($msg);
     if (!atlas_is_cli()) {
         http_response_code(500);
         echo '<p>Database operation failed.</p>';

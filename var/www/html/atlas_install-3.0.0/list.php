@@ -4,7 +4,7 @@
   require ("db.php");
   require ("config.php");
 ?>
-<TITLE><?php echo $LJSFi_VO; ?> Installation DB viewer</TITLE>
+<TITLE><?php echo atlas_h(trim(preg_replace('/(?:\\n|[\r\n\t ])+/', ' ', (string)$LJSFi_VO))); ?> Installation DB viewer</TITLE>
 <?php require("./css/page_header.php"); page_header("."); ?>
 <link rel="stylesheet" href="css/tooltipster.css" />
 <script type="text/javascript" src="js/jquery.tooltipster.min.js"></script>
@@ -132,10 +132,9 @@ function checkform(form) {
     <div id="site_content1" class="atlas-list-site-content">
       <div id="content" class="atlas-list-content">
         <!-- insert the page content here -->
-        <h3><?php echo $LJSFi_VO; ?> software deployment status</h3>
-<form id="atlas-list-filter-form" method="get" action="">
-<?php if (isset($_REQUEST["summary"])) echo '<input type="hidden" name="summary" value="'.htmlspecialchars((string)$_REQUEST["summary"], ENT_QUOTES, 'UTF-8').'">'; ?>
-</form>
+        <?php $atlasListTitle=trim(preg_replace('/(?:\\n|[\r\n\t ])+/', ' ', (string)$LJSFi_VO)).' software deployment status'; ?>
+        <h3><?php echo atlas_h($atlasListTitle); ?></h3>
+<!-- r26 search/filter panel is rendered after column metadata is defined. -->
 <?php
   $getstring = '';
   if (isset($roleid) && $roleid > 1 && !isset($_REQUEST["summary"])) {
@@ -144,89 +143,55 @@ function checkform(form) {
       if (is_scalar($val)) $getpairs[$key] = (string)$val;
     }
     if ($getpairs) $getstring = '?'.http_build_query($getpairs);
-    echo '<form method="post" name="ljsfadmin" action="list.php'.htmlspecialchars($getstring, ENT_QUOTES, 'UTF-8').'" onsubmit="return checkform(this);">';
+    $adminFormOpen = true;
   }
 ?>
-<TABLE id="atlas-list-results" border="2" frame="hsides" rules="groups" summary="<?php echo $LJSFi_VO; ?> software deployment status." class="table1">
-<?php if (!isset($_REQUEST["summary"])) { ?>
-<?php if (isset($roleid) && $roleid > 1) echo '<COLGROUP align="center">'; ?>
-<COLGROUP align="center">
-<COLGROUP align="center">
-<COLGROUP align="left">
-<COLGROUP align="left">
-<COLGROUP align="center">
-<COLGROUP align="left">
-<COLGROUP align="left">
-<COLGROUP align="left">
-<COLGROUP align="left">
-<COLGROUP align="center">
-<COLGROUP align="left">
-<?php } else {?>
-<COLGROUP align="center">
-<COLGROUP align="center">
-<COLGROUP align="center">
-<COLGROUP align="center">
-<COLGROUP align="center">
-<COLGROUP align="center">
-<?php } ?>
 <?php
   require("combo.php");
   if (isset($_REQUEST["summary"])) {
     $COLUMNS = array (
-                      'Entries<BR>'       => array('entries','entries')
-                     ,'Resource<BR>'      => array('s.cs','cs')
-                     ,'FS type<BR>'       => array('s.fstype','fstype')
-                     ,'Status<BR>'        => array('rs.status','status')
-                     ,'OS release<BR>'    => array('osdesc','osdesc')
-                     ,'Rate [%]<BR>'      => array('entries','entries')
-                     );
+      'Entries<BR>' => array('entries','entries'), 'Resource<BR>' => array('s.cs','cs'),
+      'FS type<BR>' => array('s.fstype','fstype'), 'Status<BR>' => array('rs.status','status'),
+      'OS release<BR>' => array('osdesc','osdesc'), 'Rate [%]<BR>' => array('entries','entries')
+    );
   } else {
     $COLUMNS = array (
-                      'Release<BR>number' => array('rs.name','rel')
-                     ,'Site name<BR>'     => array('s.name','sitename')
-                     ,'Release arch<BR>'  => array('s.arch','arch')
-                     ,'FS type<BR>'       => array('s.fstype','fstype')
-                     ,'Resource<BR>'      => array('s.cename','cename')
-                     ,'Status<BR>'        => array('rs.status','status')
-                     ,'Comments<BR>'      => array('rs.comments','comments')
-                     ,'Date<BR>'          => array('rs.date','date')
-                     ,'Installer<BR>'     => array('u.name','user')
-                     );
+      'Release<BR>number' => array('rs.name','rel'), 'Site name<BR>' => array('s.name','sitename'),
+      'Release arch<BR>' => array('s.arch','arch'), 'FS type<BR>' => array('s.fstype','fstype'),
+      'Resource<BR>' => array('s.cename','cename'), 'Status<BR>' => array('rs.status','status'),
+      'Comments<BR>' => array('rs.comments','comments'), 'Date<BR>' => array('rs.date','date'),
+      'Installer<BR>' => array('u.name','user')
+    );
   }
-  $indx = 0;
-  echo ('<THEAD><TR class="atlas-list-filter-row">');
-  if (isset($roleid) && $roleid > 1 && !isset($_REQUEST["summary"])) echo '<TH data-mobile-hidden="1" data-column-label="Sel">Sel</TH>';
-  echo ('<TH data-mobile-primary="1" data-column-label="Num">Num</TH>');
+  $cleanLabel = static fn($t) => trim(preg_replace('/<BR\s*\/?\s*>/i',' ',(string)$t));
+  echo '<details class="atlas-list-search"><summary>'.atlas_h(atlas_lang()==='it'?'Ricerca, filtri e ordinamento':'Search, filters and sorting').'</summary>';
+  echo '<form id="atlas-list-filter-form" method="get" action="list.php" class="atlas-list-search-form">';
+  if (isset($_REQUEST['summary'])) echo '<input type="hidden" name="summary" value="'.atlas_h((string)$_REQUEST['summary']).'">';
+  $indx=0;
   foreach($COLUMNS as $text=>$data) {
-    $keyword = $data[0];
-    $optname = $data[1];
-    $mobilePrimary = in_array($optname, array('rel','sitename','arch'), true) ? ' data-mobile-primary="1"' : '';
-    $columnLabel = trim(preg_replace('/<BR\s*\/?\s*>/i',' ',(string)$text));
-    echo ('<TH'.$mobilePrimary.' data-column-label="'.htmlspecialchars($columnLabel, ENT_QUOTES, 'UTF-8').'">');
-    if (count($lists[$indx]) > 0) {
-      echo '<select form="atlas-list-filter-form" name="',$optname,'" size="1">';
-      combo_box ($lists[$indx]);
-      echo '</select><br/>';
-      echo '<input form="atlas-list-filter-form" type="submit" value="Filter">';
-      echo '<br/>';
-    }
-    $indx++;
-    echo ("<A HREF='list.php?");
-    $first = 0;
-    foreach($_GET as $key=>$value) {
-      if ($key != "orderby" && $key != "orderdir" && $value != "") {
-        if ($first == 1) echo ("&");
-        echo ($key . "=" . $value);
-        $first = 1;
-      }
-    }
-    if ($first == 1) echo ("&");
-    echo ("orderby=" . $keyword);
-    if (isset($_GET['orderdir']) && $_GET['orderdir'] == 'asc') {
-      echo ("&orderdir=desc'>" . $text . "</A><BR><img width=30 src='img/b_up.png'>\n");
-    } else {
-      echo ("&orderdir=asc'>" . $text . "</A><BR><img width=30 src='img/b_down.png'>\n");
-    }
+    $optname=$data[1]; $label=$cleanLabel($text); $vals=$lists[$indx] ?? array(); $indx++;
+    if (!$vals || in_array($optname,array('comments','date','entries','osdesc'),true)) continue;
+    echo '<label><span>'.atlas_h($label).'</span><select name="'.atlas_h($optname).'">';
+    combo_box($vals, atlas_lang()==='it'?'-- tutti --':'-- all --', (string)($_GET[$optname]??''));
+    echo '</select></label>';
+  }
+  echo '<label><span>'.atlas_h(atlas_lang()==='it'?'Ordina per':'Sort by').'</span><select name="orderby">';
+  foreach($COLUMNS as $text=>$data){ $k=$data[0]; echo '<option value="'.atlas_h($k).'"'.(((string)($_GET['orderby']??''))===$k?' selected':'').'>'.atlas_h($cleanLabel($text)).'</option>'; }
+  echo '</select></label>';
+  echo '<label><span>'.atlas_h(atlas_lang()==='it'?'Direzione':'Direction').'</span><select name="orderdir"><option value="asc"'.(((string)($_GET['orderdir']??'asc'))==='asc'?' selected':'').'>ASC</option><option value="desc"'.(((string)($_GET['orderdir']??''))==='desc'?' selected':'').'>DESC</option></select></label>';
+  echo '<div class="atlas-list-search-actions"><button type="submit">'.atlas_h(atlas_lang()==='it'?'Applica':'Apply').'</button><a class="atlas-button atlas-secondary-button" href="list.php">'.atlas_h(atlas_lang()==='it'?'Azzera':'Reset').'</a></div>';
+  echo '</form></details>';
+  if (!empty($adminFormOpen)) echo '<form method="post" name="ljsfadmin" action="list.php'.htmlspecialchars($getstring, ENT_QUOTES, 'UTF-8').'" onsubmit="return checkform(this);">';
+  echo '<table id="atlas-list-results" border="2" frame="hsides" rules="groups" summary="'.atlas_h($atlasListTitle).'" class="table1">';
+  echo '<THEAD><TR class="atlas-list-column-row">';
+  if (isset($roleid) && $roleid > 1 && !isset($_REQUEST["summary"])) echo '<TH data-mobile-hidden="1" data-column-label="Sel">Sel</TH>';
+  echo '<TH data-mobile-primary="1" data-column-label="Num">Num</TH>';
+  foreach($COLUMNS as $text=>$data) {
+    $keyword=$data[0]; $optname=$data[1]; $label=$cleanLabel($text);
+    $mobilePrimary=in_array($optname,array('rel','sitename','arch'),true)?' data-mobile-primary="1"':'';
+    $pairs=[]; foreach($_GET as $key=>$value){ if($key==='orderby'||$key==='orderdir'||!is_scalar($value)||$value==='') continue; $pairs[$key]=(string)$value; }
+    $pairs['orderby']=$keyword; $pairs['orderdir']=((string)($_GET['orderby']??'')===$keyword && (string)($_GET['orderdir']??'asc')==='asc')?'desc':'asc';
+    echo '<TH'.$mobilePrimary.' data-column-label="'.atlas_h($label).'"><a href="list.php?'.atlas_h(http_build_query($pairs)).'">'.atlas_h($label).' <span class="atlas-sort-mark">↕</span></a></TH>';
   }
   echo '</TR></THEAD>';
 ?>
@@ -451,14 +416,14 @@ function checkform(form) {
     $query=($query . " AND CONCAT(s.osname, ' ', s.osversion, ' ', s.osrelease) = " . db_quote($_REQUEST['ostype'],'ro'));
   if (isset($_REQUEST["summary"])) {
     $query .= " GROUP BY s.cs,rs.status ORDER BY ";
-    if (isset($_REQUEST['orderby']) && in_array($_REQUEST['orderby'], ['rs.status','s.cs','rs.name','s.name','s.cename','rs.date'], true)) {
+    if (isset($_REQUEST['orderby']) && in_array($_REQUEST['orderby'], ['entries','s.cs','s.fstype','rs.status','osdesc'], true)) {
       $query .= $_REQUEST['orderby'];
     } else {
       $query .= " rs.status,s.cs";
     }
   } else {
     $query .= " ORDER BY ";
-    if (isset($_REQUEST['orderby']) && in_array($_REQUEST['orderby'], ['rs.status','s.cs','rs.name','s.name','s.cename','rs.date'], true)) {
+    if (isset($_REQUEST['orderby']) && in_array($_REQUEST['orderby'], ['rs.name','s.name','ra.description','s.fstype','s.cename','rs.status','rs.comments','rs.date','u.name'], true)) {
       $query .= $_REQUEST['orderby'];
     } else {
       $query .= " rs.name,rs.status,s.name,s.cename";
@@ -527,7 +492,7 @@ function checkform(form) {
         if (isset($roleid) && $roleid > 1) echo ('<TD data-mobile-hidden="1"><input type="checkbox" name="relsel[]" value="'.$row[10].'" onclick="enableDisableField(this,'.$row[10].');"></td>');
         for ($i=0; $i<9; $i++) {
           if ($i == 0) {
-            echo ('<TD data-mobile-primary="1" data-label="Num">'.$category[$row[5]].'</TD>\n');
+            echo ('<TD data-mobile-primary="1" data-label="Num"><button type="button" class="atlas-row-toggle" aria-expanded="false" aria-label="'.atlas_h(atlas_lang()==='it'?'Espandi riga':'Expand row').'">▸</button><span class="atlas-row-num">'.$category[$row[5]].'</span></TD>\n');
             echo ('<TD data-mobile-primary="1" data-label="Release number">');
           } else {
             $attrs = '';

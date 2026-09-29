@@ -1,6 +1,6 @@
 <?php
  if (!isset($_POST['ws']) or $_POST['ws'] == '') { ?>
-<?php require("config.php"); ?>
+<?php require("config.php"); atlas_app_log('req_enter',['method'=>(string)($_SERVER['REQUEST_METHOD']??'GET')]); ?>
 <HTML>
 <HEAD>
 <TITLE><?php echo $LJSFi_VO; ?> Installation Requests</TITLE>
@@ -106,6 +106,7 @@ function checkform(form) {
   }
 
   $reqstat = array();
+  atlas_app_log('req_load_reference_data');
   $result = db_query("SELECT description FROM request_status","ro");
   while ( $row = mysqli_fetch_array($result) ) {
     array_push($reqstat,$row[0]);
@@ -292,9 +293,10 @@ function checkform(form) {
   $limit  = 20;
   $offset = 0;
   $query = ("SELECT count(*) " . $q_body);
+  atlas_app_log('req_count_query');
   $result = db_query($query,"ro");
   $row = mysqli_fetch_row($result);
-  $records = $row[0];
+  $records = $row ? (int)$row[0] : 0;
   $maxpage = intval(($records-1)/$limit);
   $pagerange = 20;
   $page = 0;
@@ -324,13 +326,14 @@ function checkform(form) {
   $query .= (" ORDER BY request.request_date DESC, site.cename");
   $query .= (" LIMIT " . db_int($offset,0) . "," . db_int($limit,1,500));
   // SQL query disclosure disabled
+  atlas_app_log('req_data_query',['records'=>$records,'limit'=>$limit,'offset'=>$offset]);
   $result = db_query($query,"ro");
   while ( $row = mysqli_fetch_array($result) ) {
     if (   ($role == "admin" && ($row[11] == $adminfk || $row[11] == NULL)) || $role == "master"
         || (isset($priv_update) && $priv_update == 1)) {
       echo '<form method="post" name="' . $row[0] . '" action="" onsubmit="return checkform(this);">';
     }
-    echo ("<TR class='" . $COLORS[$row[10]] . "'>");
+    $rowColor=$COLORS[(int)$row[10]] ?? 'otherTask'; echo ("<TR class='" . $rowColor . "'>");
     for ($i=0; $i<10; $i++) {
       echo ("<TD>");
       if ($i == 0) {
@@ -379,7 +382,7 @@ function checkform(form) {
       $resadm = db_query($resqry,"ro");
       $rowadm = mysqli_fetch_row($resadm);
       echo ("<TD>");
-      echo ("<A HREF='mailto:" . $rowadm[1] . "'>" . $rowadm[0] . "</A></TD>");
+      if($rowadm) echo ("<A HREF='mailto:" . atlas_h((string)$rowadm[1]) . "'>" . atlas_h((string)$rowadm[0]) . "</A>"); else echo '-'; echo '</TD>';
     } else {
       echo ("<TD>-</TD>");
     }
@@ -394,7 +397,7 @@ function checkform(form) {
         echo '</TD></form>';
       }
     }
-    echo ("</TR><TBODY>");
+    echo ("</TR>");
   }
   echo ("</TABLE><P>");
 

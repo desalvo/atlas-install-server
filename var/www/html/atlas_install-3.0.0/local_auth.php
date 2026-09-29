@@ -9,11 +9,9 @@ function atlas_auth_log(string $event, array $ctx = []): void {
         if (preg_match('/pass|secret|token|totp|key/i', (string)$k)) continue;
         if (is_scalar($v) || $v === null) $safe[$k] = $v;
     }
-    $safe['event'] = $event;
-    $safe['request_id'] = atlas_request_id();
-    $safe['uri'] = (string)($_SERVER['REQUEST_URI'] ?? 'cli');
     $safe['remote'] = (string)($_SERVER['REMOTE_ADDR'] ?? '');
-    error_log('[ATLAS_APP] ' . json_encode($safe, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
+    if(function_exists('atlas_app_log')) atlas_app_log($event,$safe);
+    else error_log('[ATLAS_APP] ' . json_encode(array_merge(['event'=>$event],$safe), JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
 }
 
 function atlas_local_db(): mysqli {
@@ -135,6 +133,21 @@ function atlas_base32_decode(string $s): string {
     foreach(str_split($bits,8) as $b){if(strlen($b)===8)$out.=chr(bindec($b));} return $out;
 }
 function atlas_totp_generate_secret(): string { return atlas_base32_encode(random_bytes(20)); }
+function atlas_totp_uri(string $username, string $secret): string {
+    $issuer=(string)atlas_env('ATLAS_VO','ATLAS').' Installation System';
+    return 'otpauth://totp/'.rawurlencode($issuer).':'.rawurlencode($username).'?secret='.rawurlencode($secret).'&issuer='.rawurlencode($issuer).'&digits=6&period=30';
+}
+function atlas_totp_qr_data_uri(string $uri): string {
+    $bin='/usr/bin/qrencode';
+    if(!is_executable($bin) || !function_exists('proc_open')) return '';
+    $spec=[0=>['pipe','r'],1=>['pipe','w'],2=>['pipe','w']];
+    $proc=@proc_open([$bin,'-t','PNG','-o','-','-s','6','-m','2',$uri],$spec,$pipes);
+    if(!is_resource($proc)) return '';
+    fclose($pipes[0]); $png=stream_get_contents($pipes[1]); fclose($pipes[1]); $err=stream_get_contents($pipes[2]); fclose($pipes[2]); $rc=proc_close($proc);
+    if($rc!==0 || !is_string($png) || $png===''){ if(function_exists('atlas_app_log')) atlas_app_log('totp_qr_failed',['exit_code'=>$rc,'error'=>substr((string)$err,0,200)]); return ''; }
+    return 'data:image/png;base64,'.base64_encode($png);
+}
+
 function atlas_totp_code(string $secret, ?int $slice=null): string {
     $slice=$slice??intdiv(time(),30); $key=atlas_base32_decode($secret); $bin=pack('N2',($slice>>32)&0xffffffff,$slice&0xffffffff); $h=hash_hmac('sha1',$bin,$key,true); $o=ord($h[19])&0xf; $v=((ord($h[$o])&0x7f)<<24)|(ord($h[$o+1])<<16)|(ord($h[$o+2])<<8)|ord($h[$o+3]); return str_pad((string)($v%1000000),6,'0',STR_PAD_LEFT);
 }

@@ -225,7 +225,7 @@ try {
       </div>
     </div>
     <div id="content_footer"></div>
-    <div id="footer">
+    <div id="footer" class="atlas-home-footer">
       <p><a href="mailto:Alessandro.DeSalvo@roma1.infn.it"><?php echo $it?'Contatta il team di installazione':'Contact the installation team'; ?></a></p>
       <p>SERVICE NAME: <?php echo gethostname(); ?></p>
     </div>

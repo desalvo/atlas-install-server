@@ -1,3 +1,11 @@
+# 3.0.0-r26
+
+- Reworked `list.php`: filters moved to a collapsed search/sort panel; row expansion uses a compact leading icon; full-width responsive cards and sortable fields.
+- Fixed home/list footer flow so the installation-team contact footer always follows content.
+- Added local TOTP QR-code enrollment generated entirely on the server with `qrencode`.
+- Hardened Kubernetes logging: PHP errors, exceptions, DB failures, same-origin rejects and HTTP 5xx completion events go to stderr with request IDs.
+- Added additional `protected/req.php` diagnostics and defensive handling for missing legacy assignee rows/status colors.
+
 ## 3.0.0-r25
 
 - Initialize PHP/container error logging before request validation and same-origin checks, and log fatal shutdown errors with request IDs.

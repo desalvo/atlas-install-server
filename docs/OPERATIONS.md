@@ -109,3 +109,7 @@ The serving container logs a numbered startup sequence covering configuration sy
 ## Charts and maintenance
 
 The Web application renders charts locally as SVG/HTML on demand. Maintenance CronJobs do not call external chart services and do not create chart images; they refresh historical database summaries and compact JSON cache data that the browser pages can read dynamically.
+
+
+## Application errors in Kubernetes logs
+PHP warnings, exceptions, fatal errors, database errors, rejected same-origin requests and completed HTTP 5xx responses are written to the container standard error with the `[ATLAS_APP]` prefix and request ID. Use `kubectl logs -n <namespace> deploy/<deployment> -f` to inspect them.

@@ -53,7 +53,7 @@ function page_header($path=".") {
         if (!headerRow) return;
         var headers = Array.prototype.slice.call(headerRow.children).map(function(c,i){ return (c.dataset && c.dataset.columnLabel ? c.dataset.columnLabel : (c.textContent||'')).trim() || ('#'+(i+1)); });
         if (headers.length < 4) return;
-        var data = allRows.filter(function(r){ return r!==headerRow && r.querySelectorAll('td').length >= 4; });
+        var data = allRows.filter(function(r){ if(table.id==='atlas-list-results') return r.hasAttribute('data-atlas-list-record'); return r!==headerRow && r.querySelectorAll('td').length >= 4; });
         if (!data.length) return;
         var controlCount=table.querySelectorAll('input,select,textarea').length;
         if (controlCount > data.length * 2) return; // forms/search matrices are not data tables
@@ -76,13 +76,13 @@ function page_header($path=".") {
           var first=cells[preferred[0]||0] || cells[0];
           var b=null;
           if(first && !first.querySelector('.atlas-row-toggle')){
-            b=document.createElement('button'); b.type='button'; b.className='atlas-row-toggle'; b.textContent=atlasI18n.details; b.setAttribute('aria-expanded','false'); first.appendChild(b);
+            b=document.createElement('button'); b.type='button'; b.className='atlas-row-toggle'; b.setAttribute('aria-expanded','false'); if(table.id==='atlas-list-results'){b.textContent='▸';b.setAttribute('aria-label',atlasI18n.details);first.insertBefore(b,first.firstChild);}else{b.textContent=atlasI18n.details;first.appendChild(b);}
           } else if(first) b=first.querySelector('.atlas-row-toggle');
           function toggleRow(e){
             if(e && e.target && e.target.closest && e.target.closest('a,button,input,select,textarea,label')) return;
-            var open=row.classList.toggle('atlas-mobile-expanded'); row.setAttribute('aria-expanded',open?'true':'false'); if(b){b.setAttribute('aria-expanded',open?'true':'false');b.textContent=open?atlasI18n.hideDetails:atlasI18n.details;}
+            var open=row.classList.toggle('atlas-mobile-expanded'); row.setAttribute('aria-expanded',open?'true':'false'); if(b){b.setAttribute('aria-expanded',open?'true':'false');b.textContent=table.id==='atlas-list-results'?(open?'▾':'▸'):(open?atlasI18n.hideDetails:atlasI18n.details);}
           }
-          if(b) b.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();var open=row.classList.toggle('atlas-mobile-expanded');row.setAttribute('aria-expanded',open?'true':'false');b.setAttribute('aria-expanded',open?'true':'false');b.textContent=open?atlasI18n.hideDetails:atlasI18n.details;},false);
+          if(b) b.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();var open=row.classList.toggle('atlas-mobile-expanded');row.setAttribute('aria-expanded',open?'true':'false');b.setAttribute('aria-expanded',open?'true':'false');b.textContent=table.id==='atlas-list-results'?(open?'▾':'▸'):(open?atlasI18n.hideDetails:atlasI18n.details);},false);
           row.addEventListener('click',toggleRow,false);
           row.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleRow();}},false);
         });

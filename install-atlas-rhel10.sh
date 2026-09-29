@@ -120,6 +120,11 @@ install_dependencies() {
     fi
     dnf -y install fetch-crl
   fi
+  if ! command -v qrencode >/dev/null 2>&1; then
+    # qrencode is used only to render TOTP enrollment QR codes locally.
+    # EPEL is already enabled above when required by fetch-crl.
+    dnf -y install qrencode
+  fi
 }
 
 # Environment file uses shell-compatible double-quoted values. Escape the only

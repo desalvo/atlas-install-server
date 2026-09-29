@@ -20,3 +20,10 @@ Access-denied pages retain the normal header and menu and provide a local-login 
 ### `list.php` tables on phones
 
 On phones, `list.php` results are rendered as compact cards regardless of screen orientation. A collapsed card always shows **Num**, **Release number**, **Site name**, and **Release arch**. Tap the card or **Details** to reveal the remaining fields; tap again to collapse them. Technical controls and hidden fields required by the page remain in the DOM but are not displayed as record data.
+
+
+## TOTP and QR codes
+When enrolling a TOTP authenticator, the UI shows the textual secret/`otpauth://` URI and a QR code generated locally by the server. No external QR service is used; scan it directly with an authenticator app camera.
+
+## Installation list
+`list.php` shows records collapsed by default. Num, Release number, Site name and Release arch remain visible; use the circular control at the beginning of the row to expand details. Filters and sorting are in the **Search, filters and sorting** section, collapsed by default.
