@@ -96,3 +96,20 @@ Provide:
 - whether client-certificate authentication succeeded.
 
 Never include database passwords, private keys or exported client-certificate private keys in a support report.
+
+
+## Mobile navigation
+
+On screens up to 760 px the horizontal navigation is replaced by a right-hand vertical drawer. The drawer is collapsed by default and opened with the **☰ Menu** button. Menu groups expand vertically and the drawer can be closed with the close button, tapping the backdrop, or Escape.
+
+## Large tables and browser pagination
+
+Large HTML tables are paginated in the browser with a default of **200 records per page**. Users can select 50, 100, 200, 500, 1000, or **All**. The same choice can be requested with the `per_page` GET parameter (`per_page=all` is accepted). This pagination applies only to browser rendering; machine-oriented endpoints and legacy scripts are not truncated. Wide tables are horizontally scrollable on mobile devices.
+
+## Local login schema
+
+Local authentication uses dedicated `atlas_local_*` tables. They are installed once with `scripts/init-local-auth-schema.sh` using a database account with DDL privileges. Normal web requests do not execute `CREATE TABLE`; the application writer only needs its normal DML permissions. If the schema is missing, the login page returns an administrative error and the detailed reason is written to the container log with the `[ATLAS_APP]` prefix.
+
+## In-application documentation
+
+The **LJSFi Documentation** link on the application home page opens `/atlas_install/documentation.php`, which contains the current user-facing operational documentation shipped with the running release.

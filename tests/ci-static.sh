@@ -162,6 +162,20 @@ if [[ -n "$unsafe" ]]; then
   fail=1
 fi
 
+
+printf '== r18 local auth/mobile/table/documentation regressions ==\n'
+if grep -q 'CREATE TABLE' "$APP_DIR/local_auth.php"; then
+  printf 'Runtime local_auth.php must not perform DDL.\n' >&2; fail=1
+fi
+for token in 'atlas-mobile-menu-toggle' 'atlas-mobile-menu-backdrop'; do
+  grep -q "$token" "$APP_DIR/css/menubar.php" || { printf 'Mobile menu token missing: %s\n' "$token" >&2; fail=1; }
+done
+grep -q "params.get('per_page')" "$APP_DIR/css/page_header.php" || { printf 'Browser pagination missing.\n' >&2; fail=1; }
+grep -q 'href="documentation.php"' "$APP_DIR/index.php" || { printf 'Home documentation link is not local.\n' >&2; fail=1; }
+[[ -s "$APP_DIR/documentation.php" ]] || { printf 'In-app documentation page missing.\n' >&2; fail=1; }
+[[ -s sql/local-auth-schema.sql ]] || { printf 'Local auth schema SQL missing.\n' >&2; fail=1; }
+[[ -x scripts/init-local-auth-schema.sh ]] || { printf 'Local auth schema initializer missing/not executable.\n' >&2; fail=1; }
+
 exit "$fail"
 
 # Container must never require a privileged HTTP listener.

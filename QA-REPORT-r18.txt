@@ -1,0 +1,20 @@
+ATLAS Installation Server 3.0.0-r18 QA
+======================================
+Baseline: 3.0.0-r17
+
+Validated:
+- tests/ci-static.sh: PASS
+- PHP syntax: PASS
+- Shell syntax: PASS
+- Kubernetes YAML parse: PASS
+- Local-auth runtime contains no CREATE TABLE DDL: PASS
+- One-time local-auth schema SQL/helper present: PASS
+- Mobile right-side collapsed menu assets: PASS
+- Browser-only large-table pagination (default 200, selectable/all): PASS
+- Mobile horizontal table scrolling: PASS
+- Home LJSFi Documentation link points to in-app documentation.php: PASS
+- PHP error_log forced to container stderr in runtime security bootstrap: PASS
+
+Notes:
+- Browser pagination does not alter SQL queries or machine-oriented endpoints.
+- Local auth schema creation is an explicit administrative step; dbwriter remains DML-only.

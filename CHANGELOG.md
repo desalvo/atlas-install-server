@@ -1,3 +1,12 @@
+## 3.0.0-r18
+
+- Fix local-login GET failures caused by implicit DDL: runtime now verifies the local-auth schema and logs a clear diagnostic instead of issuing CREATE TABLE on each request.
+- Add one-time `sql/local-auth-schema.sql` and `scripts/init-local-auth-schema.sh`.
+- Add mobile right-side collapsed navigation drawer.
+- Add browser-only large-table pagination (default 200; 50/100/200/500/1000/all) and horizontal mobile scrolling.
+- Serve current user documentation at `/atlas_install/documentation.php` and point the existing home-page LJSFi Documentation link to it.
+- Preserve all r17 functionality and security behavior.
+
 ## 3.0.0-r16
 
 - Fix the landing-page search to use HTTP GET rather than POST, so read-only searches are not rejected by the same-origin guard for state-changing requests.

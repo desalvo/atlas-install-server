@@ -82,3 +82,14 @@ kubectl -n atlas-install exec deployment/atlas-install -- \
 ```
 
 A successful periodic refresh triggers an Apache graceful reload. If a remote IGTF endpoint is temporarily unavailable, the previous validated trust store remains active.
+
+
+## Initialize local authentication schema
+
+The local authentication schema is intentionally not created by the runtime `dbwriter` account. Run once from the extracted release directory on a trusted administrative host that has the MariaDB client and network access to the database:
+
+```bash
+ATLAS_SCHEMA_ADMIN_USER=root ./scripts/init-local-auth-schema.sh
+```
+
+The script reads database host/name/TLS settings from `atlas-install.env` and asks interactively for the administrative database password. Passwords are not stored. After schema creation, the application creates/updates the bootstrap `admin` record using normal DML.

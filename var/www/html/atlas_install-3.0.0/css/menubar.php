@@ -1,7 +1,10 @@
 <?php
 function menubar($path=".") {
 ?>
+      <button type="button" id="atlas-mobile-menu-toggle" class="atlas-mobile-menu-toggle" aria-controls="menubar" aria-expanded="false">☰ Menu</button>
+      <div id="atlas-mobile-menu-backdrop" class="atlas-mobile-menu-backdrop" hidden></div>
       <div id="menubar">
+        <div class="atlas-mobile-menu-title"><span>Menu</span><button type="button" id="atlas-mobile-menu-close" aria-label="Chiudi menu">×</button></div>
         <ul id="menu" class="dropdown dropdown-horizontal">
           <li><a href="#" class="dir">Main</a>
             <ul>
@@ -72,4 +75,32 @@ function menubar($path=".") {
           <li><a href="#" id="trigger" class="dir">Help</a>
           </li>
         </ul></div>
+<script>
+(function(){
+  function mobile(){ return window.matchMedia('(max-width: 760px)').matches; }
+  var bar=document.getElementById('menubar'), toggle=document.getElementById('atlas-mobile-menu-toggle'), close=document.getElementById('atlas-mobile-menu-close'), backdrop=document.getElementById('atlas-mobile-menu-backdrop');
+  if(!bar||!toggle) return;
+  function setOpen(open){
+    bar.classList.toggle('atlas-mobile-open',open);
+    toggle.setAttribute('aria-expanded',open?'true':'false');
+    if(backdrop){backdrop.hidden=!open; backdrop.classList.toggle('is-open',open);}
+    document.documentElement.classList.toggle('atlas-menu-open',open);
+  }
+  toggle.addEventListener('click',function(){setOpen(!bar.classList.contains('atlas-mobile-open'));});
+  if(close) close.addEventListener('click',function(){setOpen(false);});
+  if(backdrop) backdrop.addEventListener('click',function(){setOpen(false);});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')setOpen(false);});
+  bar.querySelectorAll('#menu > li > a.dir').forEach(function(a){
+    a.addEventListener('click',function(e){
+      if(!mobile()) return;
+      var submenu=a.parentElement.querySelector(':scope > ul');
+      if(!submenu) return;
+      e.preventDefault();
+      a.parentElement.classList.toggle('atlas-mobile-section-open');
+    });
+  });
+  bar.querySelectorAll('#menu ul a').forEach(function(a){a.addEventListener('click',function(){if(mobile())setOpen(false);});});
+  window.addEventListener('resize',function(){if(!mobile())setOpen(false);});
+})();
+</script>
 <?php } ?>

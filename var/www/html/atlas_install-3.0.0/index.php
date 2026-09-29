@@ -56,7 +56,7 @@ function checkform(form) {
         <h5>Help</h5>
         <p>Select an item from the top menu or use the search facility to select the records.
         <p>Type on the input boxes to see hints about the values.
-        <ul><li><a href="https://atlas-install.roma1.infn.it/twiki/bin/view/Main/LJSFiDocumentation">LJSFi Documentation</a></li></ul>
+        <ul><li><a href="documentation.php">LJSFi Documentation</a></li></ul>
       </div>
       <div id="content">
         <!-- insert the page content here -->

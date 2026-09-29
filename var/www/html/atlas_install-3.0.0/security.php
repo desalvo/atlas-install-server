@@ -136,6 +136,7 @@ function atlas_request_id(): string {
 }
 
 ini_set('log_errors','1');
+@ini_set('error_log','/proc/self/fd/2');
 ini_set('display_errors', atlas_db_bool('ATLAS_DEBUG',false) ? '1':'0');
 set_error_handler(function($severity,$message,$file,$line){
     if (!(error_reporting() & $severity)) return false;

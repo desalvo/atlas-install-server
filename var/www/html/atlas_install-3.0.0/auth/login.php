@@ -1,6 +1,11 @@
 <?php
 require_once __DIR__.'/../config.php';
-atlas_local_auth_schema();
+try {
+    atlas_local_auth_schema();
+} catch (Throwable $e) {
+    atlas_auth_log('local_login_unavailable', ['error'=>$e->getMessage()]);
+    atlas_render_message_page('Login locale non disponibile', 'Il database di autenticazione locale non è inizializzato o non è raggiungibile. Contatta l’amministratore. Dettagli diagnostici sono disponibili nei log Kubernetes.', 'error');
+}
 if (atlas_is_authenticated()) { header('Location: /atlas_install/'); exit; }
 $error=''; $stage='password'; $pending=null;
 if(session_status()!==PHP_SESSION_ACTIVE){session_name('ATLASLOGIN');session_start(['cookie_secure'=>true,'cookie_httponly'=>true,'cookie_samesite'=>'Strict','use_strict_mode'=>true]);}
@@ -22,7 +27,7 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
     $uid=(int)($_SESSION['pending_uid']??0);$secret=(string)($_SESSION['enroll_secret']??''); if(!$uid||$secret===''||!atlas_totp_verify($secret,(string)($_POST['code']??'')))throw new RuntimeException('Codice TOTP non valido.');
     $enc=atlas_secret_encrypt($secret);$label='Primary authenticator';$db=atlas_local_db();$st=$db->prepare('INSERT INTO atlas_local_totp(user_id,label,secret_enc,enabled) VALUES(?,?,?,1)');$st->bind_param('iss',$uid,$label,$enc);$st->execute();atlas_auth_log('totp_enrolled',['user_id'=>$uid]);$userRow=$db->query('SELECT must_change_password FROM atlas_local_user WHERE id='.(int)$uid)->fetch_assoc(); atlas_create_local_session($uid);unset($_SESSION['pending_uid'],$_SESSION['pending_user'],$_SESSION['enroll_secret']);header('Location: '.((int)($userRow['must_change_password']??1)===1?'/atlas_install/auth/change_password.php':'/atlas_install/'));exit;
   }
- }catch(Throwable $e){$error=$e->getMessage(); if(isset($_SESSION['pending_uid'])){$stage=isset($_SESSION['enroll_secret'])?'enroll':'totp';}}
+ }catch(Throwable $e){atlas_auth_log('local_login_error',['stage'=>$stage,'error'=>$e->getMessage()]); $error=$e->getMessage(); if(isset($_SESSION['pending_uid'])){$stage=isset($_SESSION['enroll_secret'])?'enroll':'totp';}}
 }
 $secret=(string)($_SESSION['enroll_secret']??''); $user=(string)($_SESSION['pending_user']??''); $issuer=rawurlencode((string)atlas_env('ATLAS_VO','ATLAS').' Installation System'); $uri=$secret!==''?'otpauth://totp/'.$issuer.':'.rawurlencode($user).'?secret='.rawurlencode($secret).'&issuer='.$issuer.'&digits=6&period=30':'';
 ?><!doctype html><html lang="it"><head><title>Login locale</title><?php require __DIR__.'/../css/page_header.php'; page_header('..'); ?></head><body><div id="main"><div id="header"><?php require __DIR__.'/../css/main_header.php'; main_header($LJSFi_VO,'..'); require __DIR__.'/../css/menubar.php'; menubar('..'); ?></div><div id="site_content"><div id="content" style="width:100%;float:none"><h1>Login locale</h1><?php if($error):?><div class="atlas-alert error"><?=atlas_h($error)?></div><?php endif;?>
