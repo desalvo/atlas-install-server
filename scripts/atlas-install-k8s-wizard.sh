@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-WIZARD_VERSION="3.0.0-r16"
+WIZARD_VERSION="3.0.0-r17"
 DEFAULT_REPO="desalvo/atlas-install-server"
 DEFAULT_REF="main"
 DEFAULT_NAMESPACE="atlas-install"
@@ -32,6 +32,7 @@ DEFAULT_EMAIL="no-reply@localhost"
 DEFAULT_INFOSYS="lcg-bdii.cern.ch"
 DEFAULT_ACTIVITY_PERIOD="3 DAY"
 DEFAULT_DEBUG="0"
+DEFAULT_LOCAL_ADMIN_PASSWORD="password"
 DEFAULT_AUTO_UPDATE_WIZARD="yes"
 DEFAULT_NODE_SELECTOR_ENABLED="no"
 DEFAULT_NODE_SELECTOR=""
@@ -90,6 +91,7 @@ Optional environment variables for automation:
   ATLAS_DB_RW_PASSWORD                Bootstrap RW database password
   ATLAS_DB_RO_PASSWORD                Bootstrap RO database password
   ATLAS_DB_BROKER_PASSWORD            Bootstrap broker database password
+  ATLAS_LOCAL_ADMIN_PASSWORD           Initial/reset local admin password
   ATLAS_TLS_CERT_FILE                 Host certificate/full-chain PEM path
   ATLAS_TLS_KEY_FILE                  Host private-key PEM path
   ATLAS_WIZARD_AUTO_UPDATE=1           Enable self-update in non-interactive mode
@@ -497,13 +499,24 @@ require_or_keep_password_raw() {
 }
 
 apply_bootstrap_secret_content() {
-  local existing="$1" rw_old ro_old broker_old rw_pw ro_pw broker_pw tmp result
+  local existing="$1" rw_old ro_old broker_old rw_pw ro_pw broker_pw admin_old local_admin_pw tmp result
   rw_old="$(env_raw_value "$existing" ATLAS_DB_RW_PASSWORD)"
   ro_old="$(env_raw_value "$existing" ATLAS_DB_RO_PASSWORD)"
   broker_old="$(env_raw_value "$existing" ATLAS_DB_BROKER_PASSWORD)"
+  admin_old="$(env_raw_value "$existing" ATLAS_LOCAL_ADMIN_PASSWORD)"
   rw_pw="$(require_or_keep_password_raw ATLAS_DB_RW_PASSWORD 'RW database password' "$rw_old")"
   ro_pw="$(require_or_keep_password_raw ATLAS_DB_RO_PASSWORD 'RO database password' "$ro_old")"
   broker_pw="$(require_or_keep_password_raw ATLAS_DB_BROKER_PASSWORD 'Broker database password' "$broker_old")"
+  if [[ -n "${ATLAS_LOCAL_ADMIN_PASSWORD:-}" ]]; then
+    local_admin_pw="$ATLAS_LOCAL_ADMIN_PASSWORD"
+  elif (( NON_INTERACTIVE )); then
+    if [[ -n "$admin_old" ]]; then local_admin_pw="$(env_plain_value "$admin_old")"; else local_admin_pw="$DEFAULT_LOCAL_ADMIN_PASSWORD"; fi
+  else
+    local current_admin_default entered_admin_pw
+    if [[ -n "$admin_old" ]]; then current_admin_default="$(env_plain_value "$admin_old")"; else current_admin_default="$DEFAULT_LOCAL_ADMIN_PASSWORD"; fi
+    entered_admin_pw="$(prompt_secret 'Local admin password (blank keeps current/default)')"
+    local_admin_pw="${entered_admin_pw:-$current_admin_default}"
+  fi
   tmp="$(mktemp)"; chmod 600 "$tmp"
   {
     printf 'ATLAS_PUBLIC_HOSTNAME=%s\n' "$(env_quote "$PUBLIC_HOSTNAME")"
@@ -526,6 +539,9 @@ apply_bootstrap_secret_content() {
     printf 'ATLAS_DEFAULT_INFOSYS=%s\n' "$(env_quote "$ATLAS_DEFAULT_INFOSYS_VALUE")"
     printf 'ATLAS_ACTIVITY_PERIOD=%s\n' "$(env_quote "$ATLAS_ACTIVITY_PERIOD_VALUE")"
     printf 'ATLAS_DEBUG=%s\n' "$(env_quote "$ATLAS_DEBUG_VALUE")"
+    printf 'ATLAS_LOCAL_ADMIN_PASSWORD=%s\n' "$(env_quote "$local_admin_pw")"
+    printf 'ATLAS_LOCAL_AUTH_KEY_FILE="/var/lib/atlas-install/config/local-auth.key"\n'
+    printf 'ATLAS_CRL_MAX_AGE_SECONDS="21600"\n'
     printf 'ATLAS_UPLOAD_PATH="/var/lib/atlas-install/log"\n'
     printf 'ATLAS_ARCHIVE_PATH="/var/lib/atlas-install/logbackup"\n'
     printf 'ATLAS_CACHE_PATH="/var/cache/atlas-install"\n'

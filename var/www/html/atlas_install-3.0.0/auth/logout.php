@@ -1,0 +1,1 @@
+<?php require_once __DIR__.'/../config.php'; atlas_logout_local(); atlas_auth_log('local_logout',[]); header('Location: /atlas_install/'); exit; ?>

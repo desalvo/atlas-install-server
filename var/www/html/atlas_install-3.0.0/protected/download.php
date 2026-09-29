@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../config.php';
-atlas_require_client_certificate();
+atlas_require_authenticated();
 
 $name = isset($_GET['file']) ? basename((string)$_GET['file']) : '';
 if ($name === '' || $name === '.' || $name === '..') {

@@ -222,3 +222,28 @@ td.selection { background: #eef4ff !important; color: #274267; font-weight: 700;
   .atlas-form-row { grid-template-columns: 1fr; gap: 6px; }
   table { display: block; max-width: 100%; overflow-x: auto; }
 }
+
+
+.atlas-identity-footer { width:min(1440px,calc(100% - 32px)); margin:16px auto 0; padding:12px 16px; border:1px solid var(--atlas-border); border-radius:12px; background:var(--atlas-surface); color:var(--atlas-muted); font-size:12px; overflow-wrap:anywhere; }
+.atlas-auth-form { max-width:680px; }
+.atlas-form-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; margin-bottom:12px; }
+.atlas-inline { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:8px 0; }
+.atlas-break { overflow-wrap:anywhere; word-break:break-word; }
+@media (max-width: 760px) {
+  #main { width:100%; margin:0; }
+  .atlas-hero { border-radius:0; padding:18px 14px; min-height:100px!important; gap:12px; flex-wrap:wrap; }
+  .atlas-brandmark { width:48px;height:48px;flex-basis:48px;font-size:24px;border-radius:12px; }
+  .atlas-auth-state { width:100%; margin-left:0; align-self:auto; white-space:normal; }
+  #menubar { border-radius:0; padding:6px!important; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  #menu.dropdown-horizontal { min-width:max-content; }
+  #site_content, #content { width:100%!important; float:none!important; padding-left:10px!important; padding-right:10px!important; }
+  input, select, textarea, button { max-width:100%; font-size:16px; }
+  .atlas-form-row { grid-template-columns:1fr!important; gap:4px!important; }
+  .atlas-grid, .atlas-form-grid { grid-template-columns:1fr!important; }
+  table { display:block; width:100%!important; max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; white-space:nowrap; }
+  pre, .atlas-code { white-space:pre-wrap; overflow-wrap:anywhere; }
+  img { max-width:100%; height:auto; }
+  .atlas-identity-footer { width:calc(100% - 20px); margin:10px; }
+}
+
+.atlas-danger-button { background:var(--atlas-danger)!important; color:#fff!important; }

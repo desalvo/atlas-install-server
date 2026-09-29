@@ -2,6 +2,12 @@
 
   require_once("db.php");
   function get_user_info($mode='select',$id=NULL,$role=NULL,$valid=NULL,$filter=NULL,$limit=15,$offset=0,$ident=NULL) {
+    if ($mode === 'select' && $id === NULL && $filter === NULL && $ident === NULL) {
+      $ai = atlas_current_identity();
+      if ($ai && ($ai['source'] ?? '') === 'local') {
+        $rp=in_array((string)$ai['role'],['admin','master'],true)?1:0; return [[ 'ref'=>(int)($ai['id'] ?? 0), 'name'=>(string)$ai['username'], 'dn'=>'LOCAL:'.(string)$ai['username'], 'email'=>(string)$ai['email'], 'rolefk'=>(string)$ai['role']==='master'?3:((string)$ai['role']==='admin'?2:1), 'role'=>(string)$ai['role'], 'priv_view'=>$rp, 'priv_insert'=>$rp, 'priv_update'=>$rp, 'priv_pin'=>$rp, 'priv_relsub'=>$rp, 'priv_critical'=>$rp, 'valid_start'=>'2000-01-01 00:00:00', 'valid_end'=>'2099-12-31 23:59:59', 'enabled'=>(int)$ai['enabled'] ]];
+      }
+    }
     //$ssluserdetails = getenv("SSL_CLIENT_S_DN");
     $ssluserdetails = preg_replace('/\/CN=proxy/','',getenv("SSL_CLIENT_S_DN"));
     $ssluserdetails = preg_replace('/\/CN=[0-9]+/','',$ssluserdetails);

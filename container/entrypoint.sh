@@ -181,6 +181,27 @@ igtf_refresh_loop() {
   done
 }
 
+init_local_auth_key() {
+  local keyfile="${ATLAS_LOCAL_AUTH_KEY_FILE:-/var/lib/atlas-install/config/local-auth.key}"
+  install -d -o root -g atlas-install -m 2770 "$(dirname "$keyfile")"
+  if [[ ! -s "$keyfile" ]]; then
+    umask 0077
+    openssl rand -hex 32 > "$keyfile"
+    chown root:atlas-install "$keyfile"
+    chmod 0640 "$keyfile"
+    log "Generated persistent local-auth encryption key."
+  fi
+}
+
+restore_igtf_cache() {
+  local cache="${ATLAS_IGTF_CACHE_DIR:-/var/lib/atlas-install/igtf-cache}"
+  local dest="${ATLAS_IGTF_DIR:-/etc/grid-security/certificates}"
+  if [[ -d "$cache" ]] && find "$cache" -maxdepth 1 -name '*.0' -print -quit | grep -q .; then
+    log "Restoring persistent IGTF/CRL cache from $cache."
+    rsync -a --delete "$cache/" "$dest/"
+  fi
+}
+
 case "${1:-serve}" in
   update-igtf)
     exec /usr/local/sbin/atlas-update-igtf
@@ -191,8 +212,10 @@ case "${1:-serve}" in
     ;;
   serve)
     init_config
+    init_local_auth_key
     validate_tls
-    install -d -o root -g atlas-install -m 2770 /var/lib/atlas-install/log /var/lib/atlas-install/logbackup /var/cache/atlas-install
+    install -d -o root -g atlas-install -m 2770 /var/lib/atlas-install/log /var/lib/atlas-install/logbackup /var/lib/atlas-install/igtf-cache /var/cache/atlas-install
+    restore_igtf_cache
     ATLAS_IGTF_SKIP_CRL=1 /usr/local/sbin/atlas-update-igtf
     disable_default_http_listener
     render_httpd

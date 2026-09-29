@@ -1246,6 +1246,16 @@ INSERT INTO `user` VALUES (1,'desalvzp@lxplus053.cern.ch','/C=IT/O=INFN/OU=Perso
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
+
+-- Local authentication (3.0.0-r17)
+CREATE TABLE IF NOT EXISTS `atlas_local_user` (
+ `id` bigint unsigned NOT NULL AUTO_INCREMENT, `username` varchar(64) NOT NULL, `first_name` varchar(100) NOT NULL DEFAULT '', `last_name` varchar(100) NOT NULL DEFAULT '', `email` varchar(254) NOT NULL DEFAULT '', `role` varchar(32) NOT NULL DEFAULT 'user', `enabled` tinyint(1) NOT NULL DEFAULT 1, `password_hash` varchar(255) NOT NULL, `must_change_password` tinyint(1) NOT NULL DEFAULT 1, `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP, `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY (`id`), UNIQUE KEY `uq_atlas_local_username` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS `atlas_local_totp` (`id` bigint unsigned NOT NULL AUTO_INCREMENT,`user_id` bigint unsigned NOT NULL,`label` varchar(100) NOT NULL DEFAULT 'Authenticator',`secret_enc` text NOT NULL,`enabled` tinyint(1) NOT NULL DEFAULT 1,`created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,PRIMARY KEY (`id`),KEY `ix_atlas_totp_user` (`user_id`),CONSTRAINT `fk_atlas_totp_user` FOREIGN KEY (`user_id`) REFERENCES `atlas_local_user` (`id`) ON DELETE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS `atlas_local_session` (`id` bigint unsigned NOT NULL AUTO_INCREMENT,`user_id` bigint unsigned NOT NULL,`token_hash` char(64) NOT NULL,`created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,`last_seen_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,`expires_at` datetime NOT NULL,`remote_addr` varchar(64) NOT NULL DEFAULT '',`user_agent` varchar(255) NOT NULL DEFAULT '',PRIMARY KEY (`id`),UNIQUE KEY `uq_atlas_session_token` (`token_hash`),KEY `ix_atlas_session_user` (`user_id`),KEY `ix_atlas_session_expires` (`expires_at`),CONSTRAINT `fk_atlas_session_user` FOREIGN KEY (`user_id`) REFERENCES `atlas_local_user` (`id`) ON DELETE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS `atlas_auth_setting` (`name` varchar(64) NOT NULL,`value` varchar(255) NOT NULL,`updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,PRIMARY KEY (`name`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+INSERT IGNORE INTO `atlas_auth_setting` (`name`,`value`) VALUES ('session_hours','8');
+
 --
 -- Table structure for table `validation`
 --

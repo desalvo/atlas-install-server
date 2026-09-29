@@ -7,6 +7,9 @@ FORCE=${ATLAS_IGTF_FORCE:-0}
 MAX_AGE_SECONDS=${ATLAS_IGTF_BUNDLE_MAX_AGE_SECONDS:-86400}
 CRL_TIMEOUT_SECONDS=${ATLAS_CRL_FETCH_TIMEOUT_SECONDS:-120}
 SKIP_CRL=${ATLAS_IGTF_SKIP_CRL:-0}
+CACHE_DIR=${ATLAS_IGTF_CACHE_DIR:-/var/lib/atlas-install/igtf-cache}
+CRL_MAX_AGE_SECONDS=${ATLAS_CRL_MAX_AGE_SECONDS:-21600}
+CRL_STAMP="$CACHE_DIR/.crl-last-success"
 
 log() { printf 'IGTF: %s\n' "$*"; }
 
@@ -15,6 +18,7 @@ is_nonnegative_integer "$MAX_AGE_SECONDS" || {
   echo "ATLAS_IGTF_BUNDLE_MAX_AGE_SECONDS must be a non-negative integer" >&2
   exit 2
 }
+is_nonnegative_integer "$CRL_MAX_AGE_SECONDS" || { echo "ATLAS_CRL_MAX_AGE_SECONDS must be a non-negative integer" >&2; exit 2; }
 is_nonnegative_integer "$CRL_TIMEOUT_SECONDS" && (( CRL_TIMEOUT_SECONDS > 0 )) || {
   echo "ATLAS_CRL_FETCH_TIMEOUT_SECONDS must be a positive integer" >&2
   exit 2
@@ -104,10 +108,16 @@ else
   log "trust anchors are current; bundle refresh not required"
 fi
 
-# CRLs are refreshed on every normal invocation. During container bootstrap
-# the caller may set ATLAS_IGTF_SKIP_CRL=1 so Apache can start immediately;
-# the entrypoint then performs this refresh asynchronously.
-if [[ "$SKIP_CRL" != 1 ]] && command -v fetch-crl >/dev/null 2>&1; then
+# CRL refresh state is persisted on the application PVC. A successful cache
+# restore avoids a long fetch-crl run on every pod restart; refresh only when
+# the cache is stale, forced, or no usable CRL exists.
+mkdir -p "$CACHE_DIR"
+crl_cache_fresh=0
+if [[ "$FORCE" != 1 && -f "$CRL_STAMP" && "$CRL_MAX_AGE_SECONDS" -gt 0 ]]; then
+  now=$(date +%s); mt=$(stat -c %Y "$CRL_STAMP" 2>/dev/null || echo 0); age=$((now-mt))
+  if (( age >= 0 && age < CRL_MAX_AGE_SECONDS )) && find "$CA_DIR" -maxdepth 1 -name '*.r0' -print -quit | grep -q .; then crl_cache_fresh=1; fi
+fi
+if [[ "$SKIP_CRL" != 1 && "$crl_cache_fresh" == 0 ]] && command -v fetch-crl >/dev/null 2>&1; then
   log "refreshing CRLs (timeout ${CRL_TIMEOUT_SECONDS}s)"
   set +e
   timeout --signal=TERM --kill-after=10s "${CRL_TIMEOUT_SECONDS}s" fetch-crl
@@ -116,15 +126,16 @@ if [[ "$SKIP_CRL" != 1 ]] && command -v fetch-crl >/dev/null 2>&1; then
   case "$rc" in
     0)
       log "CRL refresh completed"
-      if ! find "$CA_DIR" -maxdepth 1 -name '*.r0' -print -quit | grep -q .; then
-        echo "WARNING: fetch-crl completed but no hashed CRL (*.r0) is present in $CA_DIR" >&2
-      fi
+      rsync -a --delete --exclude='.crl-last-success' "$CA_DIR/" "$CACHE_DIR/"
+      touch "$CRL_STAMP"
       ;;
     124|137) echo "WARNING: fetch-crl timed out after ${CRL_TIMEOUT_SECONDS}s; existing CRLs are retained" >&2 ;;
-    *)   echo "WARNING: fetch-crl returned rc=${rc}; existing CRLs are retained" >&2 ;;
+    *) echo "WARNING: fetch-crl returned rc=${rc}; existing CRLs are retained" >&2 ;;
   esac
 elif [[ "$SKIP_CRL" == 1 ]]; then
   log "CRL refresh deferred until after Apache startup"
+elif [[ "$crl_cache_fresh" == 1 ]]; then
+  log "persistent CRL cache is fresh; fetch-crl not required"
 fi
 
 # Final invariant required by Apache SSLCACertificatePath.
@@ -132,3 +143,6 @@ find "$CA_DIR" -maxdepth 1 -name '*.0' -print -quit | grep -q . || {
   echo "IGTF trust store has no hashed CA entries" >&2
   exit 1
 }
+
+# Keep the persistent cache synchronized after any successful trust refresh.
+if find "$CA_DIR" -maxdepth 1 -name '*.0' -print -quit | grep -q .; then mkdir -p "$CACHE_DIR"; rsync -a --delete --exclude='.crl-last-success' "$CA_DIR/" "$CACHE_DIR/"; fi

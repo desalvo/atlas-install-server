@@ -39,7 +39,7 @@ RUN ln -sfn atlas_install-3.0.0 /var/www/html/atlas_install \
  && find /var/www/html/atlas_install-3.0.0 -type d -exec chmod 0755 {} + \
  && find /var/www/html/atlas_install-3.0.0 -type f -exec chmod 0644 {} + \
  && chmod 0755 /usr/local/sbin/atlas-container-entrypoint /usr/local/sbin/atlas-update-igtf /usr/local/sbin/atlas-maintenance \
- && printf '%s\n' 'clear_env = no' >> /etc/php-fpm.d/www.conf
+ && printf '%s\n' 'clear_env = no' 'catch_workers_output = yes' 'decorate_workers_output = no' 'php_admin_flag[log_errors] = on' 'php_admin_value[error_log] = /proc/self/fd/2' >> /etc/php-fpm.d/www.conf
 
 ENV ATLAS_ENV_FILE=/var/lib/atlas-install/config/atlas-install.env \
     ATLAS_TLS_CERT_FILE=/run/secrets/tls/tls.crt \

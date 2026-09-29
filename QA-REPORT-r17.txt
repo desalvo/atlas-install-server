@@ -1,0 +1,29 @@
+ATLAS Installation Server 3.0.0 r17 - validation
+================================================
+
+Implemented
+-----------
+- local user authentication alongside certificate authentication
+- default local admin/master account; default password "password"
+- forced initial password change only while bootstrap password remains default
+- wizard-managed initial/reset admin password with one-time configuration fingerprint
+- mandatory TOTP, including bootstrap enrollment before first local session
+- encrypted multi-TOTP storage and master TOTP administration
+- local user create/update/delete/enable/disable, role management and password reset
+- configurable local session lifetime, default 8 hours
+- compatibility identity export for legacy protected PHP pages
+- full HTML access-denied page instead of certificate-gated blank/plain responses
+- identity/role footer on user-facing HTML pages
+- responsive/mobile CSS and viewport injection for legacy HTML pages
+- PHP-FPM/error_log forwarding to stderr for Kubernetes logs
+- structured [ATLAS_APP] authentication/access/application events without secrets
+- persistent IGTF/CRL cache on /var/lib/atlas-install/igtf-cache
+
+Validation
+----------
+PHP syntax: PASS (124 files)
+Shell syntax: PASS
+Kubernetes YAML parsing: PASS
+Repository static CI suite: PASS
+TOTP generate/verify self-test: PASS
+Wizard SHA-256 sidecar: PASS

@@ -16,6 +16,8 @@ function menubar($path=".") {
               <li><A HREF="<?php echo $path; ?>/mmap.php" title="Site map">Site&nbsp;map</A><li>
               <li><A HREF="<?php echo $path; ?>/usage_plots.php" title="Usage plots">Usage&nbsp;plots</A><li>
               <li><A HREF="<?php echo $path; ?>/protected/configuration.php" title="Server configuration">Server configuration</A></li>
+              <?php if (atlas_has_role(['master'])): ?><li><A HREF="<?php echo $path; ?>/protected/local_users.php" title="Local users">Local users</A></li><?php endif; ?>
+              <?php if (atlas_current_identity() && (atlas_current_identity()['source'] ?? '') === 'local'): ?><li><A HREF="<?php echo $path; ?>/auth/change_password.php">Change password</A></li><li><A HREF="<?php echo $path; ?>/auth/logout.php">Logout</A></li><?php else: ?><li><A HREF="<?php echo $path; ?>/auth/login.php">Local login</A></li><?php endif; ?>
             </ul>
           </li>
           <li><a href="#" class="dir">Architectures</a>

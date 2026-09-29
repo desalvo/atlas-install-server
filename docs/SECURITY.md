@@ -68,3 +68,22 @@ Further hardening can move Apache/PHP-FPM to fully non-root processes after vali
 Apache is configured with `SSLCARevocationCheck chain`. The container automatically checks IGTF trust anchors and refreshes CRLs every six hours by default. Trust-anchor bundles are refreshed when older than 24 hours. The updater downloads into staging, merges the accredited classic/MICS/IOTA trust directories, runs `openssl rehash`, validates the resulting hash entries, and only then updates the active directory. Existing CRLs are protected during trust-anchor replacement and `fetch-crl` refreshes them afterwards.
 
 A failed periodic download or rehash does not replace the active trust store. Monitor repeated updater/fetch-crl failures and certificate-expiration alerts; stale/missing revocation material can affect client-certificate acceptance.
+
+## Local authentication (3.0.0-r17)
+
+Certificate authentication remains supported. In addition, interactive protected pages accept authenticated local users.
+
+- The only local account created automatically is `admin`, role `master`.
+- Its bootstrap password is `password` unless changed during Kubernetes wizard/bootstrap configuration.
+- When the bootstrap password remains `password`, the account must change it after the first successful password+TOTP login.
+- A non-default password supplied during initial configuration does not trigger the forced-change step.
+- Changing `ATLAS_LOCAL_ADMIN_PASSWORD` through the wizard is detected and applied once to the existing `admin` account; active local sessions for that account are invalidated.
+- Every local login requires TOTP. If an account has no active TOTP, the login flow performs enrollment and requires a valid first code before creating a session.
+- Passwords use PHP `password_hash()`; session tokens are stored only as SHA-256 hashes.
+- TOTP secrets are encrypted with AES-256-GCM using a persistent key stored outside the web root at `/var/lib/atlas-install/config/local-auth.key`.
+- Local session lifetime defaults to 8 hours and is configurable by a master in the Local users page.
+- Masters can create/delete/enable/disable local users, change name/surname/email/role, reset passwords, and add/enable/disable/delete TOTP authenticators.
+
+Protected HTML requests that fail authentication or authorization render the normal application shell and an explicit authorization message; they no longer terminate as a blank/plain response. The footer identifies the authenticated local account or client certificate and its effective role.
+
+Authentication failures, denied accesses and application errors are logged with the `[ATLAS_APP]` prefix and a request ID. Passwords, session tokens, TOTP codes and TOTP secrets are deliberately excluded from structured authentication log context.

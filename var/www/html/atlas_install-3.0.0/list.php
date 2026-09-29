@@ -283,7 +283,7 @@ function checkform(form) {
                   );
 
   // Perform the admin actions
-  if (isset($_REQUEST['relsel']) || (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD']==='POST')) atlas_require_client_certificate();
+  if (isset($_REQUEST['relsel']) || (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD']==='POST')) atlas_require_authenticated();
   if (isset($roleid) && isset($_REQUEST['relsel']) && $roleid > 1) {
     $_REQUEST['relsel'] = array_map(fn($v) => db_int($v,1), (array)$_REQUEST['relsel']);
     require("protected/config.php");

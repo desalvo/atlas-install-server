@@ -166,3 +166,13 @@ Before enabling them on a cluster with a strict RWO storage class, ensure the ma
 Permit database TCP/3306 from the Kubernetes worker/pod network required by your CNI to `192.168.1.145`; restrict all other sources at the DB firewall when possible.
 
 The application database accounts should also be host-restricted at MySQL/Percona/MariaDB level.
+
+## Persistent CRL cache (3.0.0-r17)
+
+The serving pod keeps a persistent IGTF/CRL cache under `/var/lib/atlas-install/igtf-cache`, which is on the application data PVC. On pod startup the active `/etc/grid-security/certificates` emptyDir is restored from that cache before Apache starts. `fetch-crl` is skipped when the last successful persistent CRL state is younger than `ATLAS_CRL_MAX_AGE_SECONDS` (default 21600 seconds / 6 hours). A forced IGTF update or stale/missing CRL cache still performs a real refresh.
+
+This avoids repeating a long `fetch-crl` operation after ordinary Kubernetes rescheduling or restarts while retaining periodic refresh and revocation checking.
+
+## Application logs
+
+PHP-FPM worker output and PHP `error_log()` are forwarded to container stderr. `kubectl logs` therefore includes structured `[ATLAS_APP]` events for authentication failures, access denials, database failures and uncaught PHP errors. A request ID is returned in `X-Request-ID` and included in application error events where available.

@@ -14,8 +14,7 @@ TraceEnable Off
   SSLCertificateFile    "@HOST_CERT@"
   SSLCertificateKeyFile "@HOST_KEY@"
 
-  # Preserve the historical split: public areas remain public, while
-  # /protected requires a successfully verified IGTF client certificate.
+  # Client certificates remain optional at TLS level. Application authorization accepts either an authorized certificate or a local authenticated session.
   SSLVerifyClient optional
   SSLVerifyDepth 20
   SSLCACertificatePath "/etc/grid-security/certificates"
@@ -44,9 +43,6 @@ TraceEnable Off
     Require all denied
   </FilesMatch>
 
-  <LocationMatch "^/atlas_install/protected(?:/|$)">
-    Require expr "%{SSL_CLIENT_VERIFY} == 'SUCCESS'"
-  </LocationMatch>
 
   ErrorLog  "/proc/self/fd/2"
   CustomLog "/proc/self/fd/1" combined

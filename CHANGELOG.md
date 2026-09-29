@@ -102,3 +102,10 @@
 - Added explicit project/design, development, release-management, user and administrator documentation.
 - Retained Rocky Linux 10, PHP 8.3+, Kubernetes TLS-passthrough, Docker Compose and native EL10 deployment support.
 - Retained multi-architecture Docker Hub publication for `linux/amd64` and `linux/arm64`.
+
+## 3.0.0-r17
+- Local users with password + TOTP, master administration, configurable session lifetime.
+- Protected pages accept certificate identity or authenticated local sessions and render a full access-denied page.
+- Identity/role footer and mobile-responsive UI across PHP pages.
+- Application/authentication errors are forwarded to container stderr for kubectl logs.
+- Persistent IGTF/CRL cache avoids unnecessary fetch-crl runs on pod restart.
