@@ -1,0 +1,20 @@
+ATLAS Installation Server 3.0.0 r25 - focused regression report
+===============================================================
+
+Scope
+-----
+- localized access-denied guidance
+- local-login CSRF/origin handling behind HAProxy
+- application error logging to container stderr
+- home late-error chrome duplication
+- list.php full-width/collapsible desktop+mobile layout
+- list.php identity/footer placement
+- protected req.php GET/access-log robustness
+
+Expected validation
+-------------------
+- PHP syntax: PASS
+- shell syntax: PASS
+- repository static CI: PASS
+- Kubernetes/GitHub/Docker Compose YAML parsing: PASS
+- wizard sidecar SHA-256: PASS

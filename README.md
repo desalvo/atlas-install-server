@@ -2,6 +2,11 @@
 
 LJSF 3 is the ATLAS installation and deployment management service. It provides release, site, architecture, InfoSys, target, task and installation-request management through a responsive Web UI and a set of legacy-compatible machine endpoints.
 
+### Runtime diagnostics and responsive list view
+
+Application/PHP errors are emitted to container stderr with an `ATLAS_APP` event and request ID, including request-validation and fatal-shutdown failures. `list.php` uses the same full-width collapsible record presentation on desktop and mobile: primary fields remain visible while details expand in-place; current identity information is collapsed by default.
+
+
 ## Deployment models
 
 - Kubernetes behind HAProxy Ingress with TLS passthrough;

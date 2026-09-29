@@ -27,7 +27,7 @@ function checkform(form) {
   require("combo.php");
   require("config.php");
   require("user_info.php");
-  require ("$LJSFi_PATH/access_log.php");
+  require (__DIR__."/../access_log.php");
 ?>
 <?php if (!isset($_POST['ws']) or $_POST['ws'] == '') { ?>
   <div id="main">
@@ -82,23 +82,27 @@ function checkform(form) {
                  , 10 => 'reqIgnore'
                   );
 
-  $sslusername = getenv("SSL_CLIENT_S_DN_CN");
-  $ssluserdetails = getenv("SSL_CLIENT_S_DN");
-  $qryuser = "SELECT user.ref, role.description, user.priv_update FROM user,role WHERE name=" . db_quote($sslusername,'ro') . " AND dn=" . db_quote($ssluserdetails,'ro') . " AND user.rolefk=role.ref";
-  $result = db_query($qryuser,"ro");
-  $row = mysqli_fetch_row($result);
-  if (!$row) {
-    $insuser = "INSERT INTO user SET name=".db_quote($sslusername,'rw').", dn=".db_quote($ssluserdetails,'rw');
-    $addres  = db_query($insuser);
-    $result  = db_query($qryuser);
-    $row     = mysqli_fetch_row($result);
+  $sslusername = (string)getenv("SSL_CLIENT_S_DN_CN");
+  $ssluserdetails = (string)getenv("SSL_CLIENT_S_DN");
+  $identity = atlas_current_identity();
+  $adminfk = NULL;
+  $role = '';
+  $priv_update = 0;
+  // Reuse a legacy user row when it exists, but never mutate the legacy user
+  // table merely because req.php was opened with GET.
+  if ($sslusername !== '' && $ssluserdetails !== '') {
+    $qryuser = "SELECT user.ref, role.description, user.priv_update FROM user,role WHERE name=" . db_quote($sslusername,'ro') . " AND dn=" . db_quote($ssluserdetails,'ro') . " AND ABS(user.rolefk)=role.ref";
+    $result = db_query($qryuser,"ro");
+    $legacyRow = mysqli_fetch_row($result);
+    if ($legacyRow) {
+      $adminfk = $legacyRow[0];
+      $role = (string)$legacyRow[1];
+      $priv_update = (int)$legacyRow[2];
+    }
   }
-  if (!$row) {
-    $role = "";
-  } else {
-    $adminfk     = $row[0];
-    $role        = $row[1];
-    $priv_update = $row[2];
+  if (($identity['source'] ?? '') === 'local') {
+    $role = (string)($identity['role'] ?? '');
+    if (in_array($role, array('admin','master'), true)) $priv_update = 1;
   }
 
   $reqstat = array();
@@ -117,6 +121,23 @@ function checkform(form) {
 
   // Check if we need to update the status
   if (isset($_POST["id"]) && $_POST["id"] != "") {
+    // A local account is authoritative for Web authorization. Create its legacy
+    // user mapping lazily only when a state-changing legacy operation actually
+    // needs an adminfk; never do this as a side effect of GET.
+    if ($adminfk === NULL && ($identity['source'] ?? '') === 'local' && in_array($role, array('admin','master'), true)) {
+      $legacyName = (string)($identity['username'] ?? '');
+      $legacyDn = 'LOCAL:'.$legacyName;
+      $legacyEmail = (string)($identity['email'] ?? '');
+      if ($legacyName !== '') {
+        $ins = "INSERT INTO user (name,dn,email,rolefk,enabled,valid_start,valid_end) VALUES ("
+             .db_quote($legacyName,'rw').",".db_quote($legacyDn,'rw').",".db_quote($legacyEmail,'rw').","
+             ."(SELECT ref FROM role WHERE description=".db_quote($role,'rw')." LIMIT 1),1,NOW(),DATE_ADD(NOW(), INTERVAL 20 YEAR))";
+        db_query($ins);
+        $resLegacy = db_query("SELECT ref FROM user WHERE name=".db_quote($legacyName,'ro')." AND dn=".db_quote($legacyDn,'ro')." ORDER BY ref DESC LIMIT 1",'ro');
+        $mapRow = mysqli_fetch_row($resLegacy);
+        if ($mapRow) $adminfk = (int)$mapRow[0];
+      }
+    }
     $rowdp = NULL;
     if ($_POST["reqstat"] == "autorun") {
       // Check for concurrent requests on the same exp soft area
@@ -158,7 +179,7 @@ function checkform(form) {
       if ($_POST["reqstat"]=="not assigned") {
         $updateqry = $updateqry . ", adminfk=NULL";
       } else {
-        $updateqry = $updateqry . ", adminfk=" . $adminfk;
+        $updateqry = $updateqry . ($adminfk === NULL ? ", adminfk=NULL" : ", adminfk=" . (int)$adminfk);
       }
       $updateqry = $updateqry . ", update_date='" . $date . "'";
       $updateqry .= ", admin_comments=" . db_quote($_POST["admincomm"],'rw');

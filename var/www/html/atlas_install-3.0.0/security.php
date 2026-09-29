@@ -109,6 +109,11 @@ function atlas_same_origin_guard(): void {
     if (atlas_is_cli()) return;
     $method = strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET'));
     if (!in_array($method, ['POST','PUT','PATCH','DELETE'], true)) return;
+    $requestPath = (string)(parse_url((string)($_SERVER['REQUEST_URI'] ?? ''), PHP_URL_PATH) ?: '');
+    // login.php and change_password.php use a per-session cryptographic CSRF token
+    // and strict/Lax secure cookies. Do not reject these forms based on proxy-
+    // dependent Origin reconstruction; their own CSRF validation is authoritative.
+    if (in_array($requestPath, ['/atlas_install/auth/login.php','/atlas_install/auth/change_password.php'], true)) return;
     $origin = (string)($_SERVER['HTTP_ORIGIN'] ?? '');
     if ($origin === '') return; // preserve non-browser API/agent clients
     $originParts = parse_url($origin);
@@ -159,13 +164,6 @@ function atlas_same_origin_guard(): void {
     }
 }
 
-atlas_validate_request();
-atlas_security_headers();
-atlas_same_origin_guard();
-
-
-
-
 function atlas_request_id(): string {
     static $id = null; if ($id !== null) return $id;
     $incoming = (string)($_SERVER['HTTP_X_REQUEST_ID'] ?? '');
@@ -174,18 +172,42 @@ function atlas_request_id(): string {
     return $id;
 }
 
-ini_set('log_errors','1');
-@ini_set('error_log','/proc/self/fd/2');
-ini_set('display_errors', atlas_db_bool('ATLAS_DEBUG',false) ? '1':'0');
-set_error_handler(function($severity,$message,$file,$line){
-    if (!(error_reporting() & $severity)) return false;
-    error_log('[ATLAS_APP] '.json_encode(['event'=>'php_error','request_id'=>atlas_request_id(),'severity'=>$severity,'message'=>$message,'file'=>basename($file),'line'=>$line,'uri'=>(string)($_SERVER['REQUEST_URI']??'cli')],JSON_UNESCAPED_SLASHES));
-    return false;
-});
-set_exception_handler(function(Throwable $e){
-    error_log('[ATLAS_APP] '.json_encode(['event'=>'uncaught_exception','request_id'=>atlas_request_id(),'type'=>get_class($e),'message'=>$e->getMessage(),'file'=>basename($e->getFile()),'line'=>$e->getLine(),'uri'=>(string)($_SERVER['REQUEST_URI']??'cli')],JSON_UNESCAPED_SLASHES));
-    if (!atlas_is_cli()) { http_response_code(500); atlas_render_message_page(atlas_t('app_error'),atlas_t('app_error_msg'),'error'); }
-});
+function atlas_log_bootstrap(): void {
+    ini_set('log_errors','1');
+    @ini_set('error_log','/proc/self/fd/2');
+    ini_set('display_errors', atlas_db_bool('ATLAS_DEBUG',false) ? '1':'0');
+    set_error_handler(function($severity,$message,$file,$line){
+        if (!(error_reporting() & $severity)) return false;
+        error_log('[ATLAS_APP] '.json_encode(['event'=>'php_error','request_id'=>atlas_request_id(),'severity'=>$severity,'message'=>$message,'file'=>basename($file),'line'=>$line,'uri'=>(string)($_SERVER['REQUEST_URI']??'cli')],JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
+        return false;
+    });
+    set_exception_handler(function(Throwable $e){
+        error_log('[ATLAS_APP] '.json_encode(['event'=>'uncaught_exception','request_id'=>atlas_request_id(),'type'=>get_class($e),'message'=>$e->getMessage(),'file'=>basename($e->getFile()),'line'=>$e->getLine(),'uri'=>(string)($_SERVER['REQUEST_URI']??'cli')],JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
+        if (atlas_is_cli()) return;
+        http_response_code(500);
+        $existing = ob_get_level() > 0 ? (string)ob_get_contents() : '';
+        // If the normal page chrome is already in the output buffer, never render
+        // a second header/menu. Append only the in-page error notice.
+        if (stripos($existing,'id="menubar"') !== false || stripos($existing,"id='menubar'") !== false) {
+            echo '<div class="atlas-alert error atlas-late-error"><strong>'.atlas_h(atlas_t('app_error')).'</strong><br>'.atlas_h(atlas_t('app_error_msg')).' <span class="atlas-code">'.atlas_h(atlas_request_id()).'</span></div>';
+            return;
+        }
+        atlas_render_message_page(atlas_t('app_error'),atlas_t('app_error_msg'),'error');
+    });
+    register_shutdown_function(function(){
+        $last=error_get_last();
+        if(!$last) return;
+        if(!in_array((int)$last['type'],[E_ERROR,E_PARSE,E_CORE_ERROR,E_COMPILE_ERROR,E_USER_ERROR,E_RECOVERABLE_ERROR],true)) return;
+        error_log('[ATLAS_APP] '.json_encode(['event'=>'fatal_shutdown','request_id'=>atlas_request_id(),'severity'=>$last['type'],'message'=>$last['message'],'file'=>basename((string)$last['file']),'line'=>$last['line'],'uri'=>(string)($_SERVER['REQUEST_URI']??'cli')],JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
+    });
+}
+
+// Logging must be active before request validation and origin checks so every
+// rejected request is visible in kubectl logs.
+atlas_log_bootstrap();
+atlas_validate_request();
+atlas_security_headers();
+atlas_same_origin_guard();
 
 require_once __DIR__ . '/local_auth.php';
 
@@ -221,8 +243,8 @@ function atlas_access_denied(string $detail=''): never {
     if($detail==='') $detail=atlas_t('unauthorized_default');
     atlas_render_message_page(atlas_t('unauthorized'),$detail.' '.atlas_t('contact_admin'),'warning');
 }
-function atlas_require_client_certificate(): void { if(atlas_is_cli())return; $i=atlas_cert_identity(); if(!$i)atlas_access_denied('Questa funzione richiede un certificato client valido.'); }
-function atlas_require_authenticated(): void { if(atlas_is_cli())return; if(!atlas_is_authenticated())atlas_access_denied('È necessario autenticarsi con un certificato autorizzato oppure con un’utenza locale.'); $i=atlas_current_identity(); if(($i['source']??'')==='local' && !empty($i['must_change_password']) && !str_contains((string)($_SERVER['REQUEST_URI']??''),'/auth/change_password.php')) { header('Location: /atlas_install/auth/change_password.php'); exit; } }
+function atlas_require_client_certificate(): void { if(atlas_is_cli())return; $i=atlas_cert_identity(); if(!$i)atlas_access_denied(atlas_t('certificate_required')); }
+function atlas_require_authenticated(): void { if(atlas_is_cli())return; if(!atlas_is_authenticated())atlas_access_denied(atlas_t('authentication_required')); $i=atlas_current_identity(); if(($i['source']??'')==='local' && !empty($i['must_change_password']) && !str_contains((string)($_SERVER['REQUEST_URI']??''),'/auth/change_password.php')) { header('Location: /atlas_install/auth/change_password.php'); exit; } }
 function atlas_require_sensitive_request_certificate(): void { if(atlas_is_cli())return; $path=parse_url((string)($_SERVER['REQUEST_URI']??''),PHP_URL_PATH)?:''; if(preg_match('~^/atlas_install/protected(?:/|$)~',$path)) atlas_require_authenticated(); }
 function atlas_export_legacy_identity(): void { if(atlas_is_cli())return; $i=atlas_current_identity(); if(!$i||($i['source']??'')!=='local')return; $dn='LOCAL:'.(string)$i['username']; putenv('SSL_CLIENT_S_DN='.$dn); putenv('SSL_CLIENT_S_DN_CN='.(string)$i['username']); $_SERVER['SSL_CLIENT_S_DN']=$dn; $_SERVER['SSL_CLIENT_S_DN_CN']=(string)$i['username']; }
 

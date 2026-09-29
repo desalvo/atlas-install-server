@@ -30,7 +30,7 @@
     var toggle=document.getElementById('atlas-mobile-menu-toggle');
     var close=document.getElementById('atlas-mobile-menu-close');
     var backdrop=document.getElementById('atlas-mobile-menu-backdrop');
-    if(!bar||!toggle||toggle.dataset.atlasBound==='1') return;
+    if(!bar||!toggle||bar.dataset.atlasInlineReady==='1'||toggle.dataset.atlasBound==='1') return;
     toggle.dataset.atlasBound='1';
     function setOpen(open){
       bar.classList.toggle('atlas-mobile-open',!!open);
@@ -59,6 +59,6 @@
     for(var k=0;k<links.length;k++) links[k].addEventListener('click',function(){if(isMobile())setOpen(false);},false);
     window.addEventListener('resize',function(){if(!isMobile())setOpen(false);},false);
   }
-  function initAll(){initMenu();initAutocompleteFallback();}
+  function initAll(){initAutocompleteFallback();}
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initAll,false); else initAll();
 })();

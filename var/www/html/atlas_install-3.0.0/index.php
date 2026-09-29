@@ -204,22 +204,23 @@ if ($.fn && $.fn.autocomplete) { $( "#resource" ).autocomplete({ source: availab
 <HR>
 <P>
 <?php
-require_once __DIR__.'/chart_local.php';
-foreach ([14,7] as $days) {
-  $f=$cache_path."/LJSFi_jobs_{$days}.json";
-  if (is_readable($f)) { $j=json_decode((string)file_get_contents($f),true); if(is_array($j)&&isset($j['data'])) echo atlas_chart_line(array_map(fn($r)=>[substr((string)$r[0],5),(float)$r[1]],$j['data']),$j['title']??("Jobs {$days} days"),600,300); }
-  else { jobplot((string)$days,$LJSFi_VO." installation jobs in the last {$days} days"); }
+try {
+  require_once __DIR__.'/chart_local.php';
+  foreach ([14,7] as $days) {
+    $f=$cache_path."/LJSFi_jobs_{$days}.json";
+    if (is_readable($f)) { $j=json_decode((string)file_get_contents($f),true); if(is_array($j)&&isset($j['data'])) echo atlas_chart_line(array_map(fn($r)=>[substr((string)$r[0],5),(float)$r[1]],$j['data']),$j['title']??("Jobs {$days} days"),600,300); }
+    else { jobplot((string)$days,$LJSFi_VO." installation jobs in the last {$days} days"); }
+  }
+  reqplot(500,300);
+  relplot(600,500);
+  jobrateplot(600,500);
+  jobstatplot(600,500);
+  jobrunplot(600,500);
+} catch (Throwable $e) {
+  error_log('[ATLAS_APP] '.json_encode(['event'=>'home_chart_render_failed','request_id'=>atlas_request_id(),'message'=>$e->getMessage(),'file'=>basename($e->getFile()),'line'=>$e->getLine()],JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
+  echo '<div class="atlas-alert error">'.atlas_h(atlas_t('app_error_msg')).' <span class="atlas-code">'.atlas_h(atlas_request_id()).'</span></div>';
 }
 ?>
-<?php reqplot(500,300); ?>
-<?php relplot(600,500); ?>
-<?php jobrateplot(600,500); ?>
-<?php jobstatplot(600,500); ?>
-<?php jobrunplot(600,500); ?>
-</CENTER>
-</TD></TR>
-<TR><TD height="30" background="img/bar2.gif">&nbsp;</TD><TD>&nbsp;</TD></TR>
-</TABLE>
 
       </div>
     </div>

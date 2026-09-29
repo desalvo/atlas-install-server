@@ -16,3 +16,7 @@ Charts are rendered locally as SVG/HTML when requested. No external chart-render
 
 ## Authorization
 Access-denied pages retain the normal header and menu and provide a local-login link plus guidance when an appropriate client certificate is required.
+
+### `list.php` tables on phones
+
+On phones, `list.php` results are rendered as compact cards regardless of screen orientation. A collapsed card always shows **Num**, **Release number**, **Site name**, and **Release arch**. Tap the card or **Details** to reveal the remaining fields; tap again to collapse them. Technical controls and hidden fields required by the page remain in the DOM but are not displayed as record data.

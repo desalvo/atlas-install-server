@@ -1,3 +1,16 @@
+## 3.0.0-r25
+
+- Initialize PHP/container error logging before request validation and same-origin checks, and log fatal shutdown errors with request IDs.
+- Local login and password-change forms rely on their cryptographic session CSRF tokens instead of the proxy-sensitive generic Origin guard, eliminating false 403 responses behind HAProxy/TLS passthrough.
+- Localized authentication/certificate/master-role access-denied messages in Italian and English.
+- Prevent late exceptions from rendering a second application header/menu; late failures are logged and rendered as a single in-page alert.
+- Made home chart rendering failure-isolated and removed stale legacy table-closing markup that could corrupt the page layout.
+- Reworked list.php as a full-window collapsible record view on desktop and mobile; closed records always show Num, Release number, Site name and Release arch, while expanded records reveal the remaining fields without horizontal scrolling.
+- Removed the legacy inline identity text from list.php and use the same collapsed identity-details section as the rest of the application.
+- Moved the installation-team footer after list content and removed legacy wrapper closures that could overlap the deployment-status heading/table.
+- Made access logging best-effort and proxy-aware so an access-log write failure is logged but cannot turn protected pages into HTTP 500 responses.
+- Stopped protected/req.php from creating legacy users merely on GET; local identities use their authenticated local role for read/update authorization.
+
 
 ## 3.0.0-r19
 
@@ -147,3 +160,13 @@
 ## 3.0.0-r21
 
 LJSF 3 user-interface and runtime consolidation release. The application uses local LJSF 3 branding/favicons, browser-language Italian/English UI chrome and documentation, a right-side mobile navigation drawer with one item per row, collapsible identity details and explicit authentication guidance on access-denied pages. Database bootstrap supports a temporary administrator credential for creating a missing application schema or local-auth tables and the Kubernetes wizard removes the temporary password after a successful rollout. Charts are rendered locally as SVG/HTML; maintenance jobs produce only summary/cache data. Startup logs now identify each startup phase, including the initial IGTF/fetch-crl run.
+
+## 3.0.0-r24
+
+- Removed duplicate mobile-menu event registration; the common menu renderer is now the single owner of drawer and submenu interactions on every page.
+- Rebuilt `list.php` filter/header markup as valid table HTML with an external GET filter form and a real `thead` row.
+- Removed repeated invalid `tbody` emission from `list.php` records.
+- Mobile `list.php` records now always expose Num, Release number, Site name and Release arch as primary fields.
+- Technical/selection fields remain in the DOM when required but are hidden from the compact mobile presentation.
+- Mobile records expand/collapse by tapping the row or the Details button.
+- Compact `list.php` rendering remains active on coarse-pointer phones in both portrait and landscape orientations.

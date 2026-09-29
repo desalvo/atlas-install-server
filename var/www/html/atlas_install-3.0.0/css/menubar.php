@@ -38,19 +38,42 @@ function menubar($path=".") {
 </nav>
 <script>
 (function(){
-  function bindAtlasMenuFallback(){
+  function initAtlasMenuInline(){
     var bar=document.getElementById('menubar'), toggle=document.getElementById('atlas-mobile-menu-toggle'), close=document.getElementById('atlas-mobile-menu-close'), backdrop=document.getElementById('atlas-mobile-menu-backdrop');
-    if(!bar||!toggle) return;
+    if(!bar||!toggle||bar.dataset.atlasInlineReady==='1') return;
+    bar.dataset.atlasInlineReady='1';
     function mobile(){return window.matchMedia?window.matchMedia('(max-width:760px)').matches:window.innerWidth<=760;}
-    function setOpen(open){bar.classList.toggle('atlas-mobile-open',!!open);toggle.setAttribute('aria-expanded',open?'true':'false');if(backdrop){backdrop.hidden=!open;backdrop.classList.toggle('is-open',!!open);}document.documentElement.classList.toggle('atlas-menu-open',!!open);}
-    if(!window.atlasSetMobileMenuOpen) window.atlasSetMobileMenuOpen=setOpen;
-    if(!window.atlasToggleMobileMenu) window.atlasToggleMobileMenu=function(ev){if(ev){ev.preventDefault();ev.stopPropagation();}setOpen(!bar.classList.contains('atlas-mobile-open'));return false;};
-    if(toggle.dataset.atlasFallbackBound!=='1'){toggle.dataset.atlasFallbackBound='1';toggle.addEventListener('click',window.atlasToggleMobileMenu,false);}
-    if(close&&close.dataset.atlasFallbackBound!=='1'){close.dataset.atlasFallbackBound='1';close.addEventListener('click',function(e){e.preventDefault();setOpen(false);},false);}
-    if(backdrop&&backdrop.dataset.atlasFallbackBound!=='1'){backdrop.dataset.atlasFallbackBound='1';backdrop.addEventListener('click',function(){setOpen(false);},false);}
-    bar.querySelectorAll('#menu > li > a.dir').forEach(function(a){if(a.dataset.atlasFallbackBound==='1')return;a.dataset.atlasFallbackBound='1';a.addEventListener('click',function(e){if(!mobile())return;var li=a.parentElement,sub=li&&li.querySelector(':scope > ul');if(!sub)return;e.preventDefault();bar.querySelectorAll('#menu > li.atlas-mobile-section-open').forEach(function(x){if(x!==li)x.classList.remove('atlas-mobile-section-open');});li.classList.toggle('atlas-mobile-section-open');},false);});
+    function setOpen(open){
+      bar.classList.toggle('atlas-mobile-open',!!open);
+      toggle.setAttribute('aria-expanded',open?'true':'false');
+      if(backdrop){backdrop.hidden=!open;backdrop.classList.toggle('is-open',!!open);}
+      document.documentElement.classList.toggle('atlas-menu-open',!!open);
+    }
+    window.atlasSetMobileMenuOpen=setOpen;
+    window.atlasToggleMobileMenu=function(ev){if(ev){ev.preventDefault();ev.stopPropagation();}setOpen(!bar.classList.contains('atlas-mobile-open'));return false;};
+    if(close) close.onclick=function(e){e.preventDefault();setOpen(false);};
+    if(backdrop) backdrop.onclick=function(){setOpen(false);};
+    bar.addEventListener('click',function(e){
+      var a=e.target.closest ? e.target.closest('a.dir') : null;
+      if(a && bar.contains(a) && mobile()){
+        var li=a.parentElement, sub=null;
+        for(var i=0;i<li.children.length;i++){if(li.children[i].tagName==='UL'){sub=li.children[i];break;}}
+        if(sub){
+          e.preventDefault(); e.stopPropagation();
+          var opened=bar.querySelectorAll('#menu > li.atlas-mobile-section-open');
+          for(var j=0;j<opened.length;j++) if(opened[j]!==li) opened[j].classList.remove('atlas-mobile-section-open');
+          li.classList.toggle('atlas-mobile-section-open');
+          a.setAttribute('aria-expanded',li.classList.contains('atlas-mobile-section-open')?'true':'false');
+          return;
+        }
+      }
+      var link=e.target.closest ? e.target.closest('#menu ul a, #menu > li.atlas-menu-single > a:not(#trigger)') : null;
+      if(link && mobile()) setOpen(false);
+    },false);
+    document.addEventListener('keydown',function(e){if(e.key==='Escape')setOpen(false);},false);
+    window.addEventListener('resize',function(){if(!mobile())setOpen(false);},false);
   }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindAtlasMenuFallback,false);else bindAtlasMenuFallback();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAtlasMenuInline,false);else initAtlasMenuInline();
 })();
 </script>
 

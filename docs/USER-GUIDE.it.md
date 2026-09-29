@@ -16,3 +16,7 @@ I grafici sono renderizzati localmente in SVG/HTML al momento della richiesta. N
 
 ## Autorizzazioni
 Le pagine con accesso negato mantengono header e menu e mostrano il link al login locale e l'indicazione sull'eventuale certificato client richiesto.
+
+### Tabelle `list.php` su smartphone
+
+Su smartphone i risultati di `list.php` sono presentati come schede compatte, indipendentemente dall'orientamento dello schermo. A scheda chiusa sono sempre visibili **Num**, **Release number**, **Site name** e **Release arch**. Un tap sulla scheda o su **Dettagli** mostra gli altri campi; un secondo tap li richiude. I controlli tecnici e i campi hidden necessari al funzionamento della pagina non vengono mostrati come dati del record.

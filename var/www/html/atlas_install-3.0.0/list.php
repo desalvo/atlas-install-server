@@ -47,7 +47,7 @@ function checkform(form) {
 
 </script>
 
-<BODY>
+<BODY class="atlas-list-page">
 
 <script src="js/sorttable.js"></script>
 <script type="text/javascript" src="js/selectall.js"></script>
@@ -122,18 +122,32 @@ function checkform(form) {
 
 ?>
 
-  <div id="main">
+  <div id="main" class="atlas-list-main">
     <div id="header">
 <?php require("./css/main_header.php"); main_header($LJSFi_VO, "."); ?>
 <?php require("./css/menubar.php"); menubar("."); ?>
 <?php include "./css/list_help.html" ?>
     </div>
     <div id="content_header"></div>
-    <div id="site_content1">
-      <div id="content">
+    <div id="site_content1" class="atlas-list-site-content">
+      <div id="content" class="atlas-list-content">
         <!-- insert the page content here -->
         <h3><?php echo $LJSFi_VO; ?> software deployment status</h3>
-<TABLE border="2" frame="hsides" rules="groups" summary="<?php echo $LJSFi_VO; ?> software deployment status." class="table1">
+<form id="atlas-list-filter-form" method="get" action="">
+<?php if (isset($_REQUEST["summary"])) echo '<input type="hidden" name="summary" value="'.htmlspecialchars((string)$_REQUEST["summary"], ENT_QUOTES, 'UTF-8').'">'; ?>
+</form>
+<?php
+  $getstring = '';
+  if (isset($roleid) && $roleid > 1 && !isset($_REQUEST["summary"])) {
+    $getpairs = array();
+    foreach ($_GET as $key => $val) {
+      if (is_scalar($val)) $getpairs[$key] = (string)$val;
+    }
+    if ($getpairs) $getstring = '?'.http_build_query($getpairs);
+    echo '<form method="post" name="ljsfadmin" action="list.php'.htmlspecialchars($getstring, ENT_QUOTES, 'UTF-8').'" onsubmit="return checkform(this);">';
+  }
+?>
+<TABLE id="atlas-list-results" border="2" frame="hsides" rules="groups" summary="<?php echo $LJSFi_VO; ?> software deployment status." class="table1">
 <?php if (!isset($_REQUEST["summary"])) { ?>
 <?php if (isset($roleid) && $roleid > 1) echo '<COLGROUP align="center">'; ?>
 <COLGROUP align="center">
@@ -180,18 +194,20 @@ function checkform(form) {
                      );
   }
   $indx = 0;
-  echo ('<form method="get" action="">');
-  if (isset($roleid) && $roleid > 1 && !isset($_REQUEST["summary"])) echo '<TH>Sel';
-  echo ('<TH>Num');
+  echo ('<THEAD><TR class="atlas-list-filter-row">');
+  if (isset($roleid) && $roleid > 1 && !isset($_REQUEST["summary"])) echo '<TH data-mobile-hidden="1" data-column-label="Sel">Sel</TH>';
+  echo ('<TH data-mobile-primary="1" data-column-label="Num">Num</TH>');
   foreach($COLUMNS as $text=>$data) {
     $keyword = $data[0];
     $optname = $data[1];
-    echo ('<TH>');
+    $mobilePrimary = in_array($optname, array('rel','sitename','arch'), true) ? ' data-mobile-primary="1"' : '';
+    $columnLabel = trim(preg_replace('/<BR\s*\/?\s*>/i',' ',(string)$text));
+    echo ('<TH'.$mobilePrimary.' data-column-label="'.htmlspecialchars($columnLabel, ENT_QUOTES, 'UTF-8').'">');
     if (count($lists[$indx]) > 0) {
-      echo '<select name="',$optname,'" size="1">';
+      echo '<select form="atlas-list-filter-form" name="',$optname,'" size="1">';
       combo_box ($lists[$indx]);
       echo '</select><br/>';
-      echo '<input type="submit" value="Filter">';
+      echo '<input form="atlas-list-filter-form" type="submit" value="Filter">';
       echo '<br/>';
     }
     $indx++;
@@ -212,20 +228,12 @@ function checkform(form) {
       echo ("&orderdir=asc'>" . $text . "</A><BR><img width=30 src='img/b_down.png'>\n");
     }
   }
-  if (isset($_REQUEST["summary"])) echo '<input type="hidden" name="summary" value="'.$_REQUEST["summary"].'">';
-  echo '</form>';
+  echo '</TR></THEAD>';
 ?>
 <TBODY>
 <?php
   if (isset($roleid) && $roleid > 1 && !isset($_REQUEST["summary"])) {
     echo ('<TR><TD colspan="11">');
-    if (isset($_GET)) {
-      $getlist = array();
-      foreach ($_GET as $key => $val) array_push($getlist,"${key}=${val}");
-      if ($getlist) $getstring = "?".implode($getlist,"&");
-    }
-    echo ('<FORM method="post" name="ljsfadmin" action="list.php'.$getstring.'" onsubmit="return checkform(this);">');
-    echo ("\n");
     printLJSFtags($LJSFtags);
     echo '<table id="toolbar_tbl" border="0" width="100%" cellpadding="1" rules="groups" class="adminbar">';
     echo '<COLGROUP width="80"></COLGROUP>';
@@ -515,11 +523,18 @@ function checkform(form) {
             $color = $COLORS[$row[5]];
           }
         }
-        echo ("<TR class='".$color."'>");
-        if (isset($roleid) && $roleid > 1) echo ('<TD><input type="checkbox" name="relsel[]" value="'.$row[10].'" onclick="enableDisableField(this,'.$row[10].');"></td>');
+        echo ('<TR class="'.htmlspecialchars($color, ENT_QUOTES, 'UTF-8').'" data-atlas-list-record="1">');
+        if (isset($roleid) && $roleid > 1) echo ('<TD data-mobile-hidden="1"><input type="checkbox" name="relsel[]" value="'.$row[10].'" onclick="enableDisableField(this,'.$row[10].');"></td>');
         for ($i=0; $i<9; $i++) {
-          echo ("<TD>");
-          if ($i == 0) echo ($category[$row[5]]."</TD>\n<TD>");
+          if ($i == 0) {
+            echo ('<TD data-mobile-primary="1" data-label="Num">'.$category[$row[5]].'</TD>\n');
+            echo ('<TD data-mobile-primary="1" data-label="Release number">');
+          } else {
+            $attrs = '';
+            if ($i == 1) $attrs = ' data-mobile-primary="1" data-label="Site name"';
+            if ($i == 2) $attrs = ' data-mobile-primary="1" data-label="Release arch"';
+            echo ('<TD'.$attrs.'>');
+          }
           if ($i == 4) {
             echo ('<A HREF="jobs.php?relfk=' . $row[10] . '" class="tooltip" title="');
             echo ('<A HREF=\'protected/sitedef.php?mode=update&sitesrc='.$row[14].'\' TARGET=top>' . $row[13] . '</A><BR>' . $row[11] . ' ' . $row[12] . '<BR>Status: ' . $status_map[$row[15]] . '<BR>Grid: ' . $row[17] . '<BR>Last job status: ' . $row[16] . '<BR><A HREF=\'http://atlas-agis.cern.ch/agis/panda_resource/detail/' . $row[13] . '/full/\' TARGET=\'_blank\'>AGIS info</A>');
@@ -537,29 +552,22 @@ function checkform(form) {
           echo ("</TD>\n");
         }
       }
-      echo ("</TR><TBODY>");
+      echo ("</TR>");
     }
   }
 ?>
+</TBODY>
 </TABLE>
 
 <?php if (isset($roleid) && $roleid > 1) { echo '</form>'; } ?>
 
-</TD></TR></TABLE>
-
-<?php
-  if (isset($ssluserdetails) && $ssluserdetails != "") {
-    echo ("You are logged in as ".$ssluserdetails);
-    if (isset($role)) echo (" (".$role.")");
-  echo ("<br>");
-  }
-  echo (date("l, F dS Y, H:m:s"));
-?>
+<div class="atlas-list-updated"><?php echo atlas_h(date("l, F dS Y, H:i:s")); ?></div>
       </div>
     </div>
     <div id="content_footer"></div>
-    <div id="footer">
-      <p><a href="mailto:Alessandro.DeSalvo@roma1.infn.it">Contact the installation team</a></p>
+    <?php echo atlas_identity_details_html(); ?>
+    <div id="footer" class="atlas-list-footer">
+      <p><a href="mailto:Alessandro.DeSalvo@roma1.infn.it"><?php echo atlas_h(atlas_lang()==='it'?'Contatta il team di installazione':'Contact the installation team'); ?></a></p>
     </div>
   </div>
 </BODY>

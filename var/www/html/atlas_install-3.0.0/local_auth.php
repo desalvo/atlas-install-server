@@ -166,5 +166,5 @@ function atlas_user_totps(int $uid,bool $enabledOnly=false): array { atlas_local
 function atlas_verify_user_totp(int $uid,string $code): bool { foreach(atlas_user_totps($uid,true) as $t){$s=atlas_secret_decrypt((string)$t['secret_enc']);if($s!==''&&atlas_totp_verify($s,$code))return true;} return false; }
 function atlas_local_user_by_username(string $username): ?array { atlas_local_auth_schema();$db=atlas_local_db();$st=$db->prepare('SELECT * FROM atlas_local_user WHERE username=? LIMIT 1');$st->bind_param('s',$username);$st->execute();$r=$st->get_result()->fetch_assoc();return $r?:null; }
 
-function atlas_require_master(): void { if(!atlas_has_role(['master'])) atlas_access_denied('Questa funzione richiede il ruolo master.'); }
+function atlas_require_master(): void { if(!atlas_has_role(['master'])) atlas_access_denied(atlas_t('master_required')); }
 ?>

@@ -2,15 +2,11 @@
   require_once("config.php");
   require_once("db.php");
   function curPageURL() {
-      $pageURL = 'http';
-      if ($_SERVER["HTTPS"] == "on") {$pageURL .= "s";}
-      $pageURL .= "://";
-      if ($_SERVER["SERVER_PORT"] != "80") {
-          $pageURL .= $_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"];
-      } else {
-          $pageURL .= $_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"];
-      }
-      return $pageURL;
+      $forwardedProto = strtolower(trim(explode(',', (string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''))[0] ?? ''));
+      $https = $forwardedProto === 'https' || strtolower((string)($_SERVER['HTTPS'] ?? '')) === 'on' || (int)($_SERVER['SERVER_PORT'] ?? 0) === 443;
+      $host = trim(explode(',', (string)($_SERVER['HTTP_X_FORWARDED_HOST'] ?? ''))[0] ?? '');
+      if ($host === '') $host = (string)($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost');
+      return ($https ? 'https' : 'http').'://'.$host.(string)($_SERVER['REQUEST_URI'] ?? '/');
    }
 
    if (isset($LJSFi_access_log) and $LJSFi_access_log) {
@@ -18,40 +14,40 @@
        if (!isset($dn) || $dn == "") {
            $userfk = -1;
        } else {
-           $result = db_query("SELECT ref FROM user WHERE dn=".db_quote($dn,'ro')." ORDER BY valid_end DESC, ref ASC",'ro');
-           $row = mysqli_fetch_row($result);
+           $result = db_query_rest("SELECT ref FROM user WHERE dn=".db_quote($dn,'ro')." ORDER BY valid_end DESC, ref ASC",'ro');
+           $row = $result ? mysqli_fetch_row($result) : false;
            if (!$row) {
                $userfk = -2;
            } else {
                $userfk = $row[0];
            }
        }
-       $sourceip = $_SERVER["REMOTE_ADDR"];
-       $result = db_query("SELECT ref FROM access_ip WHERE ip=".db_quote($sourceip,'rw'));
-       $sourceiprow = mysqli_fetch_row($result);
+       $sourceip = (string)($_SERVER["REMOTE_ADDR"] ?? "");
+       $result = db_query_rest("SELECT ref FROM access_ip WHERE ip=".db_quote($sourceip,'rw'));
+       $sourceiprow = $result ? mysqli_fetch_row($result) : false;
        if (!$sourceiprow) {
-           db_query("INSERT INTO access_ip (ip) VALUES (".db_quote($sourceip,'rw').")");
-           $result = db_query("SELECT ref FROM access_ip WHERE ip=".db_quote($sourceip,'rw'));
-           $sourceiprow = mysqli_fetch_row($result);
+           db_query_rest("INSERT INTO access_ip (ip) VALUES (".db_quote($sourceip,'rw').")");
+           $result = db_query_rest("SELECT ref FROM access_ip WHERE ip=".db_quote($sourceip,'rw'));
+           $sourceiprow = $result ? mysqli_fetch_row($result) : false;
        }
-       $destip = $_SERVER["SERVER_ADDR"];
-       $result = db_query("SELECT ref FROM access_ip WHERE ip=".db_quote($destip,'rw'));
-       $destiprow = mysqli_fetch_row($result);
+       $destip = (string)($_SERVER["SERVER_ADDR"] ?? "");
+       $result = db_query_rest("SELECT ref FROM access_ip WHERE ip=".db_quote($destip,'rw'));
+       $destiprow = $result ? mysqli_fetch_row($result) : false;
        if (!$destiprow) {
-           db_query("INSERT INTO access_ip (ip) VALUES (".db_quote($destip,'rw').")");
-           $result = db_query("SELECT ref FROM access_ip WHERE ip=".db_quote($destip,'rw'));
-           $destiprow = mysqli_fetch_row($result);
+           db_query_rest("INSERT INTO access_ip (ip) VALUES (".db_quote($destip,'rw').")");
+           $result = db_query_rest("SELECT ref FROM access_ip WHERE ip=".db_quote($destip,'rw'));
+           $destiprow = $result ? mysqli_fetch_row($result) : false;
        }
        if ($sourceiprow and $destiprow) {
            $sourceipfk = $sourceiprow[0];
            $destipfk = $destiprow[0];
            $URL=curPageURL();
-           $result = db_query("SELECT ref FROM access_url WHERE url=".db_quote($URL,'rw'));
-           $row = mysqli_fetch_row($result);
+           $result = db_query_rest("SELECT ref FROM access_url WHERE url=".db_quote($URL,'rw'));
+           $row = $result ? mysqli_fetch_row($result) : false;
            if (!$row) {
-               db_query("INSERT INTO access_url (url) VALUES (".db_quote($URL,'rw').")");
-               $result = db_query("SELECT ref FROM access_url WHERE url=".db_quote($URL,'rw'));
-               $row = mysqli_fetch_row($result);
+               db_query_rest("INSERT INTO access_url (url) VALUES (".db_quote($URL,'rw').")");
+               $result = db_query_rest("SELECT ref FROM access_url WHERE url=".db_quote($URL,'rw'));
+               $row = $result ? mysqli_fetch_row($result) : false;
            }
            if ($row) {
                $URLref = $row[0];
@@ -69,7 +65,7 @@
                       . db_int($destipfk,0) . ","
                       . $qrystr . ","
                       . db_quote($now,'rw') . ")";
-               db_query($query);
+               db_query_rest($query);
            }
        }
    }

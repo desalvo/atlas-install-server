@@ -1,0 +1,22 @@
+ATLAS Installation Server 3.0.0 r24 - focused regression report
+================================================================
+
+Scope
+-----
+- mobile menu drawer/submenu event ownership
+- list.php valid table/filter markup
+- compact mobile list records
+- portrait/landscape phone behavior
+
+Validated invariants
+--------------------
+- PHP syntax: PASS (via tests/ci-static.sh)
+- shell syntax: PASS
+- wizard checksum: PASS
+- menu JavaScript has a single event owner: PASS
+- list filter form is outside the result table: PASS
+- list result header uses THEAD/TR: PASS
+- no repeated </TR><TBODY> record markup: PASS
+- primary mobile list fields: Num, Release number, Site name, Release arch: PASS
+- whole-row expansion handler present: PASS
+- coarse-pointer landscape CSS rule present: PASS
