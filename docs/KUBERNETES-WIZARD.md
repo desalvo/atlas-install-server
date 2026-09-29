@@ -16,6 +16,22 @@ The first run proposes `desalvo/atlas-install-server` and asks for confirmation 
 
 Known defaults include namespace/resource prefix `atlas-install`, image `desalvo/atlas-install-server:3.0.0`, hostname `atlas-install-el10.apps.desalvo.eu`, HAProxy ingress, a 5Gi RWO PVC and the known database defaults.
 
+## Database endpoint selection and changes
+
+The wizard asks explicitly for a single **Database server/IP** on every run. The value is saved as a non-secret choice and is mapped to the application's RW, RO and broker database endpoints. The default remains `192.168.1.145` for backward compatibility.
+
+When the wizard is rerun against an existing installation and the selected database endpoint differs from the endpoint stored in the Kubernetes bootstrap Secret, it reports the old and new values and asks whether to update the Secret. A host-only change preserves all existing database passwords and does not rotate credentials. This makes it safe to switch, for example, from a legacy PXC IP to a MariaDB/Galera Service or VIP.
+
+For automation:
+
+```bash
+./atlas-install-k8s-wizard.sh --apply --db-host 10.97.227.203
+# or
+ATLAS_DB_HOST=10.97.227.203 ./atlas-install-k8s-wizard.sh --apply
+```
+
+`--db-host`/`ATLAS_DB_HOST` may contain either an IP address or a resolvable hostname such as `atlas-primary.adsnetdb.svc.cluster.local`. Passwords are never persisted in the wizard state file.
+
 ## Modular manifests and Kustomize
 
 The wizard downloads and caches these templates from the selected repository/ref:
@@ -109,3 +125,9 @@ Reset saved non-secret choices with:
 ```bash
 ./atlas-install-k8s-wizard.sh --reset-state
 ```
+
+## Bootstrap Secret synchronization
+
+The Kubernetes bootstrap Secret is the authoritative source for the managed `atlas-install.env`. On container startup, the entrypoint compares the mounted Secret with `/var/lib/atlas-install/config/atlas-install.env` and atomically refreshes the persistent file when they differ. While the container is running, it checks the mounted Secret every 5 seconds by default (`ATLAS_BOOTSTRAP_SYNC_SECONDS`).
+
+When the wizard itself changes the bootstrap Secret, it also performs a Deployment rollout restart. This guarantees that settings consumed only during startup are reloaded as well as runtime database settings. Database passwords remain in the Secret and are not written to wizard state.

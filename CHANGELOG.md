@@ -1,3 +1,12 @@
+# Changelog
+
+## 3.0.0-r11
+
+- Kubernetes bootstrap configuration is now authoritative for the managed `atlas-install.env` inside the container.
+- On every startup the entrypoint compares the mounted bootstrap Secret with the persistent env file and atomically refreshes the env file when they differ.
+- A lightweight runtime watcher (`ATLAS_BOOTSTRAP_SYNC_SECONDS`, default 5 seconds) propagates mounted Secret updates to the managed env file.
+- The Kubernetes wizard tracks real bootstrap Secret changes and performs a Deployment rollout restart, ensuring startup-only settings are also reloaded.
+
 
 ## 3.0.0 r9
 

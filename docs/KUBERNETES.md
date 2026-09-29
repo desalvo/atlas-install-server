@@ -6,6 +6,7 @@ For new installations and reconfiguration, use `scripts/atlas-install-k8s-wizard
 
 - proposes known project defaults on first run;
 - stores the last non-secret selections under `~/.config/atlas-install-server/k8s-wizard.env`;
+- asks for the database IP/hostname explicitly and allows it to be changed on later runs without rotating DB passwords;
 - asks for and confirms the GitHub repository on first run;
 - downloads/refreshes Kubernetes templates from the selected repository/ref;
 - renders the installation-specific manifests;

@@ -68,7 +68,7 @@ if ! grep -Fq 'kubectl apply -k "$OUTPUT_DIR"' scripts/atlas-install-k8s-wizard.
   printf 'Wizard must apply generated resources through Kustomize.\n' >&2
   fail=1
 fi
-for token in '--self-update' 'ATLAS_WIZARD_AUTO_UPDATE' 'atlas-install-k8s-wizard.sh.sha256' 'Use an optional nodeSelector' 'ATLAS_NODE_SELECTOR'; do
+for token in '--self-update' 'ATLAS_WIZARD_AUTO_UPDATE' 'atlas-install-k8s-wizard.sh.sha256' 'Use an optional nodeSelector' 'ATLAS_NODE_SELECTOR' '--db-host' 'ATLAS_DB_HOST' 'Database server/IP (RW, RO and broker)' 'Database endpoint updated without rotating database passwords.'; do
   if ! grep -Fq -- "$token" scripts/atlas-install-k8s-wizard.sh; then
     printf 'Wizard feature missing: %s\n' "$token" >&2
     fail=1
@@ -181,3 +181,21 @@ grep -Fq 'Apache still has no VirtualHost' container/entrypoint.sh || {
 # Apache CRL configuration invariant.
 grep -Eq '^[[:space:]]*SSLCARevocationCheck[[:space:]]+' container/httpd-container.conf.template
 grep -Eq '^[[:space:]]*SSLCARevocation(Path|File)[[:space:]]+' container/httpd-container.conf.template
+
+# Kubernetes bootstrap Secret must remain authoritative over the persistent env file.
+grep -Fq 'sync_bootstrap_config' container/entrypoint.sh || {
+  echo "ERROR: entrypoint lacks bootstrap-to-env synchronization" >&2
+  exit 1
+}
+grep -Fq 'bootstrap_sync_loop' container/entrypoint.sh || {
+  echo "ERROR: entrypoint lacks runtime bootstrap Secret watcher" >&2
+  exit 1
+}
+grep -Fq 'BOOTSTRAP_SECRET_CHANGED' scripts/atlas-install-k8s-wizard.sh || {
+  echo "ERROR: Kubernetes wizard does not track bootstrap Secret changes" >&2
+  exit 1
+}
+grep -Fq 'Bootstrap configuration changed; restarting deployment' scripts/atlas-install-k8s-wizard.sh || {
+  echo "ERROR: Kubernetes wizard does not restart after bootstrap Secret changes" >&2
+  exit 1
+}

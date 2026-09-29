@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-WIZARD_VERSION="3.0.0-r6"
+WIZARD_VERSION="3.0.0-r11"
 DEFAULT_REPO="desalvo/atlas-install-server"
 DEFAULT_REF="main"
 DEFAULT_NAMESPACE="atlas-install"
@@ -38,10 +38,14 @@ STATE_FILE="$STATE_ROOT/k8s-wizard.env"
 CACHE_ROOT="$STATE_ROOT/cache"
 OUTPUT_DIR="${PWD}/atlas-install-kubernetes"
 CLI_OUTPUT_DIR=""
+CLI_DB_HOST=""
+DB_HOST_EXPLICIT=0
+PRESERVE_EXISTING_PASSWORDS=0
 APPLY_MANIFESTS=""
 MANAGE_SECRETS=""
 NON_INTERACTIVE=0
 TLS_SECRET_CHANGED=0
+BOOTSTRAP_SECRET_CHANGED=0
 SELF_UPDATE_OVERRIDE=""
 ORIGINAL_ARGS=("$@")
 
@@ -53,6 +57,7 @@ Usage: $(basename "$0") [options]
 
 Options:
   --output-dir DIR       Directory where rendered manifests are written
+  --db-host HOST         Database IP/hostname used for RW, RO and broker connections
   --generate-only        Render manifests only; do not touch the cluster
   --apply                Render/apply manifests and manage secrets
   --non-interactive      Use stored/default values; existing secrets are kept unless explicitly requested
@@ -65,6 +70,7 @@ Optional environment variables for automation:
   GITHUB_TOKEN                        GitHub token for private repositories
   ATLAS_UPDATE_BOOTSTRAP_SECRET=1     Update an existing bootstrap secret in non-interactive mode
   ATLAS_UPDATE_TLS_SECRET=1           Update an existing TLS secret in non-interactive mode
+  ATLAS_DB_HOST                       Database IP/hostname used for RW, RO and broker connections
   ATLAS_DB_RW_PASSWORD                Bootstrap RW database password
   ATLAS_DB_RO_PASSWORD                Bootstrap RO database password
   ATLAS_DB_BROKER_PASSWORD            Bootstrap broker database password
@@ -148,6 +154,7 @@ save_state() {
     printf 'PLOTS_SCHEDULE=%q\n' "$PLOTS_SCHEDULE"
     printf 'CLEANUP_SCHEDULE=%q\n' "$CLEANUP_SCHEDULE"
     printf 'DB_NAME=%q\n' "$DB_NAME"
+    printf 'DB_HOST=%q\n' "$DB_HOST"
     printf 'DB_RW_HOST=%q\n' "$DB_RW_HOST"
     printf 'DB_RW_USER=%q\n' "$DB_RW_USER"
     printf 'DB_RO_HOST=%q\n' "$DB_RO_HOST"
@@ -186,6 +193,13 @@ load_state() {
 
 validate_dns_label() { [[ "$1" =~ ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$ ]] || die "invalid Kubernetes name: $1"; }
 validate_repo() { [[ "$1" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]] || die "GitHub repository must be owner/repository"; }
+validate_db_host() {
+  local host="$1"
+  [[ -n "$host" ]] || die "database host/IP may not be empty"
+  [[ "$host" != *[[:space:]]* ]] || die "database host/IP may not contain whitespace"
+  [[ "$host" != *"/"* ]] || die "database host/IP must not contain a path"
+  [[ "$host" != *"://"* ]] || die "database host/IP must be a host or IP, not a URL"
+}
 
 
 validate_node_selector() {
@@ -379,11 +393,11 @@ MAP
 
 prompt_bootstrap_nonsecrets() {
   DB_NAME="$(prompt 'Database name' "$DB_NAME")"
-  DB_RW_HOST="$(prompt 'RW database host' "$DB_RW_HOST")"
+  DB_RW_HOST="$DB_HOST"
+  DB_RO_HOST="$DB_HOST"
+  DB_BROKER_HOST="$DB_HOST"
   DB_RW_USER="$(prompt 'RW database user' "$DB_RW_USER")"
-  DB_RO_HOST="$(prompt 'RO database host' "$DB_RO_HOST")"
   DB_RO_USER="$(prompt 'RO database user' "$DB_RO_USER")"
-  DB_BROKER_HOST="$(prompt 'Broker database host' "$DB_BROKER_HOST")"
   DB_BROKER_USER="$(prompt 'Broker database user' "$DB_BROKER_USER")"
   ATLAS_VO_VALUE="$(prompt 'ATLAS VO' "$ATLAS_VO_VALUE")"
   ATLAS_EMAIL_VALUE="$(prompt 'Notification email' "$ATLAS_EMAIL_VALUE")"
@@ -395,6 +409,10 @@ prompt_bootstrap_nonsecrets() {
 
 require_or_keep_password_raw() {
   local env_name="$1" label="$2" existing_raw="$3" value
+  if (( PRESERVE_EXISTING_PASSWORDS )) && [[ -n "$existing_raw" ]]; then
+    printf '%s' "$existing_raw"
+    return 0
+  fi
   value="${!env_name:-}"
   if [[ -n "$value" ]]; then env_quote "$value"; return; fi
   if (( NON_INTERACTIVE )); then
@@ -443,6 +461,9 @@ apply_bootstrap_secret_content() {
     printf 'ATLAS_CACHE_PATH="/var/cache/atlas-install"\n'
     printf 'ATLAS_KML_CACHE="/var/cache/atlas-install/install.kml"\n'
   } > "$tmp"
+  if [[ "$(cat "$tmp")" != "$existing" ]]; then
+    BOOTSTRAP_SECRET_CHANGED=1
+  fi
   result="$(kubectl -n "$NAMESPACE" create secret generic "${APP_NAME}-bootstrap" --from-file=atlas-install.env="$tmp" --dry-run=client -o yaml | kubectl apply -f -)"
   rm -f "$tmp"
   log "$result"
@@ -450,9 +471,40 @@ apply_bootstrap_secret_content() {
 
 manage_bootstrap_secret() {
   local name="${APP_NAME}-bootstrap" existing="" do_update=1
+  local requested_host="$DB_HOST" old_rw="" old_ro="" old_broker="" endpoint_changed=0
   if secret_exists "$name"; then
     existing="$(get_existing_bootstrap_env)"
     log "Existing bootstrap secret found: ${NAMESPACE}/${name}"
+    seed_bootstrap_defaults_from_secret "$existing"
+    old_rw="$DB_RW_HOST"; old_ro="$DB_RO_HOST"; old_broker="$DB_BROKER_HOST"
+
+    # The wizard exposes one database endpoint and maps it to all three application roles.
+    DB_HOST="$requested_host"
+    DB_RW_HOST="$DB_HOST"; DB_RO_HOST="$DB_HOST"; DB_BROKER_HOST="$DB_HOST"
+    if [[ "$old_rw" != "$DB_HOST" || "$old_ro" != "$DB_HOST" || "$old_broker" != "$DB_HOST" ]]; then
+      endpoint_changed=1
+      log "Database endpoint change requested: RW=${old_rw}, RO=${old_ro}, broker=${old_broker} -> ${DB_HOST}"
+      if (( NON_INTERACTIVE )); then
+        if (( DB_HOST_EXPLICIT )) || truthy "${ATLAS_UPDATE_BOOTSTRAP_SECRET:-0}"; then
+          do_update=1
+        else
+          die "stored database endpoint differs from Kubernetes Secret; use --db-host/ATLAS_DB_HOST or ATLAS_UPDATE_BOOTSTRAP_SECRET=1"
+        fi
+      else
+        yesno "Update database endpoint in bootstrap Secret to '$DB_HOST' and keep existing DB passwords?" y && do_update=1 || do_update=0
+      fi
+      if (( ! do_update )); then
+        log "Bootstrap secret retained unchanged; database endpoint remains ${old_rw}."
+        DB_HOST="$old_rw"; DB_RW_HOST="$old_rw"; DB_RO_HOST="$old_ro"; DB_BROKER_HOST="$old_broker"
+        return 0
+      fi
+      PRESERVE_EXISTING_PASSWORDS=1
+      apply_bootstrap_secret_content "$existing"
+      PRESERVE_EXISTING_PASSWORDS=0
+      log "Database endpoint updated without rotating database passwords."
+      return 0
+    fi
+
     if (( NON_INTERACTIVE )); then
       truthy "${ATLAS_UPDATE_BOOTSTRAP_SECRET:-0}" && do_update=1 || do_update=0
     else
@@ -462,10 +514,10 @@ manage_bootstrap_secret() {
       log "Bootstrap secret retained unchanged."
       return 0
     fi
-    seed_bootstrap_defaults_from_secret "$existing"
     log "Existing non-secret values are proposed as defaults; blank password input keeps the current password."
   else
     log "Bootstrap secret does not exist and will be created: ${NAMESPACE}/${name}"
+    DB_RW_HOST="$DB_HOST"; DB_RO_HOST="$DB_HOST"; DB_BROKER_HOST="$DB_HOST"
   fi
   prompt_bootstrap_nonsecrets
   apply_bootstrap_secret_content "$existing"
@@ -555,6 +607,7 @@ manage_tls_secret() {
 while (($#)); do
   case "$1" in
     --output-dir) [[ $# -ge 2 ]] || die "--output-dir requires a value"; CLI_OUTPUT_DIR="$2"; shift 2 ;;
+    --db-host) [[ $# -ge 2 ]] || die "--db-host requires a value"; CLI_DB_HOST="$2"; DB_HOST_EXPLICIT=1; shift 2 ;;
     --generate-only) APPLY_MANIFESTS="no"; MANAGE_SECRETS="no"; shift ;;
     --apply) APPLY_MANIFESTS="yes"; MANAGE_SECRETS="yes"; shift ;;
     --non-interactive) NON_INTERACTIVE=1; shift ;;
@@ -593,11 +646,20 @@ ENABLE_MAINTENANCE="${ENABLE_MAINTENANCE:-no}"
 PLOTS_SCHEDULE="${PLOTS_SCHEDULE:-$DEFAULT_PLOTS_SCHEDULE}"
 CLEANUP_SCHEDULE="${CLEANUP_SCHEDULE:-$DEFAULT_CLEANUP_SCHEDULE}"
 DB_NAME="${DB_NAME:-$DEFAULT_DB_NAME}"
-DB_RW_HOST="${DB_RW_HOST:-$DEFAULT_DB_HOST}"
+if [[ -n "$CLI_DB_HOST" ]]; then
+  DB_HOST="$CLI_DB_HOST"
+elif [[ -n "${ATLAS_DB_HOST:-}" ]]; then
+  DB_HOST="$ATLAS_DB_HOST"
+  DB_HOST_EXPLICIT=1
+else
+  DB_HOST="${DB_HOST:-${DB_RW_HOST:-$DEFAULT_DB_HOST}}"
+fi
+validate_db_host "$DB_HOST"
+DB_RW_HOST="${DB_RW_HOST:-$DB_HOST}"
 DB_RW_USER="${DB_RW_USER:-$DEFAULT_DB_RW_USER}"
-DB_RO_HOST="${DB_RO_HOST:-$DEFAULT_DB_HOST}"
+DB_RO_HOST="${DB_RO_HOST:-$DB_HOST}"
 DB_RO_USER="${DB_RO_USER:-$DEFAULT_DB_RO_USER}"
-DB_BROKER_HOST="${DB_BROKER_HOST:-$DEFAULT_DB_HOST}"
+DB_BROKER_HOST="${DB_BROKER_HOST:-$DB_HOST}"
 DB_BROKER_USER="${DB_BROKER_USER:-$DEFAULT_DB_BROKER_USER}"
 ATLAS_VO_VALUE="${ATLAS_VO_VALUE:-$DEFAULT_VO}"
 ATLAS_EMAIL_VALUE="${ATLAS_EMAIL_VALUE:-$DEFAULT_EMAIL}"
@@ -651,6 +713,9 @@ CPU_REQUEST="$(prompt 'CPU request' "$CPU_REQUEST")"
 MEMORY_REQUEST="$(prompt 'Memory request' "$MEMORY_REQUEST")"
 CPU_LIMIT="$(prompt 'CPU limit' "$CPU_LIMIT")"
 MEMORY_LIMIT="$(prompt 'Memory limit' "$MEMORY_LIMIT")"
+DB_HOST="$(prompt 'Database server/IP (RW, RO and broker)' "$DB_HOST")"
+validate_db_host "$DB_HOST"
+DB_RW_HOST="$DB_HOST"; DB_RO_HOST="$DB_HOST"; DB_BROKER_HOST="$DB_HOST"
 if [[ -n "${ATLAS_NODE_SELECTOR:-}" ]]; then
   NODE_SELECTOR_ENABLED=yes
   NODE_SELECTOR="$ATLAS_NODE_SELECTOR"
@@ -704,6 +769,7 @@ Namespace: $NAMESPACE
 Application: $APP_NAME
 Image: $IMAGE
 Public hostname: $PUBLIC_HOSTNAME
+Database endpoint: $DB_HOST
 Kustomize entrypoint: $OUTPUT_DIR/kustomization.yaml
 Node selector: $([[ "$NODE_SELECTOR_ENABLED" == yes ]] && printf '%s' "$NODE_SELECTOR" || printf 'disabled')
 Wizard auto-update: $AUTO_UPDATE_WIZARD
@@ -735,8 +801,14 @@ if [[ "$APPLY_MANIFESTS" == yes ]]; then
   log "Kubernetes manifests applied with Kustomize."
 fi
 
-if (( TLS_SECRET_CHANGED )) && kubectl -n "$NAMESPACE" get deployment "$APP_NAME" >/dev/null 2>&1; then
-  log "TLS material changed; restarting deployment so Apache loads the new certificate."
+if (( BOOTSTRAP_SECRET_CHANGED || TLS_SECRET_CHANGED )) && kubectl -n "$NAMESPACE" get deployment "$APP_NAME" >/dev/null 2>&1; then
+  if (( BOOTSTRAP_SECRET_CHANGED && TLS_SECRET_CHANGED )); then
+    log "Bootstrap configuration and TLS material changed; restarting deployment."
+  elif (( BOOTSTRAP_SECRET_CHANGED )); then
+    log "Bootstrap configuration changed; restarting deployment so the managed atlas-install.env is refreshed."
+  else
+    log "TLS material changed; restarting deployment so Apache loads the new certificate."
+  fi
   kubectl -n "$NAMESPACE" rollout restart deployment "$APP_NAME"
 fi
 

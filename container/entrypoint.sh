@@ -34,15 +34,35 @@ print(default)
 PY
 }
 
+sync_bootstrap_config() {
+  local tmp
+  [[ -r "$BOOTSTRAP" ]] || return 1
+  if [[ -s "$ENV_FILE" ]] && cmp -s "$BOOTSTRAP" "$ENV_FILE"; then
+    return 0
+  fi
+  tmp="$(mktemp "$CONFIG_DIR/.atlas-install.env.XXXXXX")"
+  cp "$BOOTSTRAP" "$tmp"
+  chown root:atlas-install "$tmp"
+  chmod 0660 "$tmp"
+  mv -f "$tmp" "$ENV_FILE"
+  log "Managed configuration synchronized from Kubernetes bootstrap secret."
+}
+
+bootstrap_sync_loop() {
+  local interval="${ATLAS_BOOTSTRAP_SYNC_SECONDS:-5}"
+  [[ "$interval" =~ ^[0-9]+$ ]] && (( interval > 0 )) || die "ATLAS_BOOTSTRAP_SYNC_SECONDS must be a positive integer"
+  while sleep "$interval"; do
+    sync_bootstrap_config || true
+  done
+}
+
 init_config() {
   install -d -o root -g atlas-install -m 2770 "$CONFIG_DIR"
-  if [[ ! -s "$ENV_FILE" ]]; then
-    if [[ -r "$BOOTSTRAP" ]]; then
-      log "Initializing managed configuration from Kubernetes bootstrap secret."
-      install -o root -g atlas-install -m 0660 "$BOOTSTRAP" "$ENV_FILE"
-    else
-      log "No bootstrap secret found; installing non-secret defaults. Database credentials must be configured before readiness succeeds."
-      cat >"$ENV_FILE" <<'CFG'
+  if [[ -r "$BOOTSTRAP" ]]; then
+    sync_bootstrap_config
+  elif [[ ! -s "$ENV_FILE" ]]; then
+    log "No bootstrap secret found; installing non-secret defaults. Database credentials must be configured before readiness succeeds."
+    cat >"$ENV_FILE" <<'CFG'
 ATLAS_PUBLIC_HOSTNAME="atlas-install-el10.apps.desalvo.eu"
 ATLAS_DB_NAME="atlas_install_panda"
 ATLAS_DB_RW_HOST="192.168.1.145"
@@ -61,9 +81,6 @@ ATLAS_ARCHIVE_PATH="/var/lib/atlas-install/logbackup"
 ATLAS_CACHE_PATH="/var/cache/atlas-install"
 ATLAS_KML_CACHE="/var/cache/atlas-install/install.kml"
 CFG
-      chown root:atlas-install "$ENV_FILE"
-      chmod 0660 "$ENV_FILE"
-    fi
   fi
   chown root:atlas-install "$ENV_FILE"
   chmod 0660 "$ENV_FILE"
@@ -182,6 +199,8 @@ case "${1:-serve}" in
     /usr/sbin/php-fpm --nodaemonize --fpm-config /etc/php-fpm.conf &
     fpm_pid=$!
     trap 'kill "$fpm_pid" 2>/dev/null || true' EXIT TERM INT
+    bootstrap_sync_loop &
+    bootstrap_sync_pid=$!
     igtf_refresh_loop &
     log "Starting Apache HTTPS on port $HTTPS_PORT."
     exec /usr/sbin/httpd -DFOREGROUND
