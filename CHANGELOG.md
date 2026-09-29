@@ -1,3 +1,9 @@
+## 3.0.0-r28
+
+- Fixed nested config bootstrap path resolution for legacy_compat.php and security.php.
+- All nested config.php files now discover the application root dynamically.
+- Added regression coverage for shared bootstrap files from nested directories.
+
 ## 3.0.0-r27
 
 - Reliable PHP/application error streaming into Kubernetes logs through a tailed runtime log.

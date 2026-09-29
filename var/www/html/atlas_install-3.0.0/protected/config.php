@@ -1,6 +1,14 @@
 <?php
-require_once __DIR__ . '/legacy_compat.php';
-require_once __DIR__ . '/security.php';
+$__atlasRoot = __DIR__;
+while (!is_file($__atlasRoot . '/legacy_compat.php') && dirname($__atlasRoot) !== $__atlasRoot) {
+    $__atlasRoot = dirname($__atlasRoot);
+}
+if (!is_file($__atlasRoot . '/legacy_compat.php') || !is_file($__atlasRoot . '/security.php')) {
+    throw new RuntimeException('ATLAS application root could not be resolved from ' . __DIR__);
+}
+require_once $__atlasRoot . '/legacy_compat.php';
+require_once $__atlasRoot . '/security.php';
+unset($__atlasRoot);
 
 # The LJSFi server version
 $LJSFi_server_version = "3.0.0";
