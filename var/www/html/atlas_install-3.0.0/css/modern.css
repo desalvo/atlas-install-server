@@ -721,3 +721,50 @@ body.atlas-list-page .atlas-table-scroll{overflow:auto!important}
   .atlas-sidebar-links{padding-bottom:4px}
   .atlas-sidebar-links a{min-height:18px!important;padding:1px 0!important;line-height:16px!important}
 }
+
+/* r35 - mobile navigation correctness on portrait and landscape touch devices.
+   A closed drawer is genuinely non-visible/non-interactive; touch landscape
+   widths above 900px use the mobile shell instead of the desktop sidebar. */
+@media (max-width:900px), (max-width:1180px) and (hover:none) and (pointer:coarse) {
+  .atlas-sidebar{
+    left:0!important;
+    top:var(--atlas-topbar-height)!important;
+    width:min(86vw,320px)!important;
+    max-width:320px!important;
+    bottom:0!important;
+    transform:translate3d(-105%,0,0)!important;
+    visibility:hidden!important;
+    opacity:0!important;
+    pointer-events:none!important;
+    transition:transform .2s ease,opacity .16s ease,visibility 0s linear .2s!important;
+    box-shadow:none!important;
+  }
+  .atlas-sidebar.atlas-mobile-open{
+    transform:translate3d(0,0,0)!important;
+    visibility:visible!important;
+    opacity:1!important;
+    pointer-events:auto!important;
+    transition:transform .2s ease,opacity .16s ease!important;
+    box-shadow:8px 0 28px rgba(0,0,0,.24)!important;
+  }
+  .atlas-sidebar-scroll{
+    height:calc(100dvh - var(--atlas-topbar-height) - 48px)!important;
+    min-height:0!important;
+    overflow-y:auto!important;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+  }
+  .atlas-mobile-menu-backdrop{display:none!important}
+  .atlas-mobile-menu-backdrop.is-open{display:block!important;position:fixed;z-index:2000;inset:var(--atlas-topbar-height) 0 0 0;background:rgba(0,15,36,.45)}
+  html:not(.atlas-menu-open) .atlas-mobile-menu-backdrop{display:none!important}
+}
+
+/* iPhone/phone landscape can exceed the old 900px breakpoint in CSS pixels.
+   Keep the complete shell in mobile mode for coarse-pointer touch devices. */
+@media (min-width:901px) and (max-width:1180px) and (hover:none) and (pointer:coarse) {
+  :root{--atlas-sidebar-width:0px;--atlas-topbar-height:64px;--atlas-footer-height:52px}
+  #main,#main.atlas-list-main,body.atlas-list-page #main.atlas-list-main{margin-left:0!important;padding-top:var(--atlas-topbar-height)!important;padding-bottom:var(--atlas-footer-height)!important}
+  .atlas-topbar-brand{width:auto;flex:0 0 auto;background:transparent}.atlas-sidebar-toggle{width:48px!important;height:64px!important}.atlas-brand-logo{width:155px!important}.atlas-topbar-sky{left:0;opacity:.7}.atlas-header-actions{gap:8px;padding-right:8px}.atlas-language-control{min-width:65px;height:38px;padding:0 8px}.atlas-language-flag{font-size:18px}.atlas-language-code{display:none}.atlas-topbar-icon{width:28px}.atlas-user-button{display:none!important}
+  .atlas-dashboard-hero{height:auto;grid-template-columns:1fr 1.3fr;gap:10px}.atlas-dashboard-intro{padding:10px 2px}.atlas-dashboard-earth{min-height:120px}.atlas-dashboard-wordmark{font-size:46px!important}.atlas-kpi-grid{grid-template-columns:1fr 1fr}.atlas-dashboard-row.three,.atlas-dashboard-row.two{grid-template-columns:1fr}.atlas-dashboard-row.three>.atlas-dashboard-panel:last-child{grid-column:auto}.atlas-resource-panel{grid-template-columns:1fr}
+  .atlas-shell-footer{left:0;grid-template-columns:145px 1fr 110px;padding:0 7px}.atlas-shell-footer-brand img{width:85px}.atlas-shell-footer-brand span{display:none}.atlas-identity-footer{max-width:280px!important}.atlas-identity-body{right:10px;bottom:47px;width:calc(100vw - 20px)}
+}

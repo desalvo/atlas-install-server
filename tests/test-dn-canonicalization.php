@@ -34,4 +34,27 @@ check(atlas_ca_binding_status('','GEANT TCS Authentication RSA CA 5',$issuer)===
 check(atlas_normalize_subject_dn($proxy)===$slash,'legacy slash DN export must remove proxy suffixes without rewriting the base DN');
 check(atlas_normalize_subject_dn($proxyRfc)===$rfc,'RFC DN export must remove proxy prefixes without rewriting the base DN');
 
+
+
+$now=strtotime('2026-09-30 12:00:00');
+$baseRow=['name'=>'Test','email'=>'','enabled'=>1,'valid_start'=>null,'valid_end'=>null,'ca_dn'=>'','ca_name'=>'','role'=>'user'];
+$pending=array_merge($baseRow,['ref'=>20,'dn'=>$rfc,'rolefk'=>-1,'_atlas_exact_dn'=>1]);
+$approved=array_merge($baseRow,['ref'=>10,'dn'=>$slash,'rolefk'=>1,'_atlas_exact_dn'=>0]);
+$selected=atlas_select_cert_candidate([$pending,$approved],$issuer,$now);
+check((int)($selected['ref']??0)===10,'among CA-unbound duplicate DNs an enabled/current approved role must win over a newer pending row');
+check((string)($selected['_atlas_selected_meta']['ca_status']??'')==='legacy_unbound','selected legacy duplicate must preserve legacy_unbound CA status');
+
+$boundMismatch=array_merge($approved,['ref'=>30,'ca_dn'=>'/C=NL/O=Other/CN=Other CA']);
+$selected=atlas_select_cert_candidate([$approved,$boundMismatch],$issuer,$now);
+check((int)($selected['ref']??0)===30,'a CA-unbound duplicate must not bypass an existing CA-bound record');
+check((string)($selected['_atlas_selected_meta']['ca_status']??'')==='mismatch','mismatching bound record must remain a mismatch instead of falling back to an unbound duplicate');
+
+$boundMatch=array_merge($approved,['ref'=>40,'ca_dn'=>$issuerSlash]);
+$selected=atlas_select_cert_candidate([$boundMismatch,$boundMatch],$issuer,$now);
+check((int)($selected['ref']??0)===40,'matching CA-bound duplicate must win over a mismatching bound record');
+
+$zeroDates=array_merge($approved,['ref'=>50,'valid_start'=>'0000-00-00 00:00:00','valid_end'=>'0000-00-00 00:00:00']);
+$meta=atlas_cert_candidate_meta($zeroDates,$issuer,$now);
+check(!empty($meta['valid']),'legacy zero dates must be treated as unbounded validity, like NULL historical values');
+
 echo "DN canonicalization tests: PASS\n";

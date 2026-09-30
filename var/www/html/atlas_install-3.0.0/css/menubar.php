@@ -60,14 +60,27 @@ function menubar($path=".") {
   function initAtlasSidebar(){
     var bar=document.getElementById('menubar'),toggle=document.getElementById('atlas-sidebar-toggle'),backdrop=document.getElementById('atlas-mobile-menu-backdrop');
     if(!bar||!toggle||bar.dataset.ready==='1')return; bar.dataset.ready='1';
-    function mobile(){return window.matchMedia?window.matchMedia('(max-width:900px)').matches:window.innerWidth<=900;}
-    function setOpen(open){bar.classList.toggle('atlas-mobile-open',!!open);toggle.setAttribute('aria-expanded',open?'true':'false');if(backdrop){backdrop.hidden=!open;backdrop.classList.toggle('is-open',!!open);}document.documentElement.classList.toggle('atlas-menu-open',!!open);}
+    function mobile(){
+      if(!window.matchMedia)return window.innerWidth<=900;
+      return window.matchMedia('(max-width:900px), (max-width:1180px) and (hover:none) and (pointer:coarse)').matches;
+    }
+    function setOpen(open){
+      open=!!open && mobile();
+      bar.classList.toggle('atlas-mobile-open',open);
+      toggle.setAttribute('aria-expanded',open?'true':'false');
+      if(mobile()) bar.setAttribute('aria-hidden',open?'false':'true'); else bar.removeAttribute('aria-hidden');
+      if(backdrop){backdrop.hidden=!open;backdrop.classList.toggle('is-open',open);}
+      document.documentElement.classList.toggle('atlas-menu-open',open);
+    }
+    function syncMode(){ setOpen(false); }
     toggle.addEventListener('click',function(e){e.preventDefault();setOpen(!bar.classList.contains('atlas-mobile-open'));});
     if(backdrop)backdrop.addEventListener('click',function(){setOpen(false);});
     bar.querySelectorAll('.atlas-sidebar-heading').forEach(function(btn){btn.addEventListener('click',function(){var sec=btn.closest('.atlas-sidebar-section'),open=!sec.classList.contains('is-collapsed');sec.classList.toggle('is-collapsed',open);btn.setAttribute('aria-expanded',open?'false':'true');});});
     bar.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){if(mobile())setOpen(false);});});
     document.addEventListener('keydown',function(e){if(e.key==='Escape')setOpen(false);});
-    window.addEventListener('resize',function(){if(!mobile())setOpen(false);});
+    window.addEventListener('resize',syncMode);
+    window.addEventListener('orientationchange',syncMode);
+    syncMode();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAtlasSidebar);else initAtlasSidebar();
 })();

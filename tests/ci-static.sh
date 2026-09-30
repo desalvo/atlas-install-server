@@ -291,6 +291,14 @@ grep -Fq 'atlas-shell-footer' "$APP_DIR/css/modern.css" || { printf 'Mock-up foo
 grep -Fq 'atlas-topbar-sky' "$APP_DIR/css/main_header.php" || { printf 'Mock-up top-bar structure missing.\n' >&2; fail=1; }
 grep -Fq 'atlas-sidebar-section' "$APP_DIR/css/menubar.php" || { printf 'Mock-up sidebar structure missing.\n' >&2; fail=1; }
 
+
+printf '== r35 mobile/X.509 duplicate-selection regressions ==\n'
+grep -Fq 'pointer:coarse' "$APP_DIR/css/modern.css" || { printf 'Touch-landscape mobile breakpoint missing.\n' >&2; fail=1; }
+grep -Fq 'visibility:hidden!important' "$APP_DIR/css/modern.css" || { printf 'Closed mobile drawer is not guaranteed invisible.\n' >&2; fail=1; }
+grep -Fq 'orientationchange' "$APP_DIR/css/menubar.php" || { printf 'Mobile drawer orientation reset missing.\n' >&2; fail=1; }
+grep -Fq 'atlas_select_cert_candidate' "$APP_DIR/local_auth.php" || { printf 'X.509 duplicate candidate selector missing.\n' >&2; fail=1; }
+grep -Fq 'legacy CA-unbound duplicate must never bypass' "$APP_DIR/local_auth.php" || { printf 'CA duplicate anti-bypass rule missing.\n' >&2; fail=1; }
+
 exit "$fail"
 
 # Container must never require a privileged HTTP listener.

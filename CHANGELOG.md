@@ -1,3 +1,12 @@
+## 3.0.0 r35
+
+- Fixed mobile navigation on phones in both portrait and landscape: a closed drawer is now fully hidden/non-interactive and touch-landscape viewports above 900 CSS px use the mobile shell.
+- The drawer is forcibly closed on load, resize and orientation changes; opened navigation remains scrollable and preserves all menu entries.
+- Fixed X.509 role resolution when historical databases contain multiple equivalent DN rows. Candidate selection now prefers CA-matching, enabled, currently valid and approved records instead of blindly selecting the highest `ref`.
+- Preserved CA anti-bypass semantics: a CA-unbound duplicate can never override an existing CA-bound record; a matching bound record is preferred over a mismatching one.
+- Legacy `0000-00-00 00:00:00` validity values are treated as unbounded, matching historical NULL semantics.
+- Added regression coverage for mobile drawer state, touch-landscape breakpoints, duplicate DN selection and CA binding precedence.
+
 ## 3.0.0 r34
 
 - Rebuilt the common Web application shell to match the documented `ui-overview.png` mock-up: 74 px Earth top bar, 248 px dark navigation sidebar, active Home treatment, grouped navigation, compact footer, language/help/user controls and the same LJSF 3 branding.

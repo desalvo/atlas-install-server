@@ -1,0 +1,15 @@
+ATLAS Installation Server 3.0.0-r35 QA
+
+Scope
+- Mobile/cellular navigation regression from r34
+- X.509 role resolution with canonically equivalent duplicate DN records
+- CA binding safety and r33 canonicalization retention
+
+Expected checks
+- PHP syntax: PASS
+- DN canonicalization and duplicate selection tests: PASS
+- Portrait closed drawer invisibility regression: PASS
+- Touch-landscape mobile shell regression: PASS
+- CA-bound duplicate anti-bypass regression: PASS
+- r34 documented UI parity static checks: PASS
+- Full effective static CI: PASS

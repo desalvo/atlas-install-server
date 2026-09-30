@@ -270,6 +270,62 @@ function atlas_cert_issuer_info(): array {
       'valid_end'=>trim((string)($_SERVER['SSL_CLIENT_V_END']??getenv('SSL_CLIENT_V_END')?:'')),
     ];
 }
+function atlas_legacy_datetime_to_ts($value): ?int {
+    if($value===null) return null;
+    $v=trim((string)$value);
+    if($v==='' || str_starts_with($v,'0000-00-00')) return null;
+    $ts=strtotime($v);
+    return $ts===false?null:$ts;
+}
+function atlas_cert_candidate_meta(array $row, array $issuer, ?int $now=null): array {
+    $now=$now??time();
+    $storedCaDn=atlas_normalize_issuer_dn((string)($row['ca_dn']??''));
+    $storedCaName=trim((string)($row['ca_name']??''));
+    $caStatus=atlas_ca_binding_status($storedCaDn,$storedCaName,$issuer);
+    $vs=atlas_legacy_datetime_to_ts($row['valid_start']??null);
+    $ve=atlas_legacy_datetime_to_ts($row['valid_end']??null);
+    $valid=($vs===null||$vs<=$now)&&($ve===null||$ve>$now);
+    return [
+      'ca_status'=>$caStatus,
+      'ca_bound'=>($storedCaDn!==''||$storedCaName!==''),
+      'enabled'=>(int)($row['enabled']??0)===1,
+      'valid'=>$valid,
+      'approved'=>(int)($row['rolefk']??0)>0,
+      'role_present'=>trim((string)($row['role']??''))!=='',
+      'exact'=>!empty($row['_atlas_exact_dn']),
+      'ref'=>(int)($row['ref']??0),
+    ];
+}
+function atlas_select_cert_candidate(array $matches, array $issuer, ?int $now=null): ?array {
+    if(!$matches) return null;
+    $now=$now??time();
+    $items=[]; $hasBound=false; $hasMatch=false;
+    foreach($matches as $row){
+        $meta=atlas_cert_candidate_meta($row,$issuer,$now);
+        $hasBound=$hasBound||$meta['ca_bound'];
+        $hasMatch=$hasMatch||$meta['ca_status']==='match';
+        $items[]=['row'=>$row,'meta'=>$meta];
+    }
+    // Security rule: a legacy CA-unbound duplicate must never bypass an existing
+    // CA binding. If at least one CA-bound record exists, only bound records are
+    // eligible; if one of them matches the presented CA, mismatches are excluded.
+    $items=array_values(array_filter($items,static function(array $item) use($hasBound,$hasMatch): bool {
+        if($hasMatch) return $item['meta']['ca_status']==='match';
+        if($hasBound) return $item['meta']['ca_bound'];
+        return true;
+    }));
+    usort($items,static function(array $a,array $b): int {
+        foreach(['enabled','valid','approved','role_present','exact'] as $k){
+            $av=$a['meta'][$k]?1:0; $bv=$b['meta'][$k]?1:0;
+            if($av!==$bv) return $bv<=>$av;
+        }
+        return $b['meta']['ref']<=>$a['meta']['ref'];
+    });
+    if(!$items) return null;
+    $row=$items[0]['row'];
+    $row['_atlas_selected_meta']=$items[0]['meta'];
+    return $row;
+}
 function atlas_cert_identity(): ?array {
     $verify=(string)($_SERVER['SSL_CLIENT_VERIFY']??getenv('SSL_CLIENT_VERIFY')?:'');
     $dn=(string)($_SERVER['SSL_CLIENT_S_DN']??getenv('SSL_CLIENT_S_DN')?:'');
@@ -279,29 +335,38 @@ function atlas_cert_identity(): ?array {
     $email=(string)($_SERVER['SSL_CLIENT_S_DN_Email']??getenv('SSL_CLIENT_S_DN_Email')?:'');
     $role=''; $enabled=0; $known=false; $caStatus='unknown'; $reason='unknown_dn'; $legacyRef=null; $storedCaDn=''; $storedCaName=''; $storedDn=''; $matchMethod='none';
     try {
-        $db=atlas_local_db(); $row=null;
-        // Fast path: preserve the traditional exact lookup when the representation already matches.
-        $st=$db->prepare('SELECT u.ref,u.name,u.email,u.dn,u.rolefk,u.enabled,u.valid_start,u.valid_end,u.ca_dn,u.ca_name,r.description role FROM user u LEFT JOIN role r ON ABS(u.rolefk)=r.ref WHERE u.dn=? ORDER BY u.enabled DESC,u.ref DESC LIMIT 1');
-        if(!$st) throw new RuntimeException('certificate identity prepare failed: '.$db->error);
-        $st->bind_param('s',$presentedDn); $st->execute(); $row=$st->get_result()->fetch_assoc();
-        if($row){ $matchMethod='exact'; }
-        elseif($canonicalDn!==''){
-            // Historical databases contain both OpenSSL slash and RFC2253 forms. Compare canonical
-            // forms in PHP so no destructive DN migration or schema change is required.
-            $q=$db->query("SELECT u.ref,u.name,u.email,u.dn,u.rolefk,u.enabled,u.valid_start,u.valid_end,u.ca_dn,u.ca_name,r.description role FROM user u LEFT JOIN role r ON ABS(u.rolefk)=r.ref WHERE u.dn IS NOT NULL AND u.dn<>'' AND u.dn NOT LIKE 'LOCAL:%' ORDER BY u.enabled DESC,u.ref DESC");
-            if(!$q) throw new RuntimeException('certificate canonical lookup failed: '.$db->error);
-            $matches=[];
-            while($candidate=$q->fetch_assoc()) if(hash_equals($canonicalDn,atlas_canonicalize_dn((string)$candidate['dn'],true))) $matches[]=$candidate;
-            if($matches){ $row=$matches[0]; $matchMethod='canonical'; if(count($matches)>1) atlas_auth_log('certificate_dn_ambiguous',['presented_dn'=>$presentedDn,'matches'=>count($matches),'selected_ref'=>(int)$row['ref']]); }
+        $db=atlas_local_db(); $row=null; $matches=[];
+        // Evaluate every DB representation of the same subject. Historical databases
+        // can contain duplicate slash/RFC2253 rows with different approval state.
+        // Selection prefers a matching CA, then enabled/current/approved rows, and
+        // never lets a legacy CA-unbound duplicate bypass an existing CA binding.
+        $q=$db->query("SELECT u.ref,u.name,u.email,u.dn,u.rolefk,u.enabled,u.valid_start,u.valid_end,u.ca_dn,u.ca_name,r.description role FROM user u LEFT JOIN role r ON ABS(u.rolefk)=r.ref WHERE u.dn IS NOT NULL AND u.dn<>'' AND u.dn NOT LIKE 'LOCAL:%' ORDER BY u.ref DESC");
+        if(!$q) throw new RuntimeException('certificate canonical lookup failed: '.$db->error);
+        while($candidate=$q->fetch_assoc()){
+            $candidateCanon=atlas_canonicalize_dn((string)$candidate['dn'],true);
+            if($canonicalDn!=='' && $candidateCanon!=='' && hash_equals($canonicalDn,$candidateCanon)){
+                $candidate['_atlas_exact_dn']=hash_equals($presentedDn,(string)$candidate['dn']);
+                $matches[]=$candidate;
+            }
+        }
+        if($matches){
+            $row=atlas_select_cert_candidate($matches,$issuer);
+            if($row){
+                if(!empty($row['_atlas_exact_dn'])) $matchMethod='exact'; else $matchMethod='canonical';
+                if(count($matches)>1) atlas_auth_log('certificate_dn_ambiguous',[
+                  'presented_dn'=>$presentedDn,'matches'=>count($matches),'selected_ref'=>(int)$row['ref'],
+                  'selected_match_method'=>$matchMethod,'selected_ca_status'=>(string)($row['_atlas_selected_meta']['ca_status']??'unknown'),
+                  'selected_rolefk'=>(int)($row['rolefk']??0)
+                ]);
+            }
         }
         if($row){
             $known=true; $legacyRef=(int)$row['ref']; $storedDn=(string)$row['dn']; $name=(string)$row['name']; $email=(string)($row['email']??$email); $enabled=(int)$row['enabled'];
             $storedCaDn=atlas_normalize_issuer_dn((string)($row['ca_dn']??'')); $storedCaName=trim((string)($row['ca_name']??''));
-            $caStatus=atlas_ca_binding_status($storedCaDn,$storedCaName,$issuer);
-            $now=time(); $vs=!empty($row['valid_start'])?strtotime((string)$row['valid_start']):null; $ve=!empty($row['valid_end'])?strtotime((string)$row['valid_end']):null;
-            $valid=($vs===null||$vs<=$now)&&($ve===null||$ve>$now); $approved=((int)$row['rolefk'])>0;
+            $meta=is_array($row['_atlas_selected_meta']??null)?$row['_atlas_selected_meta']:atlas_cert_candidate_meta($row,$issuer);
+            $caStatus=(string)$meta['ca_status']; $valid=!empty($meta['valid']); $approved=!empty($meta['approved']);
             if(!$enabled) $reason='disabled'; elseif(!$valid) $reason='expired'; elseif($caStatus==='mismatch') $reason='ca_mismatch'; elseif(!$approved) $reason='pending_approval'; elseif(empty($row['role'])) $reason='no_role'; else {$role=(string)$row['role'];$reason='role_assigned';}
-            atlas_auth_log('certificate_dn_matched',['legacy_ref'=>$legacyRef,'match_method'=>$matchMethod,'ca_status'=>$caStatus]);
+            atlas_auth_log('certificate_dn_matched',['legacy_ref'=>$legacyRef,'match_method'=>$matchMethod,'ca_status'=>$caStatus,'role_reason'=>$reason,'role'=>$role]);
         } else atlas_auth_log('certificate_dn_unknown',['presented_dn'=>$presentedDn]);
     } catch(Throwable $e){ atlas_auth_log('certificate_role_lookup_failed',['error'=>$e->getMessage()]); }
     // For a known certificate user expose the exact historical DB DN. This is intentionally not
@@ -310,6 +375,7 @@ function atlas_cert_identity(): ?array {
     return ['source'=>'certificate','username'=>$name,'name'=>$name,'first_name'=>'','last_name'=>'','email'=>$email,'role'=>$role,'enabled'=>$enabled,'dn'=>$effectiveDn,'presented_dn'=>$presentedDn,'canonical_dn'=>$canonicalDn,'dn_match_method'=>$matchMethod,'must_change_password'=>0,
       'legacy_ref'=>$legacyRef,'known_user'=>$known,'ca_status'=>$caStatus,'role_reason'=>$reason,'ca_dn'=>$issuer['ca_dn'],'ca_name'=>$issuer['ca_name'],'stored_ca_dn'=>$storedCaDn,'stored_ca_name'=>$storedCaName,'cert_serial'=>$issuer['serial'],'cert_valid_end'=>$issuer['valid_end']];
 }
+
 function atlas_sync_local_legacy_user(array $identity): ?int {
     if (($identity['source'] ?? '') !== 'local') return null;
     static $synced=[]; $username=trim((string)($identity['username']??'')); if($username==='')return null; if(isset($synced[$username]))return $synced[$username];
