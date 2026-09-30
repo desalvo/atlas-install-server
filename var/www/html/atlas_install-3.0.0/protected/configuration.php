@@ -16,7 +16,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 $currentUsers = get_user_info('select', null, null, true, null, 5, 0, null);
 $currentUser = $currentUsers[0] ?? null;
 if (!$currentUser || (int)($currentUser['enabled'] ?? 0) !== 1 || (string)($currentUser['role'] ?? '') !== 'master') {
-    atlas_access_denied('La configurazione server richiede un ruolo master abilitato.');
+    atlas_access_denied(atlas_lang()==='it'?'La configurazione server richiede un ruolo master abilitato.':'Server configuration requires an enabled master role.');
 }
 
 if (empty($_SESSION['atlas_cfg_csrf'])) {
@@ -210,7 +210,7 @@ if ($certPath && is_readable($certPath) && function_exists('openssl_x509_parse')
   <div id="site_content">
     <div id="content" style="width:100%; float:none;">
       <h1>Server configuration</h1>
-      <p class="atlas-muted">Protected configuration console. Accesso consentito a un certificato autorizzato o a un utente locale con ruolo <strong>master</strong>.</p>
+      <p class="atlas-muted">Protected configuration console. Access is allowed to an authorized certificate or a local user with the master role.</p>
 
       <?php if ($message): ?><div class="atlas-alert success"><?php echo atlas_h($message); ?></div><?php endif; ?>
       <?php if ($error): ?><div class="atlas-alert error"><?php echo atlas_h($error); ?></div><?php endif; ?>

@@ -93,10 +93,11 @@ function checkform(form) {
   $adminfk = NULL;
   $role = '';
   $priv_update = 0;
-  // Reuse a legacy user row when it exists, but never mutate the legacy user
-  // table merely because req.php was opened with GET.
-  if ($sslusername !== '' && $ssluserdetails !== '') {
-    $qryuser = "SELECT user.ref, role.description, user.priv_update FROM user,role WHERE name=" . db_quote($sslusername,'ro') . " AND dn=" . db_quote($ssluserdetails,'ro') . " AND ABS(user.rolefk)=role.ref";
+  // Reuse the exact legacy row selected by the unified identity resolver.
+  // This avoids a second DN/name lookup choosing a different duplicate row.
+  $identityRef=(int)($identity['legacy_ref'] ?? 0);
+  if ($identityRef > 0) {
+    $qryuser = "SELECT user.ref, role.description, user.priv_update FROM user,role WHERE user.ref=" . db_int($identityRef,1) . " AND ABS(user.rolefk)=role.ref";
     $result = db_query($qryuser,"ro");
     $legacyRow = mysqli_fetch_row($result);
     if ($legacyRow) {

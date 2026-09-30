@@ -1,3 +1,12 @@
+## 3.0.0 r39
+
+- Replaced the hover-only top-bar language selector with a real click/touch button, explicit open state, outside-click/Escape handling and ARIA state, fixing Safari/iOS and touch interaction.
+- Made the unified X.509 identity resolver authoritative for legacy current-user lookups: `get_user_info()` now reuses the exact selected `legacy_ref`, so `protected/user.php` shows the same role and privileges as the identity summary even when historical equivalent/duplicate DN rows exist.
+- Removed secondary DN/name authentication queries from request/tag/release helper pages and reused the selected legacy user reference there as well, preventing pages such as `protected/archdef.php` and related legacy pages from reporting an authenticated X.509 user as unknown.
+- Hardened role selection in `protected/user.php` by using a dense role list and the role description from the selected user row instead of assuming role database refs are contiguous.
+- Expanded the central legacy i18n filter for authentication/user-management/configuration messages, translated safe display attributes, and normalized every rendered HTML document's `lang` attribute to the selected language.
+- Added r39 regression checks for language-selector interaction, unified legacy identity reuse, duplicate-DN protection and language consistency.
+
 ## 3.0.0 r38
 
 - Fixed iOS Safari portrait navigation where tapping a collapsed section could close the entire drawer because the full-screen backdrop remained geometrically underneath the transformed fixed sidebar.

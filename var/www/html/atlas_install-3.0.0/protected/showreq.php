@@ -2,15 +2,13 @@
 
   require("db.php");
 
-  $sslusername = getenv("SSL_CLIENT_S_DN_CN");
-  $ssluserdetails = getenv("SSL_CLIENT_S_DN");
-  $result = db_query("SELECT user.ref, role.description FROM user,role WHERE name=" . db_quote($sslusername,'ro') . " AND dn=" . db_quote($ssluserdetails,'ro') . " AND user.rolefk=role.ref","ro");
-  $row = mysqli_fetch_row($result);
-  if (!$row) {
-    $role="";
-  } else {
-    $adminfk=$row[0];
-    $role=$row[1];
+  $identity = atlas_current_identity();
+  $identityRef = (int)($identity['legacy_ref'] ?? 0);
+  $role = '';
+  if ($identityRef > 0) {
+    $result = db_query("SELECT user.ref, role.description FROM user,role WHERE user.ref=" . db_int($identityRef,1) . " AND ABS(user.rolefk)=role.ref","ro");
+    $row = mysqli_fetch_row($result);
+    if ($row) { $adminfk=(int)$row[0]; $role=(string)$row[1]; }
   }
 
   # Query body

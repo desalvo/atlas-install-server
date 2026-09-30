@@ -20,11 +20,13 @@ function main_header($voname, $path=".") {
   </div>
   <div class="atlas-topbar-sky" aria-hidden="true"></div>
   <div class="atlas-header-actions">
-    <div class="atlas-language-control" aria-label="<?php echo atlas_h(atlas_t('language')); ?>">
-      <span class="atlas-language-flag" aria-hidden="true"><?php echo $lang==='it'?'🇮🇹':'🇬🇧'; ?></span>
-      <span class="atlas-language-code"><?php echo strtoupper($lang); ?></span>
-      <span class="atlas-language-chevron">⌄</span>
-      <div class="atlas-language-menu">
+    <div class="atlas-language-control">
+      <button type="button" class="atlas-language-trigger" aria-haspopup="true" aria-expanded="false" aria-controls="atlas-language-menu" aria-label="<?php echo atlas_h(atlas_t('language')); ?>">
+        <span class="atlas-language-flag" aria-hidden="true"><?php echo $lang==='it'?'🇮🇹':'🇬🇧'; ?></span>
+        <span class="atlas-language-code"><?php echo strtoupper($lang); ?></span>
+        <span class="atlas-language-chevron" aria-hidden="true">⌄</span>
+      </button>
+      <div id="atlas-language-menu" class="atlas-language-menu" hidden>
         <a href="<?php echo atlas_h($langUrl('it')); ?>"<?php echo $lang==='it'?' class="active"':''; ?>>🇮🇹 IT</a>
         <a href="<?php echo atlas_h($langUrl('en')); ?>"<?php echo $lang==='en'?' class="active"':''; ?>>🇬🇧 EN</a>
       </div>

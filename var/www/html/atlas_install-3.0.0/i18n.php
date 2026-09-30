@@ -113,7 +113,62 @@ function atlas_legacy_translation_map(string $lang): array {
       'Show the release matrix'=>'Mostra matrice release','Release parameters management'=>'Gestione parametri release','Define a new site'=>'Definisci un nuovo sito',
       'Update a site definition'=>'Modifica una definizione sito','Remove a site'=>'Rimuovi un sito','Site parameters management'=>'Gestione parametri sito',
       'Define a new target'=>'Definisci un nuovo target','Update a target definition'=>'Modifica una definizione target','Remove a target definition'=>'Rimuovi una definizione target',
-      'Define a new task'=>'Definisci un nuovo task','Update a task definition'=>'Modifica una definizione task','Remove a task definition'=>'Rimuovi una definizione task'
+      'Define a new task'=>'Definisci un nuovo task','Update a task definition'=>'Modifica una definizione task','Remove a task definition'=>'Rimuovi una definizione task',
+      'Unknown user. Please'=>'Utente sconosciuto. Per favore','register to LJSFi'=>'registrati a LJSFi','first.'=>'prima.',
+      'Please register to LJSFi'=>'Registrati a LJSFi','Please modify your membership parameters'=>'Modifica i parametri della tua utenza',
+      'Please validate the user profile'=>'Verifica il profilo utente','You have successfully validated the user profile'=>'Profilo utente verificato correttamente',
+      'You have no privileges to approve user profiles'=>'Non disponi dei privilegi necessari per approvare i profili utente',
+      'You have no privileges to validate user profile or your user has been disabled'=>'Non disponi dei privilegi necessari per verificare il profilo utente oppure la tua utenza è disabilitata',
+      'No changes to validate'=>'Nessuna modifica da verificare','Cannot find any user to validate'=>'Nessun utente da verificare','No user id specified'=>'ID utente non specificato',
+      'LJSFi user management'=>'Gestione utenti LJSFi','Software Installation User Management'=>'Gestione utenti installazione software',
+      'User name'=>'Nome utente','Your name'=>'Il tuo nome','User e-mail'=>'E-mail utente','Your e-mail'=>'La tua e-mail','Role'=>'Ruolo',
+      'View protected info'=>'Visualizza informazioni protette','Post installation requests'=>'Invia richieste di installazione','Restart installation tasks'=>'Riavvia task di installazione',
+      'Pin installed releases'=>'Fissa release installate','Subscribe releases'=>'Sottoscrivi release','Set criticality of releases'=>'Imposta criticità delle release',
+      'Membership start'=>'Inizio validità utenza','Membership end'=>'Fine validità utenza','NOT YET APPROVED'=>'NON ANCORA APPROVATO',
+      'Missing parameters. Cannot update user data'=>'Parametri mancanti. Impossibile aggiornare i dati utente','No data to update'=>'Nessun dato da aggiornare',
+      'List users'=>'Elenca utenti','Search users'=>'Cerca utenti','Please fill all the highlighted fields'=>'Compila tutti i campi evidenziati',
+      'Insufficient privileges'=>'Privilegi insufficienti','Invalid parameters'=>'Parametri non validi','Wrong parameters'=>'Parametri errati','Database operation failed.'=>'Operazione sul database non riuscita.',
+      'No record deleted.'=>'Nessun record eliminato.','One of the needed fields have not been provided.'=>'Uno dei campi obbligatori non è stato specificato.',
+      'Architecture definition completed successfully'=>'Definizione architettura completata correttamente','IS definition completed successfully'=>'Definizione InfoSys completata correttamente',
+      'IS definition failed'=>'Definizione InfoSys non riuscita','IS removed successfully'=>'InfoSys rimosso correttamente','Release definition completed successfully'=>'Definizione release completata correttamente',
+      'Release definition failed'=>'Definizione release non riuscita','Site definition completed successfully'=>'Definizione sito completata correttamente','Site definition failed'=>'Definizione sito non riuscita',
+      'Site removed successfully'=>'Sito rimosso correttamente','Target definition failed'=>'Definizione target non riuscita','Target removed successfully'=>'Target rimosso correttamente',
+      'Task removed successfully'=>'Task rimosso correttamente','You cannot edit release criticality flags.'=>'Non puoi modificare gli indicatori di criticità delle release.',
+      'You cannot remove a pinned release.'=>'Non puoi rimuovere una release fissata.','You cannot remove a reserved target'=>'Non puoi rimuovere un target riservato',
+      'Request submitted.'=>'Richiesta inviata.','Unable to send the request. Please contact the administrators.'=>'Impossibile inviare la richiesta. Contatta gli amministratori.',
+      'Your request ID is:'=>'ID della richiesta:','Please check your registration and'=>'Controlla la tua registrazione e','Please update your'=>'Aggiorna il tuo',
+      'Resource name'=>'Nome risorsa','Resource/CE FQDN'=>'Risorsa/CE FQDN','Site Name'=>'Nome sito','OS Name'=>'Nome OS','OS Release'=>'Release OS','OS Version'=>'Versione OS','Install Arch'=>'Architettura di installazione',
+      'Experiment Software Area'=>'Area software esperimento','Expiration:'=>'Scadenza:','Enabled:'=>'Abilitato:','Start validity:'=>'Inizio validità:','End validity:'=>'Fine validità:','Role:'=>'Ruolo:','UserName:'=>'Nome utente:',
+      'Local users'=>'Utenti locali','new password'=>'nuova password','Delete user'=>'Cancella utente','Delete this local user?'=>'Cancellare questo utente locale?',
+      'No TOTP.'=>'Nessun TOTP.','Enable/disable'=>'Abilita/disabilita','Add TOTP'=>'Aggiungi TOTP','Scan the QR code with the authenticator app'=>'Scansiona il QR code con l’app di autenticazione',
+      'User created'=>'Utente creato','User updated'=>'Utente aggiornato','User deleted'=>'Utente cancellato','User not found.'=>'Utente non trovato.',
+      'Invalid username'=>'Username non valido','Invalid role'=>'Ruolo non valido','Initial password: at least 12 characters'=>'Password iniziale: almeno 12 caratteri',
+      'Password: at least 12 characters'=>'Password: almeno 12 caratteri','Password reset; change required at next login'=>'Password resettata; cambio obbligatorio al prossimo login',
+      'TOTP deleted'=>'TOTP eliminato','TOTP status changed'=>'Stato TOTP modificato','TOTP added. Register the new authenticator now.'=>'TOTP aggiunto. Registra ora il nuovo autenticatore.',
+      'Session duration updated'=>'Durata sessione aggiornata','Invalid CSRF token'=>'CSRF non valido','You cannot delete your account while you are using it.'=>'Non puoi cancellare il tuo account mentre lo stai usando.',
+      'You cannot delete the last active master.'=>'Non puoi cancellare l’ultimo master attivo.',
+      'Change password'=>'Cambio password','New password'=>'Nuova password','Repeat password'=>'Ripeti password','Passwords do not match'=>'Le password non coincidono',
+      'Password updated'=>'Password aggiornata','Current password'=>'Password corrente',
+      'Server configuration'=>'Configurazione server','Protected configuration console. Access is allowed to an authorized certificate or a local user with the master role.'=>'Console di configurazione protetta. Accesso consentito a un certificato autorizzato o a un utente locale con ruolo master.',
+      'Authenticated as'=>'Autenticato come','Configuration write access'=>'Accesso in scrittura alla configurazione','Host certificate'=>'Certificato host','Endpoint'=>'Endpoint',
+      'Public hostname'=>'Hostname pubblico','With TLS passthrough this should match the hostname presented to the client.'=>'Con TLS passthrough deve corrispondere all’hostname presentato al client.',
+      'Database'=>'Database','Database server'=>'Server database','Database name'=>'Nome database','Leave blank to keep the current password.'=>'Lascia vuoto per mantenere la password corrente.',
+      'Application'=>'Applicazione','VO name'=>'Nome VO','Sender email'=>'E-mail mittente','Contacts'=>'Contatti','Default InfoSys'=>'InfoSys predefinito','Activity period'=>'Periodo attività',
+      'TLS certificates and IGTF trust anchors are intentionally not uploadable from this page. In Kubernetes they are mounted as dedicated secrets/volumes so a web compromise cannot silently replace the server identity or trust roots.'=>'I certificati TLS e le trust anchor IGTF non sono intenzionalmente caricabili da questa pagina. In Kubernetes sono montati come secret/volumi dedicati, così una compromissione web non può sostituire silenziosamente l’identità del server o le radici di fiducia.',
+      'Test database connection'=>'Testa connessione database','Save configuration'=>'Salva configurazione','Database test:'=>'Test database:','authenticated configuration console'=>'console di configurazione autenticata',
+      'Field names must be unique'=>'I nomi dei campi devono essere univoci','No field name specified'=>'Nome del campo non specificato',
+      'Do you really want to delete the selected parameters? Only optional parameters will be deleted.'=>'Vuoi davvero eliminare i parametri selezionati? Verranno eliminati solo i parametri opzionali.',
+      'Do you really want to delete the selected records?'=>'Vuoi davvero eliminare i record selezionati?',
+      'You cannot remove a pinned release'=>'Non puoi rimuovere una release fissata',' is required by '=>' è richiesta da ','. Please remove the dependencies first.'=>'. Rimuovi prima le dipendenze.',
+      'The selected software requires release '=>'Il software selezionato richiede la release ',' which is not available in the selected site. Please install '=>' che non è disponibile nel sito selezionato. Installa ',
+      'Bad or null KML.'=>'KML non valido o vuoto.',
+      'Invalid request.'=>'Richiesta non valida.','The new password must contain at least 12 characters.'=>'La nuova password deve contenere almeno 12 caratteri.',
+      'Password changed.'=>'Password modificata.','Server configuration requires an enabled master role.'=>'La configurazione server richiede un ruolo master abilitato.',
+      'Invalid control character in configuration value'=>'Carattere di controllo non valido nel valore di configurazione',
+      'Configuration saved.'=>'Configurazione salvata.','Database connection successful.'=>'Connessione al database riuscita.',
+      'Delete this user? Historical references will be preserved.'=>'Cancellare questa utenza? I riferimenti storici saranno preservati.',
+      'Delete user (preserve history)'=>'Cancella utente (preserva storico)','Invalid user identifier.'=>'Identificatore utente non valido.',
+      'User disabled and marked as deleted. Historical references were preserved.'=>'Utente disabilitato e marcato come cancellato. I riferimenti storici sono stati preservati.'
     ];
     if ($lang==='it') return $it;
     // The legacy UI source language is English. Explicitly reverse the Italian strings
@@ -123,16 +178,33 @@ function atlas_legacy_translation_map(string $lang): array {
 function atlas_translate_legacy_html(string $html): string {
     if ($html==='' || stripos($html,'<html')===false) return $html;
     $map=atlas_legacy_translation_map(atlas_lang());
+    $translateDialogs=static function(string $fragment) use($map): string {
+        return preg_replace_callback("~\\b(alert|confirm)\\(\\s*([\"\\x27])(.*?)\\2~is",static function($m) use($map){
+            return $m[1].'('.$m[2].strtr($m[3],$map).$m[2];
+        },$fragment) ?? $fragment;
+    };
     // Translate visible text nodes only. Never rewrite attributes/form values,
     // because many legacy POST handlers intentionally compare submit values
-    // such as Save/Select/Delete. Script/style blocks are also left untouched.
+    // such as Save/Select/Delete. In scripts, only alert()/confirm() literals are translated; styles are untouched.
     $blocks=preg_split('~(<(?:script|style)\b[^>]*>.*?</(?:script|style)>)~is',$html,-1,PREG_SPLIT_DELIM_CAPTURE);
     if($blocks===false) return $html;
     foreach($blocks as $bi=>$block){
-        if(preg_match('~^<(?:script|style)\b~i',$block)) continue;
+        if(preg_match('~^<script\b~i',$block)) { $blocks[$bi]=$translateDialogs($block); continue; }
+        if(preg_match('~^<style\b~i',$block)) continue;
         $parts=preg_split('~(<[^>]+>)~s',$block,-1,PREG_SPLIT_DELIM_CAPTURE);
         if($parts===false) continue;
-        foreach($parts as $pi=>$part){ if($part!=='' && $part[0] !== '<') $parts[$pi]=strtr($part,$map); }
+        foreach($parts as $pi=>$part){
+            if($part!=='' && $part[0] !== '<') {
+                $parts[$pi]=strtr($part,$map);
+            } elseif($part!=='' && $part[0] === '<') {
+                // Translate display-only attributes. Never rewrite value/name/action
+                // because legacy handlers compare those protocol values literally.
+                $parts[$pi]=preg_replace_callback("~\\b(title|alt|placeholder|aria-label)=([\"\\x27])(.*?)\\2~is",static function($m) use($map){
+                    return $m[1].'='.$m[2].strtr($m[3],$map).$m[2];
+                },$part) ?? $part;
+                $parts[$pi]=$translateDialogs($parts[$pi]);
+            }
+        }
         $blocks[$bi]=implode('',$parts);
     }
     return implode('',$blocks);

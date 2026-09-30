@@ -321,6 +321,22 @@ grep -Fq 'if(e.target===backdrop)setOpen(false)' "$APP_DIR/css/menubar.php" || {
 grep -Fq "['pointerdown','touchstart']" "$APP_DIR/css/menubar.php" || { printf 'Section touch/pointer containment missing.\n' >&2; fail=1; }
 grep -Fq "bar.addEventListener('click',function(e){e.stopPropagation();});" "$APP_DIR/css/menubar.php" || { printf 'Drawer click containment missing.\n' >&2; fail=1; }
 
+printf '== r39 language/unified-identity regressions ==\n'
+grep -Fq 'class="atlas-language-trigger"' "$APP_DIR/css/main_header.php" || { printf 'Clickable language trigger missing.\n' >&2; fail=1; }
+grep -Fq 'function initLanguageSelector()' "$APP_DIR/js/atlas-ui.js" || { printf 'Language selector click handler missing.\n' >&2; fail=1; }
+grep -Fq "menu.hidden=!open" "$APP_DIR/js/atlas-ui.js" || { printf 'Language menu state is not controlled explicitly.\n' >&2; fail=1; }
+if grep -Fq '.atlas-language-control:hover .atlas-language-menu' "$APP_DIR/css/modern.css"; then printf 'Language selector still depends on hover-only behavior.\n' >&2; fail=1; fi
+grep -Fq 'if($legacyRef>0) return get_user_info' "$APP_DIR/protected/user_info.php" || { printf 'Current-user lookup does not reuse selected legacy_ref.\n' >&2; fail=1; }
+grep -Fq '$role_list[] = $row[1];' "$APP_DIR/protected/user.php" || { printf 'User role list still assumes contiguous DB refs.\n' >&2; fail=1; }
+for f in req.php tags.php showrel.php showtags.php showreq.php; do
+  grep -Fq "legacy_ref" "$APP_DIR/protected/$f" || { printf 'Unified identity ref missing from %s.\n' "$f" >&2; fail=1; }
+done
+if grep -REq 'WHERE name=.*\$sslusername.*dn=.*\$ssluserdetails|WHERE .*name=.*\$sslusername.* AND dn=.*\$ssluserdetails' "$APP_DIR/protected/req.php" "$APP_DIR/protected/tags.php" "$APP_DIR/protected/showrel.php" "$APP_DIR/protected/showtags.php" "$APP_DIR/protected/showreq.php"; then
+  printf 'Secondary literal DN/name authentication lookup remains in protected helper pages.\n' >&2; fail=1
+fi
+grep -Fq "'Unknown user. Please'=>'Utente sconosciuto. Per favore'" "$APP_DIR/i18n.php" || { printf 'Legacy unknown-user translation missing.\n' >&2; fail=1; }
+grep -Fq 'selectedLang=atlas_lang()' "$APP_DIR/security.php" || { printf 'Rendered document language normalization missing.\n' >&2; fail=1; }
+
 exit "$fail"
 
 # Container must never require a privileged HTTP listener.

@@ -1,0 +1,15 @@
+ATLAS Installation Server 3.0.0-r39 QA
+
+Scope
+- Click/touch language selector
+- Unified X.509 current-user legacy row reuse
+- protected/user.php role/privilege preselection
+- legacy protected-page unknown-user regression
+- IT/EN rendering consistency
+
+Validation
+- Full PHP lint
+- tests/test-dn-canonicalization.php
+- tests/ci-static.sh
+- r39 i18n smoke tests (IT and EN)
+- final archive extraction and repeat validation

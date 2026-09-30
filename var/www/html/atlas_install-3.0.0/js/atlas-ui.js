@@ -2,6 +2,29 @@
   'use strict';
   function isMobile(){ return window.matchMedia ? window.matchMedia('(max-width:760px)').matches : window.innerWidth <= 760; }
 
+
+  function initLanguageSelector(){
+    var control=document.querySelector('.atlas-language-control');
+    if(!control || control.dataset.atlasLanguageBound==='1') return;
+    var trigger=control.querySelector('.atlas-language-trigger');
+    var menu=control.querySelector('.atlas-language-menu');
+    if(!trigger || !menu) return;
+    control.dataset.atlasLanguageBound='1';
+    function setOpen(open){
+      open=!!open;
+      control.classList.toggle('is-open',open);
+      trigger.setAttribute('aria-expanded',open?'true':'false');
+      menu.hidden=!open;
+    }
+    trigger.addEventListener('click',function(e){
+      e.preventDefault(); e.stopPropagation();
+      setOpen(trigger.getAttribute('aria-expanded')!=='true');
+    },false);
+    menu.addEventListener('click',function(e){ e.stopPropagation(); },false);
+    document.addEventListener('click',function(e){ if(!control.contains(e.target)) setOpen(false); },false);
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape'){setOpen(false);trigger.focus();} },false);
+  }
+
   function initAutocompleteFallback(){
     var inputs=document.querySelectorAll('input[data-atlas-datalist]');
     for(var i=0;i<inputs.length;i++){
@@ -90,5 +113,6 @@
   }
 
   function initAll(){initAutocompleteFallback();initLegacyDefinitionSubmit();}
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initAll,false); else initAll();
+  function initUi(){initLanguageSelector();initAll();}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initUi,false); else initUi();
 })();

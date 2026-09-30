@@ -2,14 +2,20 @@
 
   require_once("db.php");
   function get_user_info($mode='select',$id=NULL,$role=NULL,$valid=NULL,$filter=NULL,$limit=15,$offset=0,$ident=NULL) {
+    // The unified authentication layer has already selected the authoritative
+    // legacy user row (including canonical X.509 DN + CA duplicate handling).
+    // Reuse that exact row for default current-user lookups instead of doing a
+    // second literal DN/name lookup that can select a different duplicate.
     if ($mode === 'select' && $id === NULL && $filter === NULL && $ident === NULL) {
       $ai = atlas_current_identity();
-      if ($ai && ($ai['source'] ?? '') === 'local') {
+      if ($ai) {
         $legacyRef=(int)($ai['legacy_ref'] ?? 0);
         if($legacyRef>0) return get_user_info('select',$legacyRef,$role,$valid,$filter,$limit,$offset,$ident);
-        $legacyDn='LOCAL:'.(string)$ai['username'];
-        $mapped=db_query('SELECT ref FROM user WHERE dn='.db_quote($legacyDn,'ro').' ORDER BY ref DESC LIMIT 1');
-        if($mr=mysqli_fetch_row($mapped)) return get_user_info('select',(int)$mr[0],$role,$valid,$filter,$limit,$offset,$ident);
+        if (($ai['source'] ?? '') === 'local') {
+          $legacyDn='LOCAL:'.(string)$ai['username'];
+          $mapped=db_query('SELECT ref FROM user WHERE dn='.db_quote($legacyDn,'ro').' ORDER BY ref DESC LIMIT 1');
+          if($mr=mysqli_fetch_row($mapped)) return get_user_info('select',(int)$mr[0],$role,$valid,$filter,$limit,$offset,$ident);
+        }
       }
     }
     //$ssluserdetails = getenv("SSL_CLIENT_S_DN");

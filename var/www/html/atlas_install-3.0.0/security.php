@@ -331,6 +331,14 @@ function atlas_append_identity_footer(): void {
     $body=ob_get_clean(); if($body===false)return;
     if(stripos($body,'<html')===false){ echo $body; return; }
     $body=atlas_translate_legacy_html($body);
+    // Keep the document language metadata coherent even for old pages that
+    // hard-code lang=it/en or omit the attribute altogether.
+    $selectedLang=atlas_lang();
+    if(preg_match('~<html\b[^>]*\blang\s*=~i',$body)) {
+        $body=preg_replace("~(<html\\b[^>]*\\blang\\s*=\\s*)([\"\\x27])[^\"\\x27]*\\2~i",'$1"'.atlas_h($selectedLang).'"',$body,1) ?? $body;
+    } else {
+        $body=preg_replace('~<html\b([^>]*)>~i','<html$1 lang="'.atlas_h($selectedLang).'">',$body,1) ?? $body;
+    }
     if(stripos($body,'name="viewport"')===false && stripos($body,"name='viewport'")===false) $body=preg_replace('~<head([^>]*)>~i','<head$1><meta name="viewport" content="width=device-width,initial-scale=1">',$body,1);
     if(stripos($body,'modern.css')===false) $body=preg_replace('~</head>~i','<link rel="stylesheet" href="/atlas_install/css/modern.css"></head>',$body,1);
     if(stripos($body,'atlas-identity-footer')===false){

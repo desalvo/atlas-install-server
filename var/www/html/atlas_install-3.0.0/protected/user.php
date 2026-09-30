@@ -550,12 +550,14 @@ function checkform(form) {
         }
 
         // Role
-        $res = db_query("SELECT ref,description FROM role");
+        $res = db_query("SELECT ref,description FROM role ORDER BY ref");
         $role_list = array();
         while ($row = mysqli_fetch_array($res)) {
-          $role_list[$row[0]-1] = $row[1];
+          // combo_box expects a dense zero-based array. Do not derive array
+          // indexes from DB refs: deleted/migrated role rows may leave gaps.
+          $role_list[] = $row[1];
         }
-        if (!isset($rolefk)) $role = $role_list[0]; else $role = $role_list[abs($rolefk)-1];
+        if (!isset($rolefk) || !isset($role) || $role === '') $role = $role_list[0] ?? '';
         echo ("<TR id='role_tr'><TD class='selection'>Role</TD><TD><select name='role' size='1'>");
         combo_box($role_list,"-- select one --",$role);
         echo '</select>';
