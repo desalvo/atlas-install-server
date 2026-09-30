@@ -112,14 +112,28 @@ function menubar($path=".") {
       }
     }
     toggle.addEventListener('click',function(e){e.preventDefault();setOpen(!bar.classList.contains('atlas-mobile-open'));});
-    if(backdrop)backdrop.addEventListener('click',function(){setOpen(false);});
+    if(backdrop)backdrop.addEventListener('click',function(e){
+      // Only a real tap on the exposed backdrop closes the drawer.  In
+      // particular, never let an event originating in the drawer be treated
+      // as an outside tap by iOS Safari's fixed/transform hit testing.
+      if(e.target===backdrop)setOpen(false);
+    });
     bar.querySelectorAll('.atlas-sidebar-heading').forEach(function(btn){
+      // Keep section gestures inside the drawer.  Safari/iOS can otherwise
+      // propagate a tap through transformed fixed layers to the backdrop.
+      ['pointerdown','touchstart'].forEach(function(type){
+        btn.addEventListener(type,function(e){e.stopPropagation();},{passive:true});
+      });
       btn.addEventListener('click',function(e){
         e.preventDefault();
+        e.stopPropagation();
         var sec=btn.closest('.atlas-sidebar-section');
         setSectionCollapsed(sec,!sec.classList.contains('is-collapsed'));
       });
     });
+    // Contain all drawer clicks so no document/outside-click logic can close
+    // the menu before an intended control has handled the gesture.
+    bar.addEventListener('click',function(e){e.stopPropagation();});
     bar.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){if(mobile())setOpen(false);});});
     document.addEventListener('keydown',function(e){if(e.key==='Escape')setOpen(false);});
     window.addEventListener('resize',syncMode);

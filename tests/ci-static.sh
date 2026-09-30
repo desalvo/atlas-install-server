@@ -315,6 +315,12 @@ if sed -n '/function syncMode(){/,/^    }/p' "$APP_DIR/css/menubar.php" | grep -
   printf 'resize synchronization still unconditionally closes the mobile drawer.\n' >&2; fail=1
 fi
 
+printf '== r38 iOS portrait drawer hit-testing regressions ==\n'
+grep -Fq '.atlas-mobile-menu-backdrop.is-open{left:min(86vw,320px)!important}' "$APP_DIR/css/modern.css" || { printf 'Mobile backdrop still geometrically covers the drawer.\n' >&2; fail=1; }
+grep -Fq 'if(e.target===backdrop)setOpen(false)' "$APP_DIR/css/menubar.php" || { printf 'Backdrop close handler is not target-guarded.\n' >&2; fail=1; }
+grep -Fq "['pointerdown','touchstart']" "$APP_DIR/css/menubar.php" || { printf 'Section touch/pointer containment missing.\n' >&2; fail=1; }
+grep -Fq "bar.addEventListener('click',function(e){e.stopPropagation();});" "$APP_DIR/css/menubar.php" || { printf 'Drawer click containment missing.\n' >&2; fail=1; }
+
 exit "$fail"
 
 # Container must never require a privileged HTTP listener.

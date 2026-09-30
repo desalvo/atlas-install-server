@@ -757,6 +757,10 @@ body.atlas-list-page .atlas-table-scroll{overflow:auto!important}
   .atlas-mobile-menu-backdrop{display:none!important}
   .atlas-mobile-menu-backdrop.is-open{display:block!important;position:fixed;z-index:2000;inset:var(--atlas-topbar-height) 0 0 0;background:rgba(0,15,36,.45)}
   html:not(.atlas-menu-open) .atlas-mobile-menu-backdrop{display:none!important}
+  /* r38: the exposed backdrop starts physically after the drawer.  Do not
+     rely only on z-index because iOS Safari may hit-test transformed fixed
+     layers against the backdrop underneath them in portrait orientation. */
+  .atlas-mobile-menu-backdrop.is-open{left:min(86vw,320px)!important}
 }
 
 /* iPhone/phone landscape can exceed the old 900px breakpoint in CSS pixels.

@@ -1,0 +1,16 @@
+ATLAS Installation Server 3.0.0-r38 QA
+
+Scope
+- iOS Safari portrait mobile navigation section expansion.
+
+Fix
+- Mobile backdrop begins at the drawer right edge and no longer exists geometrically beneath the drawer.
+- Backdrop closes the drawer only for direct backdrop-target taps.
+- Section pointer/touch/click events are stopped from propagating outside the drawer.
+- Existing link navigation still closes the drawer intentionally after a menu item is selected.
+
+Regression expectations
+- r33 DN canonicalization and CA handling unchanged.
+- r35 X.509 duplicate-role selection unchanged.
+- r36 mobile touch target sizing and collapsed defaults unchanged.
+- r37 height-only resize state preservation unchanged.

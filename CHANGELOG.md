@@ -1,3 +1,10 @@
+## 3.0.0 r38
+
+- Fixed iOS Safari portrait navigation where tapping a collapsed section could close the entire drawer because the full-screen backdrop remained geometrically underneath the transformed fixed sidebar.
+- The mobile backdrop now begins physically at the drawer's right edge instead of relying solely on z-index separation, preventing Safari hit-testing from treating an in-menu tap as an outside tap.
+- Section pointer/touch/click events are explicitly contained within the drawer, and backdrop closing is accepted only when the backdrop itself is the event target.
+- Added regression checks for portrait backdrop geometry and event containment while retaining r33-r37 authentication, X.509 and responsive behavior.
+
 ## 3.0.0 r37
 
 - Fixed iOS/mobile portrait sidebar sections that appeared not to open because browser-chrome height changes emitted `resize` events and immediately re-collapsed the menu.
