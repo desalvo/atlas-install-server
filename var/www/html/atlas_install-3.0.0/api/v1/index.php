@@ -80,7 +80,7 @@ function api_resources(): array {
       'site-types'=>['table'=>'site_type','key'=>'ref','key_type'=>'i','read'=>'public','write'=>'auth','fields'=>['ref','name','description'],'search'=>['name','description']],
       'request-statuses'=>['table'=>'request_status','key'=>'ref','key_type'=>'i','read'=>'public','write'=>'master','fields'=>['ref','description'],'search'=>['description']],
       'request-types'=>['table'=>'request_type','key'=>'ref','key_type'=>'i','read'=>'public','write'=>'master','fields'=>['ref','level','field','description','comment'],'search'=>['field','description','comment']],
-      'users'=>['table'=>'user','key'=>'ref','key_type'=>'i','read'=>'master','write'=>'master','fields'=>['ref','name','dn','email','priv_view','priv_insert','priv_update','priv_pin','priv_relsub','priv_critical','rolefk','valid_start','valid_end','enabled'],'search'=>['name','dn','email']],
+      'users'=>['table'=>'user','key'=>'ref','key_type'=>'i','read'=>'master','write'=>'master','fields'=>['ref','name','dn','ca_dn','ca_name','email','priv_view','priv_insert','priv_update','priv_pin','priv_relsub','priv_critical','rolefk','valid_start','valid_end','enabled','deleted_at','deleted_by'],'search'=>['name','dn','email']],
       'local-users'=>['table'=>'atlas_local_user','key'=>'id','key_type'=>'i','read'=>'master','write'=>'master','fields'=>['id','username','first_name','last_name','email','role','enabled','must_change_password','created_at','updated_at'],'search'=>['username','first_name','last_name','email','role'],'local'=>true],
     ];
 }
@@ -123,7 +123,14 @@ function api_update(string $name,array $cfg,string $rawId): never {
     $id=api_cast_key($rawId,$cfg['key_type']);$body=api_body();$fields=api_write_fields($cfg,$body,false);if(!$fields)api_error(400,'empty_body','At least one writable field is required');$db=db_conn('rw');$sets=[];$vals=[];foreach($fields as $k=>$v){$sets[]=api_qi($k).'=?';$vals[]=$v;}$vals[]=$id;$types=str_repeat('s',count($fields)).$cfg['key_type'];$sql='UPDATE '.api_qi($cfg['table']).' SET '.implode(',',$sets).' WHERE '.api_qi($cfg['key']).'=?';$st=$db->prepare($sql);if(!$st)api_error(400,'invalid_resource',$db->error);api_bind($st,$types,$vals);if(!$st->execute())api_error(409,'write_failed',$st->error);if($st->affected_rows===0){$check=$db->prepare('SELECT 1 FROM '.api_qi($cfg['table']).' WHERE '.api_qi($cfg['key']).'=?');$v=[$id];api_bind($check,$cfg['key_type'],$v);$check->execute();if(!$check->get_result()->fetch_row())api_error(404,'not_found',ucfirst($name).' resource not found');}api_get_one($name,$cfg,(string)$id);
 }
 function api_delete(string $name,array $cfg,string $rawId): never {
-    $id=api_cast_key($rawId,$cfg['key_type']);$db=db_conn('rw');$sql='DELETE FROM '.api_qi($cfg['table']).' WHERE '.api_qi($cfg['key']).'=?';$st=$db->prepare($sql);$vals=[$id];api_bind($st,$cfg['key_type'],$vals);if(!$st->execute())api_error(409,'delete_failed',$st->error);if($st->affected_rows===0)api_error(404,'not_found',ucfirst($name).' resource not found');http_response_code(204);exit;
+    $id=api_cast_key($rawId,$cfg['key_type']);$db=db_conn('rw');
+    // Legacy users are historical identities referenced by requests, logs and
+    // release records. DELETE therefore means soft-delete for this resource.
+    if($name==='users'){
+        $sql='UPDATE user SET enabled=0,valid_end=NOW(),priv_view=0,priv_insert=0,priv_update=0,priv_pin=0,priv_relsub=0,priv_critical=0,deleted_at=NOW() WHERE ref=?';
+        $st=$db->prepare($sql);$vals=[$id];api_bind($st,$cfg['key_type'],$vals);if(!$st->execute())api_error(409,'delete_failed',$st->error);if($st->affected_rows===0)api_error(404,'not_found','Users resource not found');http_response_code(204);exit;
+    }
+    $sql='DELETE FROM '.api_qi($cfg['table']).' WHERE '.api_qi($cfg['key']).'=?';$st=$db->prepare($sql);$vals=[$id];api_bind($st,$cfg['key_type'],$vals);if(!$st->execute())api_error(409,'delete_failed',$st->error);if($st->affected_rows===0)api_error(404,'not_found',ucfirst($name).' resource not found');http_response_code(204);exit;
 }
 
 $method=strtoupper((string)($_SERVER['REQUEST_METHOD']??'GET'));

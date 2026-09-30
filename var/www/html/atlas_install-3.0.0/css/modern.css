@@ -602,3 +602,5 @@ body.atlas-list-page #atlas-list-results tr.atlas-mobile-record.removedTask { co
 .atlas-doc-index a,.atlas-doc-downloads a{display:inline-block;line-height:1.45}
 .atlas-docs h2{margin-top:.2rem}.atlas-docs h3{margin-bottom:.35rem}
 @media(max-width:760px){.atlas-docs{padding:.75rem}.atlas-doc-cover{grid-template-columns:1fr;gap:1rem}.atlas-doc-cover img{max-width:280px}.atlas-product-plate{grid-template-columns:1fr}.atlas-product-plate dt{margin-top:.35rem}}
+
+.atlas-identity-warning{margin-top:.65rem;padding:.65rem .8rem;border:1px solid #ef9a9a;background:#fff4f4;color:#8a1c1c;border-radius:.55rem}.atlas-identity-note{margin-top:.65rem;padding:.65rem .8rem;border:1px solid #90caf9;background:#f3f9ff;color:#174a72;border-radius:.55rem}

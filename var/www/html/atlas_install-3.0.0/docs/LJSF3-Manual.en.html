@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>LJSF 3 Manual</title>
+  <title>USER-GUIDE.en</title>
   <style>
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
@@ -89,167 +89,11 @@
   <link rel="stylesheet" href="manual.css" />
 </head>
 <body>
-<header id="title-block-header">
-<h1 class="title">LJSF 3 Manual</h1>
-</header>
-<nav id="TOC" role="doc-toc">
-<ul>
-<li><a href="#ljsf-3---atlas-installation-system"
-id="toc-ljsf-3---atlas-installation-system">LJSF 3 - ATLAS Installation
-System</a>
-<ul>
-<li><a href="#complete-operations-and-administration-manual"
-id="toc-complete-operations-and-administration-manual">Complete
-operations and administration manual</a></li>
-<li><a href="#structured-contents"
-id="toc-structured-contents">Structured contents</a></li>
-<li><a href="#purpose-and-operating-model"
-id="toc-purpose-and-operating-model">1. Purpose and operating
-model</a></li>
-<li><a href="#system-architecture" id="toc-system-architecture">2.
-System architecture</a></li>
-<li><a href="#kubernetes-topology-and-networking"
-id="toc-kubernetes-topology-and-networking">3. Kubernetes topology and
-networking</a></li>
-<li><a href="#container-startup-and-readiness"
-id="toc-container-startup-and-readiness">4. Container startup and
-readiness</a></li>
-<li><a href="#configuration-and-secrets"
-id="toc-configuration-and-secrets">5. Configuration and Secrets</a></li>
-<li><a href="#database-schema-and-migrations"
-id="toc-database-schema-and-migrations">6. Database, schema and
-migrations</a></li>
-<li><a href="#authentication-roles-and-authorization"
-id="toc-authentication-roles-and-authorization">7. Authentication, roles
-and authorization</a></li>
-<li><a href="#totp-and-qr-codes" id="toc-totp-and-qr-codes">8. TOTP and
-QR codes</a></li>
-<li><a href="#web-navigation-and-responsive-ui"
-id="toc-web-navigation-and-responsive-ui">9. Web navigation and
-responsive UI</a></li>
-<li><a href="#releases-and-architectures"
-id="toc-releases-and-architectures">10. Releases and
-architectures</a></li>
-<li><a href="#sites-infosys-targets-and-tasks"
-id="toc-sites-infosys-targets-and-tasks">11. Sites, InfoSys, targets and
-tasks</a></li>
-<li><a href="#installation-requests" id="toc-installation-requests">12.
-Installation requests</a></li>
-<li><a href="#installation-status-and-list.php"
-id="toc-installation-status-and-list.php">13. Installation status and
-list.php</a></li>
-<li><a href="#charts-summaries-and-cronjobs"
-id="toc-charts-summaries-and-cronjobs">14. Charts, summaries and
-CronJobs</a></li>
-<li><a href="#logging-and-observability"
-id="toc-logging-and-observability">15. Logging and
-observability</a></li>
-<li><a href="#rest-api---model-and-usage"
-id="toc-rest-api---model-and-usage">16. REST API - model and
-usage</a></li>
-<li><a href="#operational-security" id="toc-operational-security">17.
-Operational security</a></li>
-<li><a href="#backup-restore-and-compatibility"
-id="toc-backup-restore-and-compatibility">18. Backup, restore and
-compatibility</a></li>
-<li><a href="#troubleshooting" id="toc-troubleshooting">19.
-Troubleshooting</a></li>
-<li><a href="#development-and-github"
-id="toc-development-and-github">20. Development and GitHub</a></li>
-<li><a href="#service-identity" id="toc-service-identity">1. Service
-identity</a></li>
-<li><a href="#authentication-model" id="toc-authentication-model">2.
-Authentication model</a>
-<ul>
-<li><a href="#authentication-examples"
-id="toc-authentication-examples">2.1 Authentication examples</a></li>
-<li><a href="#authentication-failures"
-id="toc-authentication-failures">2.2 Authentication failures</a></li>
-</ul></li>
-<li><a href="#http-and-json-conventions"
-id="toc-http-and-json-conventions">3. HTTP and JSON conventions</a>
-<ul>
-<li><a href="#error-envelope" id="toc-error-envelope">3.1 Error
-envelope</a></li>
-<li><a href="#status-codes" id="toc-status-codes">3.2 Status
-codes</a></li>
-</ul></li>
-<li><a href="#collections-filtering-search-pagination-and-sorting"
-id="toc-collections-filtering-search-pagination-and-sorting">4.
-Collections, filtering, search, pagination and sorting</a></li>
-<li><a href="#resource-matrix" id="toc-resource-matrix">5. Resource
-matrix</a></li>
-<li><a href="#special-endpoints" id="toc-special-endpoints">6. Special
-endpoints</a>
-<ul>
-<li><a href="#get" id="toc-get"><code>GET /</code></a></li>
-<li><a href="#get-health"
-id="toc-get-health"><code>GET /health</code></a></li>
-<li><a href="#get-me" id="toc-get-me"><code>GET /me</code></a></li>
-<li><a href="#get-openapi"
-id="toc-get-openapi"><code>GET /openapi</code></a></li>
-</ul></li>
-<li><a href="#complete-resource-reference"
-id="toc-complete-resource-reference">7. Complete resource reference</a>
-<ul>
-<li><a href="#releases" id="toc-releases">7.1
-<code>releases</code></a></li>
-<li><a href="#sites" id="toc-sites">7.2 <code>sites</code></a></li>
-<li><a href="#requests" id="toc-requests">7.3
-<code>requests</code></a></li>
-<li><a href="#tasks" id="toc-tasks">7.4 <code>tasks</code></a></li>
-<li><a href="#architectures" id="toc-architectures">7.5
-<code>architectures</code></a></li>
-<li><a href="#targets" id="toc-targets">7.6
-<code>targets</code></a></li>
-<li><a href="#infosys" id="toc-infosys">7.7
-<code>infosys</code></a></li>
-<li><a href="#release-subscriptions" id="toc-release-subscriptions">7.8
-<code>release-subscriptions</code></a></li>
-<li><a href="#release-status" id="toc-release-status">7.9
-<code>release-status</code></a></li>
-<li><a href="#grids" id="toc-grids">7.10 <code>grids</code></a></li>
-<li><a href="#facilities" id="toc-facilities">7.11
-<code>facilities</code></a></li>
-<li><a href="#site-types" id="toc-site-types">7.12
-<code>site-types</code></a></li>
-<li><a href="#request-statuses" id="toc-request-statuses">7.13
-<code>request-statuses</code></a></li>
-<li><a href="#request-types" id="toc-request-types">7.14
-<code>request-types</code></a></li>
-<li><a href="#users" id="toc-users">7.15 <code>users</code></a></li>
-<li><a href="#local-users" id="toc-local-users">7.16
-<code>local-users</code></a></li>
-</ul></li>
-<li><a href="#end-to-end-examples" id="toc-end-to-end-examples">8.
-End-to-end examples</a>
-<ul>
-<li><a href="#create-and-update-a-local-user"
-id="toc-create-and-update-a-local-user">8.1 Create and update a local
-user</a></li>
-<li><a href="#python" id="toc-python">8.2 Python</a></li>
-<li><a href="#robust-error-handling" id="toc-robust-error-handling">8.3
-Robust error handling</a></li>
-</ul></li>
-<li><a href="#security-compatibility-and-current-limitations"
-id="toc-security-compatibility-and-current-limitations">9. Security,
-compatibility and current limitations</a></li>
-<li><a href="#production-client-checklist"
-id="toc-production-client-checklist">10. Production client
-checklist</a></li>
-<li><a href="#appendix-c.-glossary"
-id="toc-appendix-c.-glossary">Appendix C. Glossary</a></li>
-</ul></li>
-</ul>
-</nav>
 <h1 id="ljsf-3---atlas-installation-system">LJSF 3 - ATLAS Installation
 System</h1>
 <h2 id="complete-operations-and-administration-manual">Complete
 operations and administration manual</h2>
-<figure>
-<img src="assets/ljsf3-logo.png" alt="LJSF 3" />
-<figcaption aria-hidden="true">LJSF 3</figcaption>
-</figure>
+<p><img src="assets/ljsf3-logo.png" /></p>
 <table>
 <colgroup>
 <col style="width: 50%" />
@@ -272,7 +116,7 @@ operations and administration manual</h2>
 </tr>
 <tr class="odd">
 <td>Package revision</td>
-<td>r30</td>
+<td>r32</td>
 </tr>
 <tr class="even">
 <td>Creator / maintainer</td>
@@ -301,68 +145,31 @@ operations and administration manual</h2>
 changelog. Example hostnames, users and application data are
 illustrative.</p>
 </blockquote>
+<div class="pagebreak">
+
+</div>
 <h2 id="structured-contents">Structured contents</h2>
 <ol type="1">
-<li><ol type="1">
 <li>Purpose and operating model</li>
-</ol></li>
-<li><ol start="2" type="1">
 <li>System architecture</li>
-</ol></li>
-<li><ol start="3" type="1">
 <li>Kubernetes topology and networking</li>
-</ol></li>
-<li><ol start="4" type="1">
 <li>Container startup and readiness</li>
-</ol></li>
-<li><ol start="5" type="1">
 <li>Configuration and Secrets</li>
-</ol></li>
-<li><ol start="6" type="1">
 <li>Database, schema and migrations</li>
-</ol></li>
-<li><ol start="7" type="1">
 <li>Authentication, roles and authorization</li>
-</ol></li>
-<li><ol start="8" type="1">
 <li>TOTP and QR codes</li>
-</ol></li>
-<li><ol start="9" type="1">
 <li>Web navigation and responsive UI</li>
-</ol></li>
-<li><ol start="10" type="1">
 <li>Releases and architectures</li>
-</ol></li>
-<li><ol start="11" type="1">
 <li>Sites, InfoSys, targets and tasks</li>
-</ol></li>
-<li><ol start="12" type="1">
 <li>Installation requests</li>
-</ol></li>
-<li><ol start="13" type="1">
 <li>Installation status and list.php</li>
-</ol></li>
-<li><ol start="14" type="1">
 <li>Charts, summaries and CronJobs</li>
-</ol></li>
-<li><ol start="15" type="1">
 <li>Logging and observability</li>
-</ol></li>
-<li><ol start="16" type="1">
 <li>REST API - model and usage</li>
-</ol></li>
-<li><ol start="17" type="1">
 <li>Operational security</li>
-</ol></li>
-<li><ol start="18" type="1">
 <li>Backup, restore and compatibility</li>
-</ol></li>
-<li><ol start="19" type="1">
 <li>Troubleshooting</li>
-</ol></li>
-<li><ol start="20" type="1">
 <li>Development and GitHub</li>
-</ol></li>
 <li>Appendix A. Configuration variables</li>
 <li>Appendix B. REST endpoints</li>
 <li>Appendix C. Glossary</li>
@@ -402,6 +209,28 @@ are co-located on the server node.</p>
 <img src="assets/k8s.png" alt="Kubernetes topology" />
 <figcaption aria-hidden="true">Kubernetes topology</figcaption>
 </figure>
+<h3 id="main-kubernetes-objects">3.1 Main Kubernetes objects</h3>
+<ul>
+<li><strong>Deployment</strong> runs Apache and PHP-FPM and mounts TLS,
+bootstrap configuration and the PVC.</li>
+<li><strong>Service</strong> publishes the pod HTTPS endpoint inside the
+cluster.</li>
+<li><strong>HAProxy Ingress</strong> performs TLS passthrough so Apache
+receives the original client certificate.</li>
+<li><strong>PVC</strong> stores managed configuration, logs, caches and
+summaries.</li>
+<li><strong>Summary/Cleanup CronJobs</strong> calculate local reporting
+data and enforce retention.</li>
+<li><strong>Bootstrap/TLS/DB-admin Secrets</strong> separate runtime
+configuration, server credentials and optional schema-migration
+privilege.</li>
+</ul>
+<h3 id="post-rollout-checks">3.2 Post-rollout checks</h3>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">kubectl</span> <span class="at">-n</span> atlas-install rollout status deploy/atlas-install</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">kubectl</span> <span class="at">-n</span> atlas-install get pods <span class="at">-o</span> wide</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">kubectl</span> <span class="at">-n</span> atlas-install get ingress,svc,pvc,cronjob</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ex">kubectl</span> <span class="at">-n</span> atlas-install get events <span class="at">--sort-by</span><span class="op">=</span>.lastTimestamp <span class="kw">|</span> <span class="fu">tail</span> <span class="at">-50</span></span></code></pre></div>
 <h2 id="container-startup-and-readiness">4. Container startup and
 readiness</h2>
 <ol type="1">
@@ -416,15 +245,35 @@ readiness</h2>
 is alive. <code>readyz.php</code> also validates DB readiness; do not
 confuse liveness with readiness.</li>
 </ol>
+<h3 id="startup-diagnostics">4.1 Startup diagnostics</h3>
+<p>Startup logs expose configuration sync, DB migration, IGTF/fetch-crl,
+PHP-FPM and Apache stages. If the container never starts and logs are
+empty, inspect <code>kubectl describe pod</code> and cluster events for
+mount, Multi-Attach, Secret or scheduling failures.</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">kubectl</span> <span class="at">-n</span> atlas-install exec deploy/atlas-install <span class="at">--</span> curl <span class="at">-fsS</span> http://127.0.0.1/atlas_install/healthz.php</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">kubectl</span> <span class="at">-n</span> atlas-install exec deploy/atlas-install <span class="at">--</span> curl <span class="at">-fsS</span> http://127.0.0.1/atlas_install/readyz.php</span></code></pre></div>
 <h2 id="configuration-and-secrets">5. Configuration and Secrets</h2>
 <p>The bootstrap Secret is the authoritative source for
 <code>atlas-install.env</code>. The entrypoint atomically synchronizes
 the persistent file when the Secret changes. DB passwords and TLS keys
 are not stored in the wizard local state. The DB-admin migration
 credential is optional and separate from normal <code>dbwriter</code>
-access. A Kubernetes Secret is base64-encoded, not automatically
-encrypted at rest; actual at-rest encryption requires API-server/etcd
-encryption configuration.</p>
+access.</p>
+<h3 id="kubernetes-wizard">5.1 Kubernetes wizard</h3>
+<p>The wizard is idempotent: it reuses non-secret choices as defaults,
+preserves existing passwords unless changed, and restarts the Deployment
+only when a change requires reload. It supports optional DB TLS, PVC
+size/access mode, ingress class, CPU/memory resources and separated DB
+credentials.</p>
+<h3 id="database-tls">5.2 Database TLS</h3>
+<p><code>ATLAS_DB_SSL=1</code> enables TLS for application DB
+connections. <code>ATLAS_DB_SSL_VERIFY=1</code> enables server
+certificate verification and <code>ATLAS_DB_SSL_CA</code> identifies the
+CA. Compare a pod-local <code>mariadb --ssl</code> test with PHP
+behavior when troubleshooting. A Kubernetes Secret is base64-encoded,
+not automatically encrypted at rest; actual at-rest encryption requires
+API-server/etcd encryption configuration.</p>
 <h2 id="database-schema-and-migrations">6. Database, schema and
 migrations</h2>
 <p>Startup migrations are idempotent: after restoring an older dump, the
@@ -432,6 +281,20 @@ application adds missing objects required by the current version (auth
 tables, columns, indexes and migration markers) without recreating an
 existing database. The canonical full schema is loaded only when the
 application database is absent.</p>
+<h3 id="database-credential-separation">6.1 Database credential
+separation</h3>
+<ul>
+<li><strong>RO</strong> for reads/readiness.</li>
+<li><strong>RW</strong> for normal application writes.</li>
+<li><strong>Broker</strong> for dedicated legacy execution paths.</li>
+<li><strong>Bootstrap/admin</strong> for DDL and schema migration
+only.</li>
+</ul>
+<h3 id="restoring-an-older-dump">6.2 Restoring an older dump</h3>
+<p>Restore data, preserve/recreate Secrets, start with
+<code>ATLAS_DB_AUTO_INIT=1</code>, inspect migration logs, verify auth
+tables/columns/indexes, wait for readiness, then test local login and
+protected operations before reopening production writes.</p>
 <figure>
 <img src="assets/migrate.png" alt="Schema migration flow" />
 <figcaption aria-hidden="true">Schema migration flow</figcaption>
@@ -449,6 +312,60 @@ login or an appropriate certificate. For legacy compatibility, an
 authenticated local account is synchronized to a
 <code>LOCAL:&lt;username&gt;</code> identity in the historical
 <code>user</code> table.</p>
+<h3 id="conceptual-access-matrix">7.1 Conceptual access matrix</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Identity</th>
+<th>Public reads</th>
+<th>Protected functions</th>
+<th>User/config administration</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Anonymous</td>
+<td>Where exposed</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr class="even">
+<td>Valid but unmapped certificate</td>
+<td>Public only</td>
+<td>No until mapped</td>
+<td>No</td>
+</tr>
+<tr class="odd">
+<td>Local <code>user</code></td>
+<td>Yes</td>
+<td>Role-permitted operations</td>
+<td>No</td>
+</tr>
+<tr class="even">
+<td><code>admin</code></td>
+<td>Yes</td>
+<td>Normal administrative operations</td>
+<td>Function-dependent</td>
+</tr>
+<tr class="odd">
+<td><code>master</code></td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<h3 id="client-certificates">7.2 Client certificates</h3>
+<p>TLS passthrough lets Apache validate the client certificate directly.
+The normalized DN is mapped through the historical
+<code>user</code>/<code>role</code> tables; certificate validity alone
+does not grant application privileges.</p>
 <figure>
 <img src="assets/auth.png" alt="Authentication flow" />
 <figcaption aria-hidden="true">Authentication flow</figcaption>
@@ -459,6 +376,11 @@ is stored encrypted; enrollment shows both the Base32 string and a
 locally generated QR code using an <code>otpauth://</code> URI. The QR
 is not sent to external services. Verification accepts the current time
 slice plus adjacent slices to tolerate small clock skew.</p>
+<h3 id="totp-enrollment">8.1 TOTP enrollment</h3>
+<p>Generate the secret, display Base32 and QR, scan it with an
+authenticator, verify a code, then enable the credential. Keep
+cluster/device time synchronized with NTP because clock drift is a
+common source of rejected codes.</p>
 <h2 id="web-navigation-and-responsive-ui">9. Web navigation and
 responsive UI</h2>
 <p>Language follows the browser (<code>it*</code> -&gt; Italian,
@@ -514,9 +436,17 @@ PHP-FPM errors. Key events include <code>php_error</code>,
 <code>uncaught_exception</code>, <code>http_5xx_completed</code>,
 <code>same_origin_rejected</code>, <code>slow_database_query</code>,
 auth events and diagnostic checkpoints for critical pages.</p>
-<div class="sourceCode" id="cb1"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">kubectl</span> logs <span class="at">-n</span> atlas-install deploy/atlas-install <span class="at">--since</span><span class="op">=</span>10m <span class="at">-f</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">kubectl</span> exec <span class="at">-n</span> atlas-install deploy/atlas-install <span class="at">--</span> tail <span class="at">-100</span> /var/lib/atlas-install/log/php-application.log</span></code></pre></div>
+<h3 id="correlation-and-commands">15.1 Correlation and commands</h3>
+<p>A valid incoming <code>X-Request-ID</code> is reused; otherwise the
+application creates one. Use the request id shown in an error/response
+to locate the matching log event.</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">kubectl</span> logs <span class="at">-n</span> atlas-install deploy/atlas-install <span class="at">-f</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">kubectl</span> logs <span class="at">-n</span> atlas-install deploy/atlas-install <span class="at">--since</span><span class="op">=</span>30m <span class="kw">|</span> <span class="fu">grep</span> <span class="st">&#39;\[ATLAS_APP\]&#39;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">kubectl</span> exec <span class="at">-n</span> atlas-install deploy/atlas-install <span class="at">--</span> tail <span class="at">-200</span> /var/lib/atlas-install/log/php-application.log</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">kubectl</span> logs <span class="at">-n</span> atlas-install deploy/atlas-install <span class="at">--since</span><span class="op">=</span>10m <span class="at">-f</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">kubectl</span> exec <span class="at">-n</span> atlas-install deploy/atlas-install <span class="at">--</span> tail <span class="at">-100</span> /var/lib/atlas-install/log/php-application.log</span></code></pre></div>
 <h2 id="rest-api---model-and-usage">16. REST API - model and usage</h2>
 <p>REST API v1 is parallel to legacy endpoints. It uses resource URIs,
 JSON, standard HTTP methods, status codes and request IDs. See
@@ -600,16 +530,186 @@ Kubernetes manifests, wizard, static tests and documentation. Every
 revision should run PHP/shell lint, YAML parsing, Secret-hygiene checks,
 UI/API regression tests and multiarch CI build. REST v1 contract changes
 must be backward-compatible or use a new API version.</p>
-<p>ewpage ## Appendix B. REST API - complete reference</p>
+<p>ewpage ## Appendix A. Main configuration variables</p>
+<p>The following variables are the primary operating contract between
+the wizard, Kubernetes Secrets, the entrypoint and the application.
+Passwords are listed only by variable name: their values must not appear
+in deployment documentation, logs or wizard state files.</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>ATLAS_PUBLIC_HOSTNAME</code></td>
+<td>Public DNS hostname used by Apache/TLS and same-origin checks.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_HTTPS_PORT</code></td>
+<td>HTTPS port inside the container (normally 8443).</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_ENV_FILE</code></td>
+<td>Managed runtime environment file path.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_BOOTSTRAP_ENV</code></td>
+<td>Mounted bootstrap Secret file used to refresh the managed env
+file.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_BOOTSTRAP_SYNC_SECONDS</code></td>
+<td>Interval used to detect bootstrap Secret changes.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_DB_NAME</code></td>
+<td>Application database name, normally atlas_install_panda.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_DB_RW_HOST / USER / PASSWORD</code></td>
+<td>Read-write database endpoint and credentials.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_DB_RO_HOST / USER / PASSWORD</code></td>
+<td>Read-only database endpoint and credentials.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_DB_BROKER_HOST / USER / PASSWORD</code></td>
+<td>Broker/legacy execution database endpoint and credentials.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_DB_BOOTSTRAP_USER / PASSWORD</code></td>
+<td>Optional privileged credential used by startup schema
+migration.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_DB_AUTO_INIT</code></td>
+<td>Enable idempotent application/auth schema initialization at
+startup.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_DB_SSL</code></td>
+<td>Enable TLS for MariaDB connections.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_DB_SSL_VERIFY</code></td>
+<td>Enable server-certificate verification for DB TLS.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_DB_SSL_CA</code></td>
+<td>CA bundle/path used to verify the MariaDB server certificate.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_DB_SLOW_QUERY_MS</code></td>
+<td>Threshold for slow_database_query logging.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_REQUEST_TIMEOUT_SECONDS</code></td>
+<td>Application-side timeout margin for long protected request
+pages.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_TLS_CERT_FILE</code></td>
+<td>Server certificate/full-chain file mounted in the container.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_TLS_KEY_FILE</code></td>
+<td>Server private key file mounted in the container.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_IGTF_DIR</code></td>
+<td>Active IGTF trust-anchor/CRL directory.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_IGTF_CACHE_DIR</code></td>
+<td>Cache used by IGTF refresh logic.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_IGTF_REFRESH_SECONDS</code></td>
+<td>Periodic IGTF/CRL refresh interval.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_CRL_MAX_AGE_SECONDS</code></td>
+<td>Maximum accepted CRL age.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_CRL_FETCH_TIMEOUT_SECONDS</code></td>
+<td>Timeout used for CRL retrieval.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_LOCAL_AUTH_KEY_FILE</code></td>
+<td>Local-auth encryption key file for encrypted TOTP secrets.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_APP_ERROR_LOG</code></td>
+<td>Persistent PHP/application log path tailed into container
+stderr.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_UPLOAD_PATH</code></td>
+<td>Persistent upload/data path.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_ARCHIVE_PATH</code></td>
+<td>Archive/log backup path.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_CACHE_PATH</code></td>
+<td>Application cache path.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_KML_CACHE</code></td>
+<td>KML cache path.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_VO</code></td>
+<td>VO label, normally ATLAS.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_EMAIL</code></td>
+<td>Application sender/contact email setting.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_CONTACTS</code></td>
+<td>Installation-team contact string.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_DEFAULT_INFOSYS</code></td>
+<td>Default InfoSys/BDII endpoint.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_ACTIVITY_PERIOD</code></td>
+<td>Default activity period used by legacy views.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_DEBUG</code></td>
+<td>Enable verbose diagnostic behavior; not for normal production
+use.</td>
+</tr>
+</tbody>
+</table>
+<p>Legacy software-agent variables can also exist for compatibility; do
+not confuse them with Web-server runtime configuration. Before changing
+a production value, verify whether it is wizard-managed and therefore
+refreshed from the bootstrap Secret.</p>
+<h2 id="appendix-b.-rest-api---complete-reference">Appendix B. REST API
+- complete reference</h2>
 <blockquote>
-<p>Normative reference for REST API v1 included in package r30. Legacy
+<p>Normative reference for REST API v1 included in package r32. Legacy
 endpoints remain available but are outside the REST contract.</p>
 </blockquote>
 <h2 id="service-identity">1. Service identity</h2>
 <ul>
 <li><strong>Product:</strong> LJSF 3 - ATLAS Installation System</li>
 <li><strong>Application version:</strong> 3.0.0</li>
-<li><strong>Package revision:</strong> r30</li>
+<li><strong>Package revision:</strong> r32</li>
 <li><strong>Base path:</strong> <code>/atlas_install/api/v1</code></li>
 <li><strong>Media type:</strong>
 <code>application/json; charset=UTF-8</code></li>
@@ -679,19 +779,19 @@ mapped in <code>user</code>.</td>
 </tbody>
 </table>
 <h3 id="authentication-examples">2.1 Authentication examples</h3>
-<div class="sourceCode" id="cb2"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Basic without TOTP</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">--fail-with-body</span> <span class="at">-u</span> operator:<span class="st">&#39;PASSWORD&#39;</span> <span class="dt">\</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  https://atlas-install.example.org/atlas_install/api/v1/me</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Basic with TOTP</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">--fail-with-body</span> <span class="at">-u</span> operator:<span class="st">&#39;PASSWORD&#39;</span> <span class="dt">\</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">-H</span> <span class="st">&#39;X-ATLAS-TOTP: 123456&#39;</span> <span class="dt">\</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  https://atlas-install.example.org/atlas_install/api/v1/me</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># X.509</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">--fail-with-body</span> <span class="at">--cert</span> client.pem <span class="at">--key</span> client.key <span class="dt">\</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  https://atlas-install.example.org/atlas_install/api/v1/me</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Basic without TOTP</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">--fail-with-body</span> <span class="at">-u</span> operator:<span class="st">&#39;PASSWORD&#39;</span> <span class="dt">\</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  https://atlas-install.example.org/atlas_install/api/v1/me</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Basic with TOTP</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">--fail-with-body</span> <span class="at">-u</span> operator:<span class="st">&#39;PASSWORD&#39;</span> <span class="dt">\</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">-H</span> <span class="st">&#39;X-ATLAS-TOTP: 123456&#39;</span> <span class="dt">\</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  https://atlas-install.example.org/atlas_install/api/v1/me</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># X.509</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">--fail-with-body</span> <span class="at">--cert</span> client.pem <span class="at">--key</span> client.key <span class="dt">\</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  https://atlas-install.example.org/atlas_install/api/v1/me</span></code></pre></div>
 <h3 id="authentication-failures">2.2 Authentication failures</h3>
 <ul>
 <li><code>401 authentication_required</code>: no valid identity.
@@ -778,16 +878,16 @@ scalar</td>
 </tbody>
 </table>
 <h3 id="error-envelope">3.1 Error envelope</h3>
-<div class="sourceCode" id="cb3"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;status&quot;</span><span class="fu">:</span> <span class="dv">400</span><span class="fu">,</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;code&quot;</span><span class="fu">:</span> <span class="st">&quot;invalid_request&quot;</span><span class="fu">,</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;...&quot;</span><span class="fu">,</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;request_id&quot;</span><span class="fu">:</span> <span class="st">&quot;7c3f2a9b...&quot;</span><span class="fu">,</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;details&quot;</span><span class="fu">:</span> <span class="fu">{}</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;status&quot;</span><span class="fu">:</span> <span class="dv">400</span><span class="fu">,</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;code&quot;</span><span class="fu">:</span> <span class="st">&quot;invalid_request&quot;</span><span class="fu">,</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;...&quot;</span><span class="fu">,</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;request_id&quot;</span><span class="fu">:</span> <span class="st">&quot;7c3f2a9b...&quot;</span><span class="fu">,</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;details&quot;</span><span class="fu">:</span> <span class="fu">{}</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <h3 id="status-codes">3.2 Status codes</h3>
 <table>
 <colgroup>
@@ -869,8 +969,8 @@ matching (<code>field=value</code>). <code>q</code> performs
 <code>offset</code> cannot be negative. <code>sort</code> must be an
 exposed field or the primary key is used; <code>order</code> accepts
 <code>ASC</code> or <code>DESC</code>, otherwise <code>ASC</code>.</p>
-<div class="sourceCode" id="cb4"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="st">&#39;https://atlas-install.example.org/atlas_install/api/v1/releases?limit=100&amp;offset=0&amp;sort=name&amp;order=DESC&amp;q=24.3&#39;</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="st">&#39;https://atlas-install.example.org/atlas_install/api/v1/releases?limit=100&amp;offset=0&amp;sort=name&amp;order=DESC&amp;q=24.3&#39;</span></span></code></pre></div>
 <h2 id="resource-matrix">5. Resource matrix</h2>
 <table style="width:100%;">
 <colgroup>
@@ -1278,9 +1378,9 @@ the resource.</td>
 </tbody>
 </table>
 <p><strong>Examples:</strong></p>
-<div class="sourceCode" id="cb5"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/releases<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/releases/123</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/releases<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/releases/123</span></code></pre></div>
 <h3 id="sites">7.2 <code>sites</code></h3>
 <p><strong>DB table:</strong> <code>site</code><br />
 <strong>Key:</strong> <code>ref</code> (integer)<br />
@@ -1508,9 +1608,9 @@ the resource.</td>
 </tbody>
 </table>
 <p><strong>Examples:</strong></p>
-<div class="sourceCode" id="cb6"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/sites<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/sites/123</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/sites<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/sites/123</span></code></pre></div>
 <h3 id="requests">7.3 <code>requests</code></h3>
 <p><strong>DB table:</strong> <code>request</code><br />
 <strong>Key:</strong> <code>id</code> (string)<br />
@@ -1641,9 +1741,9 @@ the resource.</td>
 </tbody>
 </table>
 <p><strong>Examples:</strong></p>
-<div class="sourceCode" id="cb7"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/requests<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/requests/REQ-EXAMPLE-001</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/requests<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/requests/REQ-EXAMPLE-001</span></code></pre></div>
 <h3 id="tasks">7.4 <code>tasks</code></h3>
 <p><strong>DB table:</strong> <code>task</code><br />
 <strong>Key:</strong> <code>ref</code> (integer)<br />
@@ -1703,9 +1803,9 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="
 </tbody>
 </table>
 <p><strong>Examples:</strong></p>
-<div class="sourceCode" id="cb8"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/tasks<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/tasks/123</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/tasks<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/tasks/123</span></code></pre></div>
 <h3 id="architectures">7.5 <code>architectures</code></h3>
 <p><strong>DB table:</strong> <code>release_arch</code><br />
 <strong>Key:</strong> <code>ref</code> (integer)<br />
@@ -1779,9 +1879,9 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="
 </tbody>
 </table>
 <p><strong>Examples:</strong></p>
-<div class="sourceCode" id="cb9"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/architectures<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/architectures/123</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/architectures<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/architectures/123</span></code></pre></div>
 <h3 id="targets">7.6 <code>targets</code></h3>
 <p><strong>DB table:</strong> <code>autoinstall_target</code><br />
 <strong>Key:</strong> <code>ref</code> (integer)<br />
@@ -1834,9 +1934,9 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="
 </tbody>
 </table>
 <p><strong>Examples:</strong></p>
-<div class="sourceCode" id="cb10"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/targets<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/targets/123</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/targets<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/targets/123</span></code></pre></div>
 <h3 id="infosys">7.7 <code>infosys</code></h3>
 <p><strong>DB table:</strong> <code>bdii</code><br />
 <strong>Key:</strong> <code>ref</code> (integer)<br />
@@ -1957,9 +2057,9 @@ the resource.</td>
 </tbody>
 </table>
 <p><strong>Examples:</strong></p>
-<div class="sourceCode" id="cb11"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/infosys<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/infosys/123</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/infosys<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/infosys/123</span></code></pre></div>
 <h3 id="release-subscriptions">7.8
 <code>release-subscriptions</code></h3>
 <p><strong>DB table:</strong> <code>release_subscription</code><br />
@@ -2042,9 +2142,9 @@ the resource.</td>
 </tbody>
 </table>
 <p><strong>Examples:</strong></p>
-<div class="sourceCode" id="cb12"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/release-subscriptions<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/release-subscriptions/123</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/release-subscriptions<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/release-subscriptions/123</span></code></pre></div>
 <h3 id="release-status">7.9 <code>release-status</code></h3>
 <p><strong>DB table:</strong> <code>release_stat</code><br />
 <strong>Key:</strong> <code>ref</code> (integer)<br />
@@ -2153,9 +2253,9 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href=
 </tbody>
 </table>
 <p><strong>Examples:</strong></p>
-<div class="sourceCode" id="cb13"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/release-status<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/release-status/123</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/release-status<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/release-status/123</span></code></pre></div>
 <h3 id="grids">7.10 <code>grids</code></h3>
 <p><strong>DB table:</strong> <code>grid</code><br />
 <strong>Key:</strong> <code>ref</code> (integer)<br />
@@ -2208,9 +2308,9 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href=
 </tbody>
 </table>
 <p><strong>Examples:</strong></p>
-<div class="sourceCode" id="cb14"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/grids<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/grids/123</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/grids<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/grids/123</span></code></pre></div>
 <h3 id="facilities">7.11 <code>facilities</code></h3>
 <p><strong>DB table:</strong> <code>facility</code><br />
 <strong>Key:</strong> <code>ref</code> (integer)<br />
@@ -2263,9 +2363,9 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href=
 </tbody>
 </table>
 <p><strong>Examples:</strong></p>
-<div class="sourceCode" id="cb15"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/facilities<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/facilities/123</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/facilities<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/facilities/123</span></code></pre></div>
 <h3 id="site-types">7.12 <code>site-types</code></h3>
 <p><strong>DB table:</strong> <code>site_type</code><br />
 <strong>Key:</strong> <code>ref</code> (integer)<br />
@@ -2318,9 +2418,9 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href=
 </tbody>
 </table>
 <p><strong>Examples:</strong></p>
-<div class="sourceCode" id="cb16"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/site-types<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/site-types/123</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/site-types<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/site-types/123</span></code></pre></div>
 <h3 id="request-statuses">7.13 <code>request-statuses</code></h3>
 <p><strong>DB table:</strong> <code>request_status</code><br />
 <strong>Key:</strong> <code>ref</code> (integer)<br />
@@ -2366,9 +2466,9 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href=
 </tbody>
 </table>
 <p><strong>Examples:</strong></p>
-<div class="sourceCode" id="cb17"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/request-statuses<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/request-statuses/123</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/request-statuses<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/request-statuses/123</span></code></pre></div>
 <h3 id="request-types">7.14 <code>request-types</code></h3>
 <p><strong>DB table:</strong> <code>request_type</code><br />
 <strong>Key:</strong> <code>ref</code> (integer)<br />
@@ -2443,9 +2543,9 @@ the resource.</td>
 </tbody>
 </table>
 <p><strong>Examples:</strong></p>
-<div class="sourceCode" id="cb18"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/request-types<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/request-types/123</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/request-types<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/request-types/123</span></code></pre></div>
 <h3 id="users">7.15 <code>users</code></h3>
 <p><strong>DB table:</strong> <code>user</code><br />
 <strong>Key:</strong> <code>ref</code> (integer)<br />
@@ -2591,9 +2691,9 @@ the resource.</td>
 </tbody>
 </table>
 <p><strong>Examples:</strong></p>
-<div class="sourceCode" id="cb19"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/users<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/users/123</span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/users<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/users/123</span></code></pre></div>
 <h3 id="local-users">7.16 <code>local-users</code></h3>
 <p><strong>DB table:</strong> <code>atlas_local_user</code><br />
 <strong>Key:</strong> <code>id</code> (integer)<br />
@@ -2704,41 +2804,41 @@ the resource.</td>
 </tbody>
 </table>
 <p><strong>Examples:</strong></p>
-<div class="sourceCode" id="cb20"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/local-users<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/local-users/123</span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/local-users<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/local-users/123</span></code></pre></div>
 <p><code>password</code> is a special input-only field: accepted by
 POST/PATCH/PUT, minimum 8 characters, converted into
 <code>password_hash</code>, and never returned.</p>
 <h2 id="end-to-end-examples">8. End-to-end examples</h2>
 <h3 id="create-and-update-a-local-user">8.1 Create and update a local
 user</h3>
-<div class="sourceCode" id="cb21"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-u</span> admin:<span class="st">&#39;ADMIN_PASSWORD&#39;</span> <span class="at">-H</span> <span class="st">&#39;Content-Type: application/json&#39;</span> <span class="dt">\</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">-d</span> <span class="st">&#39;{&quot;username&quot;:&quot;operator&quot;,&quot;first_name&quot;:&quot;API&quot;,&quot;last_name&quot;:&quot;Operator&quot;,&quot;email&quot;:&quot;operator@example.org&quot;,&quot;role&quot;:&quot;user&quot;,&quot;enabled&quot;:1,&quot;password&quot;:&quot;StrongPass-2026&quot;}&#39;</span> <span class="dt">\</span></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  https://atlas-install.example.org/atlas_install/api/v1/local-users</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-u</span> admin:<span class="st">&#39;ADMIN_PASSWORD&#39;</span> <span class="at">-X</span> PATCH <span class="at">-H</span> <span class="st">&#39;Content-Type: application/json&#39;</span> <span class="dt">\</span></span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">-d</span> <span class="st">&#39;{&quot;role&quot;:&quot;admin&quot;,&quot;must_change_password&quot;:0}&#39;</span> <span class="dt">\</span></span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  https://atlas-install.example.org/atlas_install/api/v1/local-users/5</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-u</span> admin:<span class="st">&#39;ADMIN_PASSWORD&#39;</span> <span class="at">-H</span> <span class="st">&#39;Content-Type: application/json&#39;</span> <span class="dt">\</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">-d</span> <span class="st">&#39;{&quot;username&quot;:&quot;operator&quot;,&quot;first_name&quot;:&quot;API&quot;,&quot;last_name&quot;:&quot;Operator&quot;,&quot;email&quot;:&quot;operator@example.org&quot;,&quot;role&quot;:&quot;user&quot;,&quot;enabled&quot;:1,&quot;password&quot;:&quot;StrongPass-2026&quot;}&#39;</span> <span class="dt">\</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  https://atlas-install.example.org/atlas_install/api/v1/local-users</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-u</span> admin:<span class="st">&#39;ADMIN_PASSWORD&#39;</span> <span class="at">-X</span> PATCH <span class="at">-H</span> <span class="st">&#39;Content-Type: application/json&#39;</span> <span class="dt">\</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">-d</span> <span class="st">&#39;{&quot;role&quot;:&quot;admin&quot;,&quot;must_change_password&quot;:0}&#39;</span> <span class="dt">\</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  https://atlas-install.example.org/atlas_install/api/v1/local-users/5</span></code></pre></div>
 <h3 id="python">8.2 Python</h3>
-<div class="sourceCode" id="cb22"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>base <span class="op">=</span> <span class="st">&#39;https://atlas-install.example.org/atlas_install/api/v1&#39;</span></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> requests.get(<span class="ss">f&#39;</span><span class="sc">{</span>base<span class="sc">}</span><span class="ss">/releases&#39;</span>, params<span class="op">=</span>{<span class="st">&#39;q&#39;</span>:<span class="st">&#39;24.3&#39;</span>,<span class="st">&#39;limit&#39;</span>:<span class="dv">50</span>}, timeout<span class="op">=</span><span class="dv">30</span>)</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>r.raise_for_status()</span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> release <span class="kw">in</span> r.json()[<span class="st">&#39;data&#39;</span>]:</span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(release[<span class="st">&#39;ref&#39;</span>], release[<span class="st">&#39;name&#39;</span>], release[<span class="st">&#39;tag&#39;</span>])</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>base <span class="op">=</span> <span class="st">&#39;https://atlas-install.example.org/atlas_install/api/v1&#39;</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> requests.get(<span class="ss">f&#39;</span><span class="sc">{</span>base<span class="sc">}</span><span class="ss">/releases&#39;</span>, params<span class="op">=</span>{<span class="st">&#39;q&#39;</span>:<span class="st">&#39;24.3&#39;</span>,<span class="st">&#39;limit&#39;</span>:<span class="dv">50</span>}, timeout<span class="op">=</span><span class="dv">30</span>)</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>r.raise_for_status()</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> release <span class="kw">in</span> r.json()[<span class="st">&#39;data&#39;</span>]:</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(release[<span class="st">&#39;ref&#39;</span>], release[<span class="st">&#39;name&#39;</span>], release[<span class="st">&#39;tag&#39;</span>])</span></code></pre></div>
 <h3 id="robust-error-handling">8.3 Robust error handling</h3>
-<div class="sourceCode" id="cb23"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> requests.get(<span class="st">&#39;https://atlas-install.example.org/atlas_install/api/v1/requests&#39;</span>, timeout<span class="op">=</span><span class="dv">30</span>)</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> r.status_code <span class="op">&gt;=</span> <span class="dv">400</span>:</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    payload <span class="op">=</span> r.json()</span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    err <span class="op">=</span> payload.get(<span class="st">&#39;error&#39;</span>, {})</span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&#39;HTTP&#39;</span>, r.status_code, err.get(<span class="st">&#39;code&#39;</span>), err.get(<span class="st">&#39;message&#39;</span>), <span class="st">&#39;request_id=&#39;</span>, err.get(<span class="st">&#39;request_id&#39;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> requests.get(<span class="st">&#39;https://atlas-install.example.org/atlas_install/api/v1/requests&#39;</span>, timeout<span class="op">=</span><span class="dv">30</span>)</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> r.status_code <span class="op">&gt;=</span> <span class="dv">400</span>:</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    payload <span class="op">=</span> r.json()</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    err <span class="op">=</span> payload.get(<span class="st">&#39;error&#39;</span>, {})</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&#39;HTTP&#39;</span>, r.status_code, err.get(<span class="st">&#39;code&#39;</span>), err.get(<span class="st">&#39;message&#39;</span>), <span class="st">&#39;request_id=&#39;</span>, err.get(<span class="st">&#39;request_id&#39;</span>))</span></code></pre></div>
 <h2 id="security-compatibility-and-current-limitations">9. Security,
 compatibility and current limitations</h2>
 <ul>
@@ -2830,5 +2930,38 @@ client certificate to Apache.</td>
 </tr>
 </tbody>
 </table>
+<h2 id="x.509-identity-ca-binding-and-historical-user-retention">X.509
+identity, CA binding and historical user retention</h2>
+<p>For a session authenticated with a personal certificate,
+<strong>Current user details</strong> shows the subject DN, issuing CA,
+CA DN, whether the user is known to the application, and the effective
+role. If the DN is known but the presented certificate was issued by a
+different CA from the one stored for the account, the UI highlights the
+mismatch and no role is assigned. The same section explains when a role
+is missing because the account is disabled, expired, pending approval,
+or has no active role.</p>
+<p>Historical records that do not yet contain CA information are marked
+as <strong>legacy CA-unbound</strong>. For backward compatibility, the
+role remains recognized until the user explicitly updates the profile
+while presenting the current certificate, at which point the CA is bound
+to the record.</p>
+<p>A local <code>master</code> session is a first-class administrative
+identity: <code>protected/user.php</code> and other protected pages do
+not require a certificate when the local account has the required role.
+Legacy compatibility is provided through a
+<code>LOCAL:&lt;username&gt;</code> row in the historical
+<code>user</code> table, while authorization decisions always use the
+current local session rather than TLS fields.</p>
+<p>From <code>protected/user.php</code>, a <code>master</code>
+administrator can delete an X.509 user. Deletion is
+<strong>soft</strong>: the <code>user</code> row is retained, disabled,
+and marked with a deletion timestamp. Foreign keys and historical
+references in requests, logs, releases, tasks, and other records
+continue to resolve the original identity.</p>
+<p>Local sessions are explicitly identified as <strong>Local
+user</strong> and are never described as certificate sessions.
+Authorization checks on protected pages use the unified identity and
+honor the local <code>user</code>, <code>admin</code>, or
+<code>master</code> role.</p>
 </body>
 </html>

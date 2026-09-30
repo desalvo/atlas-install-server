@@ -1,0 +1,23 @@
+ATLAS Installation Server 3.0.0-r32 QA
+
+Scope
+-----
+- unified local/X.509 authorization on protected/user.php
+- X.509 CA binding diagnostics in current-user details
+- CA mismatch role suppression and explanation
+- soft deletion of legacy certificate users preserving historical row identity
+- startup migration for CA/deletion columns and indexes
+- REST users DELETE soft-delete semantics
+
+Validation
+----------
+- PHP syntax: PASS
+- shell syntax: PASS
+- static CI suite: PASS
+- schema template consistency: PASS
+- local master authorization regression checks: PASS
+- user CA/deletion migration regression checks: PASS
+
+Notes
+-----
+Legacy user deletion never physically removes the user row. Existing foreign-key/reference values therefore continue to resolve the historical identity. Local accounts remain managed through the local-user administration surface; their legacy LOCAL:<username> compatibility row is synchronized automatically.

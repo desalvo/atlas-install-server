@@ -111,7 +111,7 @@ v1</h2>
 </tr>
 <tr class="odd">
 <td>Revisione pacchetto</td>
-<td>r30</td>
+<td>r32</td>
 </tr>
 <tr class="even">
 <td>API version</td>
@@ -129,7 +129,7 @@ v1</h2>
 </table>
 <blockquote>
 <p>Documento normativo per la superficie REST API v1 inclusa nel
-pacchetto r30. Gli endpoint legacy restano disponibili ma non fanno
+pacchetto r32. Gli endpoint legacy restano disponibili ma non fanno
 parte del contratto REST.</p>
 </blockquote>
 <div class="pagebreak">
@@ -139,7 +139,7 @@ parte del contratto REST.</p>
 <ul>
 <li><strong>Product:</strong> LJSF 3 - ATLAS Installation System</li>
 <li><strong>Application version:</strong> 3.0.0</li>
-<li><strong>Package revision:</strong> r30</li>
+<li><strong>Package revision:</strong> r32</li>
 <li><strong>Base path:</strong> <code>/atlas_install/api/v1</code></li>
 <li><strong>Media type:</strong>
 <code>application/json; charset=UTF-8</code></li>
@@ -2318,5 +2318,13 @@ dipendenze e gestire 409.</label></li>
 <li><label><input type="checkbox" />Per automazione privilegiata usare
 account dedicati e minimo ruolo necessario.</label></li>
 </ul>
+<h3 id="eliminazione-della-risorsa-users">Eliminazione della risorsa
+<code>users</code></h3>
+<p><code>DELETE /atlas_install/api/v1/users/{ref}</code> esegue una
+cancellazione logica: imposta l’utente come disabilitato, azzera i
+privilegi attivi, chiude la validità e registra <code>deleted_at</code>.
+Il record non viene rimosso fisicamente perché può essere referenziato
+da richieste, log e altri oggetti storici. Una risposta riuscita
+restituisce <code>204 No Content</code>.</p>
 </body>
 </html>

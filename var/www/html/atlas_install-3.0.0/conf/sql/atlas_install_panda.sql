@@ -1224,6 +1224,8 @@ CREATE TABLE `user` (
   `ref` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL DEFAULT '',
   `dn` varchar(200) DEFAULT NULL,
+  `ca_dn` varchar(255) DEFAULT NULL,
+  `ca_name` varchar(255) DEFAULT NULL,
   `email` varchar(150) DEFAULT NULL,
   `priv_view` int(11) NOT NULL DEFAULT '0',
   `priv_insert` int(11) NOT NULL DEFAULT '0',
@@ -1235,9 +1237,14 @@ CREATE TABLE `user` (
   `valid_start` datetime DEFAULT NULL,
   `valid_end` datetime DEFAULT NULL,
   `enabled` int(11) NOT NULL DEFAULT '1',
+  `deleted_at` datetime DEFAULT NULL,
+  `deleted_by` int(11) DEFAULT NULL,
   PRIMARY KEY (`ref`),
   KEY `rolefk` (`rolefk`),
-  KEY `name` (`name`)
+  KEY `name` (`name`),
+  KEY `user_dn_indx` (`dn`),
+  KEY `user_ca_dn_indx` (`ca_dn`),
+  KEY `user_deleted_at_indx` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

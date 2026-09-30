@@ -1,7 +1,7 @@
 # LJSF 3 — ATLAS Installation System
 
 **Application version:** 3.0.0  
-**Package revision:** r31  
+**Package revision:** r32  
 **Creator / maintainer:** Alessandro De Salvo  
 **License:** EUPL-1.2  
 **Target:** Rocky Linux 10 / PHP 8.3+ / Kubernetes or Docker Compose

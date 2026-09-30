@@ -7,12 +7,12 @@
 | --- | --- |
 | Prodotto | LJSF 3 - ATLAS Installation System |
 | Versione applicazione | 3.0.0 |
-| Revisione pacchetto | r30 |
+| Revisione pacchetto | r32 |
 | API version | v1 |
 | Base path | `/atlas_install/api/v1` |
 | Formato | JSON / HTTPS |
 
-> Documento normativo per la superficie REST API v1 inclusa nel pacchetto r30. Gli endpoint legacy restano disponibili ma non fanno parte del contratto REST.
+> Documento normativo per la superficie REST API v1 inclusa nel pacchetto r32. Gli endpoint legacy restano disponibili ma non fanno parte del contratto REST.
 
 <div class="pagebreak"></div>
 
@@ -20,7 +20,7 @@
 
 - **Product:** LJSF 3 - ATLAS Installation System
 - **Application version:** 3.0.0
-- **Package revision:** r30
+- **Package revision:** r32
 - **Base path:** `/atlas_install/api/v1`
 - **Media type:** `application/json; charset=UTF-8`
 - **Response cache:** `Cache-Control: no-store`
@@ -847,3 +847,7 @@ if r.status_code >= 400:
 - [ ] Usare paginazione e limiti ragionevoli.
 - [ ] Prima di DELETE, verificare dipendenze e gestire 409.
 - [ ] Per automazione privilegiata usare account dedicati e minimo ruolo necessario.
+
+### Eliminazione della risorsa `users`
+
+`DELETE /atlas_install/api/v1/users/{ref}` esegue una cancellazione logica: imposta l'utente come disabilitato, azzera i privilegi attivi, chiude la validità e registra `deleted_at`. Il record non viene rimosso fisicamente perché può essere referenziato da richieste, log e altri oggetti storici. Una risposta riuscita restituisce `204 No Content`.

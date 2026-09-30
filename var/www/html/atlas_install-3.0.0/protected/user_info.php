@@ -5,7 +5,11 @@
     if ($mode === 'select' && $id === NULL && $filter === NULL && $ident === NULL) {
       $ai = atlas_current_identity();
       if ($ai && ($ai['source'] ?? '') === 'local') {
-        $rp=in_array((string)$ai['role'],['admin','master'],true)?1:0; return [[ 'ref'=>(int)($ai['id'] ?? 0), 'name'=>(string)$ai['username'], 'dn'=>'LOCAL:'.(string)$ai['username'], 'email'=>(string)$ai['email'], 'rolefk'=>(string)$ai['role']==='master'?3:((string)$ai['role']==='admin'?2:1), 'role'=>(string)$ai['role'], 'priv_view'=>$rp, 'priv_insert'=>$rp, 'priv_update'=>$rp, 'priv_pin'=>$rp, 'priv_relsub'=>$rp, 'priv_critical'=>$rp, 'valid_start'=>'2000-01-01 00:00:00', 'valid_end'=>'2099-12-31 23:59:59', 'enabled'=>(int)$ai['enabled'] ]];
+        $legacyRef=(int)($ai['legacy_ref'] ?? 0);
+        if($legacyRef>0) return get_user_info('select',$legacyRef,$role,$valid,$filter,$limit,$offset,$ident);
+        $legacyDn='LOCAL:'.(string)$ai['username'];
+        $mapped=db_query('SELECT ref FROM user WHERE dn='.db_quote($legacyDn,'ro').' ORDER BY ref DESC LIMIT 1');
+        if($mr=mysqli_fetch_row($mapped)) return get_user_info('select',(int)$mr[0],$role,$valid,$filter,$limit,$offset,$ident);
       }
     }
     //$ssluserdetails = getenv("SSL_CLIENT_S_DN");
@@ -39,6 +43,8 @@
       $userquery = "SELECT u.ref"
                         .",u.name"
                         .",u.dn"
+                        .",u.ca_dn"
+                        .",u.ca_name"
                         .",u.email"
                         .",u.rolefk"
                         .",r.description as role"
@@ -51,6 +57,8 @@
                         .",u.valid_start"
                         .",u.valid_end"
                         .",u.enabled"
+                        .",u.deleted_at"
+                        .",u.deleted_by"
                    ." FROM user u, role r";
     }
     array_push($where,"ABS(u.rolefk)=r.ref");
@@ -92,13 +100,15 @@
 
   function add_user ($name,$email,$dn,$role
                     ,$priv_view=False,$priv_insert=False,$priv_update=False,$priv_pin=False, $priv_relsub=False
-                    ,$priv_critical=False,$valid_start=NULL, $valid_end=NULL) {
+                    ,$priv_critical=False,$valid_start=NULL, $valid_end=NULL,$ca_dn=NULL,$ca_name=NULL) {
     // Insert the new user
     $now = date('Y-m-d H:i:s');
     if (isset($name) && isset($email) && isset($dn)) {
       $query = "INSERT INTO user SET name=".db_quote($name,'rw')
                                   .",email=".db_quote($email,'rw')
                                   .",dn=".db_quote($dn,'rw')
+                                  .($ca_dn!==NULL ? ",ca_dn=".db_quote($ca_dn,'rw') : '')
+                                  .($ca_name!==NULL ? ",ca_name=".db_quote($ca_name,'rw') : '')
                                   .",rolefk=(SELECT -ref FROM role WHERE description=".db_quote($role,'rw').")";
       if ($priv_view)     $query .= ",priv_view=-1";     else $query .= ",priv_view=0";
       if ($priv_insert)   $query .= ",priv_insert=-1";   else $query .= ",priv_insert=0";
@@ -116,12 +126,14 @@
 
   function update_user ($id=NULL,$name=NULL,$email=NULL,$dn=NULL,$rolefk=NULL
                        ,$priv_view=NULL,$priv_insert=NULL,$priv_update=NULL,$priv_pin=NULL,$priv_relsub=NULL
-                       ,$priv_critical=NULL,$valid_start=NULL, $valid_end=NULL,$enabled=NULL) {
+                       ,$priv_critical=NULL,$valid_start=NULL, $valid_end=NULL,$enabled=NULL,$ca_dn=NULL,$ca_name=NULL) {
     if (isset($id)) {
       $query_list = array();
       if ($name != NULL)          array_push($query_list,"name=".db_quote($name,'rw'));
       if ($email != NULL)         array_push($query_list,"email=".db_quote($email,'rw'));
       if ($dn != NULL)            array_push($query_list,"dn=".db_quote($dn,'rw'));
+      if ($ca_dn != NULL)         array_push($query_list,"ca_dn=".db_quote($ca_dn,'rw'));
+      if ($ca_name != NULL)       array_push($query_list,"ca_name=".db_quote($ca_name,'rw'));
       if ($rolefk != NULL)        array_push($query_list,"rolefk=".db_int($rolefk,-2147483648,2147483647));
       if ($priv_view != NULL)     array_push($query_list,"priv_view=".db_int($priv_view,-1,1));
       if ($priv_insert != NULL)   array_push($query_list,"priv_insert=".db_int($priv_insert,-1,1));
@@ -141,6 +153,14 @@
         echo "No data to update<BR>";
       }
     }
+  }
+
+  function soft_delete_user($id,$deleted_by=NULL) {
+    $id=(int)$id; if($id<=0)return;
+    $parts=['enabled=0','valid_end=NOW()','priv_view=0','priv_insert=0','priv_update=0','priv_pin=0','priv_relsub=0','priv_critical=0','deleted_at=NOW()'];
+    $by=isset($deleted_by)?(int)$deleted_by:0; if($by>0)$parts[]='deleted_by='.$by;
+    db_query('UPDATE user SET '.implode(',',$parts).' WHERE ref='.$id);
+    if(function_exists('atlas_app_log'))atlas_app_log('legacy_user_soft_deleted',['user_ref'=>$id,'deleted_by'=>$by?:null]);
   }
 
   function get_role_id($rolename) {

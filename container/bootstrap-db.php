@@ -81,7 +81,16 @@ function migrate_schema(mysqli $db,string $schema): void {
     ensure_index($db,$schema,'request','request_adminfk_indx','`adminfk`');
     ensure_index($db,$schema,'request','request_request_date_indx','`request_date`');
     ensure_index($db,$schema,'request','request_status_date_indx','`statusfk`,`request_date`');
+    // r32: bind X.509 identities to their issuing CA and preserve historical users on deletion.
+    ensure_column($db,$schema,'user','ca_dn','`ca_dn` varchar(255) DEFAULT NULL AFTER `dn`');
+    ensure_column($db,$schema,'user','ca_name','`ca_name` varchar(255) DEFAULT NULL AFTER `ca_dn`');
+    ensure_column($db,$schema,'user','deleted_at','`deleted_at` datetime DEFAULT NULL AFTER `enabled`');
+    ensure_column($db,$schema,'user','deleted_by','`deleted_by` int(11) DEFAULT NULL AFTER `deleted_at`');
+    ensure_index($db,$schema,'user','user_dn_indx','`dn`');
+    ensure_index($db,$schema,'user','user_ca_dn_indx','`ca_dn`');
+    ensure_index($db,$schema,'user','user_deleted_at_indx','`deleted_at`');
     @$db->query("INSERT IGNORE INTO atlas_schema_migration(name) VALUES ('r29-request-indexes-and-force-run')");
+    @$db->query("INSERT IGNORE INTO atlas_schema_migration(name) VALUES ('r32-user-ca-and-soft-delete')");
 }
 
 $dbname=envfile('ATLAS_DB_NAME','atlas_install_panda');

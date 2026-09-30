@@ -111,7 +111,7 @@ reference</h2>
 </tr>
 <tr class="odd">
 <td>Package revision</td>
-<td>r30</td>
+<td>r32</td>
 </tr>
 <tr class="even">
 <td>API version</td>
@@ -128,7 +128,7 @@ reference</h2>
 </tbody>
 </table>
 <blockquote>
-<p>Normative reference for REST API v1 included in package r30. Legacy
+<p>Normative reference for REST API v1 included in package r32. Legacy
 endpoints remain available but are outside the REST contract.</p>
 </blockquote>
 <div class="pagebreak">
@@ -138,7 +138,7 @@ endpoints remain available but are outside the REST contract.</p>
 <ul>
 <li><strong>Product:</strong> LJSF 3 - ATLAS Installation System</li>
 <li><strong>Application version:</strong> 3.0.0</li>
-<li><strong>Package revision:</strong> r30</li>
+<li><strong>Package revision:</strong> r32</li>
 <li><strong>Base path:</strong> <code>/atlas_install/api/v1</code></li>
 <li><strong>Media type:</strong>
 <code>application/json; charset=UTF-8</code></li>
@@ -2310,5 +2310,13 @@ dependencies and handle 409.</label></li>
 <li><label><input type="checkbox" />Use dedicated automation identities
 with the least required role.</label></li>
 </ul>
+<h3 id="deleting-the-users-resource">Deleting the <code>users</code>
+resource</h3>
+<p><code>DELETE /atlas_install/api/v1/users/{ref}</code> performs a soft
+deletion: it disables the user, clears active privileges, closes
+validity, and records <code>deleted_at</code>. The row is not physically
+removed because requests, logs, and other historical objects may
+reference it. A successful request returns
+<code>204 No Content</code>.</p>
 </body>
 </html>

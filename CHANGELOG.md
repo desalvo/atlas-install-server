@@ -1,3 +1,11 @@
+## 3.0.0 r32
+
+- Unified local and X.509 identity handling in legacy protected pages; local `master` sessions are authoritative for administration and are no longer misclassified as certificate sessions.
+- Added CA binding diagnostics and role suppression on CA mismatch.
+- Added soft deletion of legacy certificate users while preserving historical references and identity metadata.
+- Added idempotent schema migration for CA/deletion metadata.
+- Updated REST API user deletion semantics and documentation.
+
 # Changelog
 
 ## 3.0.0 r31

@@ -352,3 +352,19 @@ grep -q 'Idempotency-Key' docs/REST-API.it.md
 grep -q 'assets/arch.png' docs/USER-GUIDE.it.md
 grep -q 'assets/migrate.png' docs/USER-GUIDE.en.md
 grep -q 'LJSF3-REST-API' var/www/html/atlas_install-3.0.0/documentation.php
+
+
+echo "== r32 identity/CA/soft-delete regressions =="
+grep -q "user','ca_dn'" container/bootstrap-db.php
+grep -q "user','deleted_at'" container/bootstrap-db.php
+grep -q "ca_mismatch_explanation" var/www/html/atlas_install-3.0.0/i18n.php
+grep -q "known_user" var/www/html/atlas_install-3.0.0/security.php
+grep -q "legacy_ref" var/www/html/atlas_install-3.0.0/local_auth.php
+grep -q "soft_delete_user" var/www/html/atlas_install-3.0.0/protected/user_info.php
+grep -q "delete_user" var/www/html/atlas_install-3.0.0/protected/user.php
+! grep -q "You are logged in as" var/www/html/atlas_install-3.0.0/protected/user.php
+grep -q "if(\$name==='users')" var/www/html/atlas_install-3.0.0/api/v1/index.php
+grep -q "\$actor_is_master = \$actor_enabled && \$actor_role === 'master'" var/www/html/atlas_install-3.0.0/protected/user.php
+grep -q "if (\$actor_is_master)" var/www/html/atlas_install-3.0.0/protected/user.php
+grep -q "user_ca_dn_indx" var/www/html/atlas_install-3.0.0/conf/sql/create_install_db.sql.template
+! sed -n '/CREATE TABLE `jdl`/,/) ENGINE/p' var/www/html/atlas_install-3.0.0/conf/sql/atlas_install_panda.sql | grep -q 'user_ca_dn_indx'

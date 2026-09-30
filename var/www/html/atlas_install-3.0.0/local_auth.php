@@ -156,55 +156,70 @@ function atlas_totp_verify(string $secret,string $code): bool { $code=preg_repla
 function atlas_auth_setting(string $name,string $default=''): string { atlas_local_auth_schema(); $db=atlas_local_db(); $st=$db->prepare('SELECT value FROM atlas_auth_setting WHERE name=?'); $st->bind_param('s',$name); $st->execute(); $r=$st->get_result()->fetch_assoc(); return $r?(string)$r['value']:$default; }
 function atlas_set_auth_setting(string $name,string $value): void { atlas_local_auth_schema(); $db=atlas_local_db(); $st=$db->prepare('INSERT INTO atlas_auth_setting(name,value) VALUES(?,?) ON DUPLICATE KEY UPDATE value=VALUES(value)'); $st->bind_param('ss',$name,$value); $st->execute(); }
 
-function atlas_cert_identity(): ?array {
-    $verify=(string)($_SERVER['SSL_CLIENT_VERIFY']??getenv('SSL_CLIENT_VERIFY')?:''); $dn=(string)($_SERVER['SSL_CLIENT_S_DN']??getenv('SSL_CLIENT_S_DN')?:'');
-    if($verify!=='SUCCESS'||$dn==='') return null;
-    $norm=preg_replace('/\/CN=proxy/','',$dn); $norm=preg_replace('/\/CN=[0-9]+/','',$norm); $norm=preg_replace('/\/CN=[0-9]+/','',$norm);
-    $name=(string)($_SERVER['SSL_CLIENT_S_DN_CN']??getenv('SSL_CLIENT_S_DN_CN')?:$norm); $role=''; $email=''; $enabled=0;
-    try { $db=atlas_local_db(); $st=$db->prepare('SELECT u.name,u.email,r.description role,u.enabled FROM user u JOIN role r ON ABS(u.rolefk)=r.ref WHERE u.dn=? ORDER BY u.enabled DESC,u.ref DESC LIMIT 1'); $st->bind_param('s',$norm); $st->execute(); $row=$st->get_result()->fetch_assoc(); if($row){$name=(string)$row['name'];$email=(string)($row['email']??'');$role=(string)$row['role'];$enabled=(int)$row['enabled'];} } catch(Throwable $e){ atlas_auth_log('certificate_role_lookup_failed',['error'=>$e->getMessage()]); }
-    return ['source'=>'certificate','username'=>$name,'name'=>$name,'first_name'=>'','last_name'=>'','email'=>$email,'role'=>$role,'enabled'=>$enabled,'dn'=>$norm,'must_change_password'=>0];
+function atlas_normalize_subject_dn(string $dn): string {
+    $dn=trim($dn);
+    $dn=preg_replace('/\/CN=proxy/','',$dn);
+    $dn=preg_replace('/\/CN=[0-9]+/','',$dn);
+    $dn=preg_replace('/\/CN=[0-9]+/','',$dn);
+    return trim((string)$dn);
 }
-function atlas_sync_local_legacy_user(array $identity): void {
-    if (($identity['source'] ?? '') !== 'local') return;
-    static $synced = [];
-    $username = trim((string)($identity['username'] ?? ''));
-    if ($username === '' || isset($synced[$username])) return;
-    $synced[$username] = true;
+function atlas_normalize_issuer_dn(string $dn): string { return preg_replace('/\s+/',' ',trim($dn)); }
+function atlas_cert_issuer_info(): array {
+    return [
+      'ca_dn'=>atlas_normalize_issuer_dn((string)($_SERVER['SSL_CLIENT_I_DN']??getenv('SSL_CLIENT_I_DN')?:'')),
+      'ca_name'=>trim((string)($_SERVER['SSL_CLIENT_I_DN_CN']??getenv('SSL_CLIENT_I_DN_CN')?:'')),
+      'serial'=>trim((string)($_SERVER['SSL_CLIENT_M_SERIAL']??getenv('SSL_CLIENT_M_SERIAL')?:'')),
+      'valid_end'=>trim((string)($_SERVER['SSL_CLIENT_V_END']??getenv('SSL_CLIENT_V_END')?:'')),
+    ];
+}
+function atlas_cert_identity(): ?array {
+    $verify=(string)($_SERVER['SSL_CLIENT_VERIFY']??getenv('SSL_CLIENT_VERIFY')?:'');
+    $dn=(string)($_SERVER['SSL_CLIENT_S_DN']??getenv('SSL_CLIENT_S_DN')?:'');
+    if($verify!=='SUCCESS'||$dn==='') return null;
+    $norm=atlas_normalize_subject_dn($dn); $issuer=atlas_cert_issuer_info();
+    $name=(string)($_SERVER['SSL_CLIENT_S_DN_CN']??getenv('SSL_CLIENT_S_DN_CN')?:$norm);
+    $email=(string)($_SERVER['SSL_CLIENT_S_DN_Email']??getenv('SSL_CLIENT_S_DN_Email')?:'');
+    $role=''; $enabled=0; $known=false; $caStatus='unknown'; $reason='unknown_dn'; $legacyRef=null; $storedCaDn=''; $storedCaName='';
     try {
-        $db = atlas_local_db();
-        $dn = 'LOCAL:'.$username;
-        $email = (string)($identity['email'] ?? '');
-        $role = (string)($identity['role'] ?? 'user');
-        if (!in_array($role, ['user','admin','master'], true)) $role='user';
-        $priv = $role === 'user' ? 0 : 1;
-        $st=$db->prepare('SELECT u.ref,u.name,u.email,u.priv_view,u.priv_insert,u.priv_update,u.priv_pin,u.priv_relsub,u.priv_critical,u.enabled,r.description role,(u.valid_end IS NULL OR u.valid_end>NOW()) valid_now FROM user u LEFT JOIN role r ON ABS(u.rolefk)=r.ref WHERE u.dn=? ORDER BY u.ref DESC LIMIT 1');
-        if (!$st) throw new RuntimeException('legacy user lookup prepare failed: '.$db->error);
-        $st->bind_param('s',$dn); $st->execute(); $row=$st->get_result()->fetch_assoc();
-        if ($row) {
-            $ref=(int)$row['ref'];
-            $matches=((string)$row['name']===$username && (string)($row['email']??'')===$email && (string)($row['role']??'')===$role && (int)$row['enabled']===1 && (int)$row['valid_now']===1);
-            foreach(['priv_view','priv_insert','priv_update','priv_pin','priv_relsub','priv_critical'] as $pk) $matches=$matches && (int)$row[$pk]===$priv;
-            if (!$matches) {
-                $st=$db->prepare("UPDATE user SET name=?,email=?,rolefk=(SELECT ref FROM role WHERE description=? LIMIT 1),priv_view=?,priv_insert=?,priv_update=?,priv_pin=?,priv_relsub=?,priv_critical=?,enabled=1,valid_start=COALESCE(valid_start,NOW()),valid_end=DATE_ADD(NOW(), INTERVAL 20 YEAR) WHERE ref=?");
-                if (!$st) throw new RuntimeException('legacy user update prepare failed: '.$db->error);
-                $st->bind_param('sssiiiiiii',$username,$email,$role,$priv,$priv,$priv,$priv,$priv,$priv,$ref);
-                if (!$st->execute()) throw new RuntimeException('legacy user update failed: '.$st->error);
-            }
-        } else {
-            $st=$db->prepare("INSERT INTO user(name,dn,email,priv_view,priv_insert,priv_update,priv_pin,priv_relsub,priv_critical,rolefk,valid_start,valid_end,enabled) VALUES(?,?,?,?,?,?,?,?,?,(SELECT ref FROM role WHERE description=? LIMIT 1),NOW(),DATE_ADD(NOW(), INTERVAL 20 YEAR),1)");
-            if (!$st) throw new RuntimeException('legacy user insert prepare failed: '.$db->error);
-            $st->bind_param('sssiiiiiis',$username,$dn,$email,$priv,$priv,$priv,$priv,$priv,$priv,$role);
-            if (!$st->execute()) throw new RuntimeException('legacy user insert failed: '.$st->error);
+        $db=atlas_local_db();
+        $st=$db->prepare('SELECT u.ref,u.name,u.email,u.rolefk,u.enabled,u.valid_start,u.valid_end,u.ca_dn,u.ca_name,r.description role FROM user u LEFT JOIN role r ON ABS(u.rolefk)=r.ref WHERE u.dn=? ORDER BY u.enabled DESC,u.ref DESC LIMIT 1');
+        if(!$st) throw new RuntimeException('certificate identity prepare failed: '.$db->error);
+        $st->bind_param('s',$norm); $st->execute(); $row=$st->get_result()->fetch_assoc();
+        if($row){
+            $known=true; $legacyRef=(int)$row['ref']; $name=(string)$row['name']; $email=(string)($row['email']??$email); $enabled=(int)$row['enabled'];
+            $storedCaDn=atlas_normalize_issuer_dn((string)($row['ca_dn']??'')); $storedCaName=trim((string)($row['ca_name']??''));
+            if($storedCaDn!=='') $caStatus=hash_equals($storedCaDn,$issuer['ca_dn'])?'match':'mismatch';
+            elseif($storedCaName!=='') $caStatus=(strcasecmp($storedCaName,$issuer['ca_name'])===0)?'match':'mismatch';
+            else $caStatus='legacy_unbound';
+            $now=time(); $vs=!empty($row['valid_start'])?strtotime((string)$row['valid_start']):null; $ve=!empty($row['valid_end'])?strtotime((string)$row['valid_end']):null;
+            $valid=($vs===null||$vs<=$now)&&($ve===null||$ve>$now); $approved=((int)$row['rolefk'])>0;
+            if(!$enabled) $reason='disabled'; elseif(!$valid) $reason='expired'; elseif($caStatus==='mismatch') $reason='ca_mismatch'; elseif(!$approved) $reason='pending_approval'; elseif(empty($row['role'])) $reason='no_role'; else {$role=(string)$row['role'];$reason='role_assigned';}
         }
-        atlas_auth_log('local_legacy_identity_synced',['username'=>$username,'role'=>$role]);
-    } catch (Throwable $e) {
-        atlas_auth_log('local_legacy_identity_sync_failed',['username'=>$username,'error'=>$e->getMessage()]);
-    }
+    } catch(Throwable $e){ atlas_auth_log('certificate_role_lookup_failed',['error'=>$e->getMessage()]); }
+    return ['source'=>'certificate','username'=>$name,'name'=>$name,'first_name'=>'','last_name'=>'','email'=>$email,'role'=>$role,'enabled'=>$enabled,'dn'=>$norm,'must_change_password'=>0,
+      'legacy_ref'=>$legacyRef,'known_user'=>$known,'ca_status'=>$caStatus,'role_reason'=>$reason,'ca_dn'=>$issuer['ca_dn'],'ca_name'=>$issuer['ca_name'],'stored_ca_dn'=>$storedCaDn,'stored_ca_name'=>$storedCaName,'cert_serial'=>$issuer['serial'],'cert_valid_end'=>$issuer['valid_end']];
+}
+function atlas_sync_local_legacy_user(array $identity): ?int {
+    if (($identity['source'] ?? '') !== 'local') return null;
+    static $synced=[]; $username=trim((string)($identity['username']??'')); if($username==='')return null; if(isset($synced[$username]))return $synced[$username];
+    try {
+        $db=atlas_local_db(); $dn='LOCAL:'.$username; $email=(string)($identity['email']??''); $role=(string)($identity['role']??'user'); if(!in_array($role,['user','admin','master'],true))$role='user'; $priv=$role==='user'?0:1;
+        $st=$db->prepare('SELECT u.ref,u.name,u.email,u.priv_view,u.priv_insert,u.priv_update,u.priv_pin,u.priv_relsub,u.priv_critical,u.enabled,r.description role,(u.valid_end IS NULL OR u.valid_end>NOW()) valid_now FROM user u LEFT JOIN role r ON ABS(u.rolefk)=r.ref WHERE u.dn=? ORDER BY u.ref DESC LIMIT 1');
+        if(!$st)throw new RuntimeException('legacy user lookup prepare failed: '.$db->error); $st->bind_param('s',$dn);$st->execute();$row=$st->get_result()->fetch_assoc();
+        if($row){
+            $ref=(int)$row['ref']; $matches=((string)$row['name']===$username&&(string)($row['email']??'')===$email&&(string)($row['role']??'')===$role&&(int)$row['enabled']===1&&(int)$row['valid_now']===1);
+            foreach(['priv_view','priv_insert','priv_update','priv_pin','priv_relsub','priv_critical'] as $pk)$matches=$matches&&(int)$row[$pk]===$priv;
+            if(!$matches){$st=$db->prepare("UPDATE user SET name=?,email=?,rolefk=(SELECT ref FROM role WHERE description=? LIMIT 1),priv_view=?,priv_insert=?,priv_update=?,priv_pin=?,priv_relsub=?,priv_critical=?,enabled=1,deleted_at=NULL,deleted_by=NULL,valid_start=COALESCE(valid_start,NOW()),valid_end=DATE_ADD(NOW(), INTERVAL 20 YEAR) WHERE ref=?");if(!$st)throw new RuntimeException('legacy user update prepare failed: '.$db->error);$st->bind_param('sssiiiiiii',$username,$email,$role,$priv,$priv,$priv,$priv,$priv,$priv,$ref);if(!$st->execute())throw new RuntimeException('legacy user update failed: '.$st->error);}
+        } else {
+            $st=$db->prepare("INSERT INTO user(name,dn,email,priv_view,priv_insert,priv_update,priv_pin,priv_relsub,priv_critical,rolefk,valid_start,valid_end,enabled) VALUES(?,?,?,?,?,?,?,?,?,(SELECT ref FROM role WHERE description=? LIMIT 1),NOW(),DATE_ADD(NOW(), INTERVAL 20 YEAR),1)");if(!$st)throw new RuntimeException('legacy user insert prepare failed: '.$db->error);$st->bind_param('sssiiiiiis',$username,$dn,$email,$priv,$priv,$priv,$priv,$priv,$priv,$role);if(!$st->execute())throw new RuntimeException('legacy user insert failed: '.$st->error);$ref=(int)$db->insert_id;
+        }
+        $synced[$username]=$ref; atlas_auth_log('local_legacy_identity_synced',['username'=>$username,'role'=>$role,'legacy_ref'=>$ref]); return $ref;
+    } catch(Throwable $e){ atlas_auth_log('local_legacy_identity_sync_failed',['username'=>$username,'error'=>$e->getMessage()]); return null; }
 }
 
 function atlas_local_identity(): ?array {
     $token=(string)($_COOKIE[ATLAS_LOCAL_COOKIE]??''); if($token==='') return null;
-    try { atlas_local_auth_schema(); $db=atlas_local_db(); $hash=hash('sha256',$token); $st=$db->prepare("SELECT s.id session_id,u.* FROM atlas_local_session s JOIN atlas_local_user u ON u.id=s.user_id WHERE s.token_hash=? AND s.expires_at>NOW() AND u.enabled=1 LIMIT 1"); if(!$st) throw new RuntimeException('local session prepare failed: '.$db->error); $st->bind_param('s',$hash); if(!$st->execute()) throw new RuntimeException('local session lookup failed: '.$st->error); $r=$st->get_result()->fetch_assoc(); if(!$r)return null; $sid=(int)$r['session_id']; $db->query('UPDATE atlas_local_session SET last_seen_at=NOW() WHERE id='.$sid); $id=['source'=>'local','id'=>(int)$r['id'],'username'=>(string)$r['username'],'name'=>trim((string)$r['first_name'].' '.(string)$r['last_name'])?: (string)$r['username'],'first_name'=>(string)$r['first_name'],'last_name'=>(string)$r['last_name'],'email'=>(string)$r['email'],'role'=>(string)$r['role'],'enabled'=>(int)$r['enabled'],'dn'=>'','must_change_password'=>(int)$r['must_change_password']]; atlas_sync_local_legacy_user($id); return $id; } catch(Throwable $e){ atlas_auth_log('local_session_lookup_failed',['error'=>$e->getMessage()]); return null; }
+    try { atlas_local_auth_schema(); $db=atlas_local_db(); $hash=hash('sha256',$token); $st=$db->prepare("SELECT s.id session_id,u.* FROM atlas_local_session s JOIN atlas_local_user u ON u.id=s.user_id WHERE s.token_hash=? AND s.expires_at>NOW() AND u.enabled=1 LIMIT 1"); if(!$st) throw new RuntimeException('local session prepare failed: '.$db->error); $st->bind_param('s',$hash); if(!$st->execute()) throw new RuntimeException('local session lookup failed: '.$st->error); $r=$st->get_result()->fetch_assoc(); if(!$r)return null; $sid=(int)$r['session_id']; $db->query('UPDATE atlas_local_session SET last_seen_at=NOW() WHERE id='.$sid); $id=['source'=>'local','id'=>(int)$r['id'],'username'=>(string)$r['username'],'name'=>trim((string)$r['first_name'].' '.(string)$r['last_name'])?: (string)$r['username'],'first_name'=>(string)$r['first_name'],'last_name'=>(string)$r['last_name'],'email'=>(string)$r['email'],'role'=>(string)$r['role'],'enabled'=>(int)$r['enabled'],'dn'=>'','must_change_password'=>(int)$r['must_change_password']]; $id['legacy_ref']=atlas_sync_local_legacy_user($id); return $id; } catch(Throwable $e){ atlas_auth_log('local_session_lookup_failed',['error'=>$e->getMessage()]); return null; }
 }
 function atlas_current_identity(): ?array { static $cached=false,$id=null; if($cached)return $id; $cached=true; $id=atlas_local_identity(); if($id)return $id; return $id=atlas_cert_identity(); }
 function atlas_is_authenticated(): bool { $i=atlas_current_identity(); return $i!==null && (int)($i['enabled']??1)===1; }
@@ -214,7 +229,7 @@ function atlas_create_local_session(int $uid): void {
     atlas_local_auth_schema(); $db=atlas_local_db();
     $ur=$db->query('SELECT * FROM atlas_local_user WHERE id='.(int)$uid.' LIMIT 1');
     $ui=$ur?$ur->fetch_assoc():null;
-    if($ui){$tmp=['source'=>'local','id'=>(int)$ui['id'],'username'=>(string)$ui['username'],'name'=>trim((string)$ui['first_name'].' '.(string)$ui['last_name'])?: (string)$ui['username'],'first_name'=>(string)$ui['first_name'],'last_name'=>(string)$ui['last_name'],'email'=>(string)$ui['email'],'role'=>(string)$ui['role'],'enabled'=>(int)$ui['enabled'],'dn'=>'','must_change_password'=>(int)$ui['must_change_password']]; atlas_sync_local_legacy_user($tmp);}
+    if($ui){$tmp=['source'=>'local','id'=>(int)$ui['id'],'username'=>(string)$ui['username'],'name'=>trim((string)$ui['first_name'].' '.(string)$ui['last_name'])?: (string)$ui['username'],'first_name'=>(string)$ui['first_name'],'last_name'=>(string)$ui['last_name'],'email'=>(string)$ui['email'],'role'=>(string)$ui['role'],'enabled'=>(int)$ui['enabled'],'dn'=>'','must_change_password'=>(int)$ui['must_change_password']]; $tmp['legacy_ref']=atlas_sync_local_legacy_user($tmp);}
     $hours=max(1,min(168,(int)atlas_auth_setting('session_hours','8'))); $token=bin2hex(random_bytes(32)); $hash=hash('sha256',$token); $expires=date('Y-m-d H:i:s',time()+$hours*3600); $ip=(string)($_SERVER['REMOTE_ADDR']??''); $ua=substr((string)($_SERVER['HTTP_USER_AGENT']??''),0,255); $st=$db->prepare('INSERT INTO atlas_local_session(user_id,token_hash,expires_at,remote_addr,user_agent) VALUES(?,?,?,?,?)'); $st->bind_param('issss',$uid,$hash,$expires,$ip,$ua); $st->execute(); setcookie(ATLAS_LOCAL_COOKIE,$token,['expires'=>time()+$hours*3600,'path'=>'/atlas_install','secure'=>true,'httponly'=>true,'samesite'=>'Lax']); atlas_auth_log('local_login_success',['user_id'=>$uid,'session_hours'=>$hours]); }
 function atlas_logout_local(): void { $token=(string)($_COOKIE[ATLAS_LOCAL_COOKIE]??''); if($token!==''){try{$db=atlas_local_db();$h=hash('sha256',$token);$st=$db->prepare('DELETE FROM atlas_local_session WHERE token_hash=?');$st->bind_param('s',$h);$st->execute();}catch(Throwable $e){}} setcookie(ATLAS_LOCAL_COOKIE,'',['expires'=>1,'path'=>'/atlas_install','secure'=>true,'httponly'=>true,'samesite'=>'Lax']); }
 function atlas_user_totps(int $uid,bool $enabledOnly=false): array { atlas_local_auth_schema(); $db=atlas_local_db(); $q='SELECT id,label,secret_enc,enabled,created_at FROM atlas_local_totp WHERE user_id=?'.($enabledOnly?' AND enabled=1':'').' ORDER BY id'; $st=$db->prepare($q);$st->bind_param('i',$uid);$st->execute();return $st->get_result()->fetch_all(MYSQLI_ASSOC); }

@@ -176,18 +176,26 @@ function checkform(form) {
   $skip=0;
   // Status map
   $status_map = array("0" => "disabled", "1" => "enabled");
-  // User info
-  $sslusername = getenv("SSL_CLIENT_S_DN_CN");
-  $ssluserdetails = getenv("SSL_CLIENT_S_DN");
-  $ssluseremail = getenv("SSL_CLIENT_S_DN_Email");
+  // Unified identity source. Local sessions are not treated as certificates;
+  // legacy variables are populated only for compatibility with the historic UI.
+  $current_identity = atlas_current_identity();
+  $auth_source = (string)($current_identity['source'] ?? 'none');
+  $actor_role = (string)($current_identity['role'] ?? '');
+  $actor_enabled = (int)($current_identity['enabled'] ?? 0) === 1;
+  $actor_is_master = $actor_enabled && $actor_role === 'master';
+  $actor_legacy_ref = (int)($current_identity['legacy_ref'] ?? 0);
+  $sslusername = (string)($current_identity['username'] ?? '');
+  $ssluserdetails = $auth_source === 'local' ? 'LOCAL:'.$sslusername : (string)($current_identity['dn'] ?? getenv("SSL_CLIENT_S_DN") ?: '');
+  $ssluseremail = (string)($current_identity['email'] ?? getenv("SSL_CLIENT_S_DN_Email") ?: '');
+  $sslcaname = $auth_source === 'certificate' ? (string)($current_identity['ca_name'] ?? '') : '';
+  $sslca_dn = $auth_source === 'certificate' ? (string)($current_identity['ca_dn'] ?? '') : '';
   if (!isset($_POST["user"])) $_POST["user"] = $sslusername;
-  if (!isset($_POST["email"]) || (isset($_POST["email"]) && $_POST["email"] == '') && $ssluseremail != '') $_POST["email"] = $ssluseremail;
-  //$sslcaname  = getenv("SSL_CLIENT_I_DN_CN");
-  $sslcertexpire = getenv("SSL_CLIENT_V_END");
-  if (isset($sslcertexpire)) $valid_expire  = date('Y-m-d H:i:s', strtotime($sslcertexpire)); else $valid_expire = NULL;
+  if (!isset($_POST["email"]) || ((string)$_POST["email"] === '' && $ssluseremail !== '')) $_POST["email"] = $ssluseremail;
+  $sslcertexpire = $auth_source === 'certificate' ? (string)($current_identity['cert_valid_end'] ?? getenv("SSL_CLIENT_V_END") ?: '') : '';
+  if ($sslcertexpire !== '') $valid_expire=date('Y-m-d H:i:s',strtotime($sslcertexpire)); else $valid_expire=NULL;
   if (   !isset($sslusername)    || (isset($sslusername) && $sslusername == "")
       || !isset($ssluserdetails) || (isset($ssluserdetails) && $ssluserdetails == "")) {
-      echo "No credentials found. Please import your personal certificate in your browser.\n";
+      echo atlas_h(atlas_t('authentication_required'))."\n";
   } else {
     // Handle the data changes
     if (isset($_POST['submit'])) {
@@ -214,7 +222,7 @@ function checkform(form) {
           add_user($_POST["user"], $_POST["email"], $ssluserdetails,$_POST["role"]
                   ,isset($_POST["view"]),isset($_POST["insert"]),isset($_POST["update"])
                   ,isset($_POST["pin"]),isset($_POST["relsub"]),isset($_POST["critical"])
-                  ,$now,$valid_expire);
+                  ,$now,$valid_expire,$auth_source==='certificate'?$sslca_dn:NULL,$auth_source==='certificate'?$sslcaname:NULL);
           $user_info = get_user_info();
           if (count($user_info) == 1) {
             send_approval_request($_POST["user"],$user_info[0]['ref']);
@@ -299,7 +307,8 @@ function checkform(form) {
             }
             update_user($user_data['ref'], NULL, $upd_email, NULL, $upd_role
                        ,$upd_view, $upd_insert, $upd_update, $upd_pin, $upd_relsub
-                       ,$upd_critical, $upd_valid_start, $upd_valid_end);
+                       ,$upd_critical, $upd_valid_start, $upd_valid_end, NULL
+                       ,$auth_source==='certificate'?$sslca_dn:NULL,$auth_source==='certificate'?$sslcaname:NULL);
             if ($needsapproval) {
               send_approval_request($_POST["user"],$user_data['ref']);
               echo "Your request has been submitted to the LJSFi administrators for approval.";
@@ -315,20 +324,30 @@ function checkform(form) {
           }
         }
       }
-    } elseif (isset($_POST['validate']) && isset($_POST['aid'])) {
-      // Check if we are can validate this user
-      // Only masters can validate other members
-      $admin_info = get_user_info('select',$_POST['aid']);
-      if (count($admin_info) > 0) {
-        $role = $admin_info[0]['role'];
-        $adminenabled = $admin_info[0]['enabled'];
+    } elseif (isset($_POST['delete_user']) && isset($_POST['id'])) {
+      $actor=$current_identity; $actor_ref=$actor_legacy_ref;
+      if(!$actor_is_master) atlas_access_denied(atlas_t('master_required'));
+      $target=(int)$_POST['id'];
+      if($target<=0) {
+        echo '<div class="atlas-alert error">'.atlas_h(atlas_lang()==='it'?'Identificatore utente non valido.':'Invalid user identifier.').'</div>';
+      } elseif($target===$actor_ref) {
+        echo '<div class="atlas-alert warning">'.atlas_h(atlas_lang()==='it'?'Non puoi cancellare l’utenza con cui sei attualmente autenticato.':'You cannot delete the account currently used for authentication.').'</div>';
       } else {
-        $role = "";
-        $adminenabled = 0;
+        soft_delete_user($target,$actor_ref?:NULL);
+        echo '<div class="atlas-alert success">'.atlas_h(atlas_lang()==='it'?'Utente disabilitato e marcato come cancellato. I riferimenti storici sono stati preservati.':'User disabled and marked as deleted. Historical references were preserved.').'</div>';
       }
-      if ($role == "master" && $adminenabled == 1) {
-        $adminname  = $admin_info[0]['name'];
-        $adminemail = $admin_info[0]['email'];
+    } elseif (isset($_POST['validate']) && isset($_POST['aid'])) {
+      // Authorization always comes from the unified current identity.
+      // The hidden legacy ref is retained only for historical attribution and is
+      // never trusted to decide whether the caller is a master.
+      $admin_info = $actor_legacy_ref > 0 ? get_user_info('select',$actor_legacy_ref) : array();
+      if ($actor_is_master) {
+        $adminname  = (string)($current_identity['name'] ?? $current_identity['username'] ?? '');
+        $adminemail = (string)($current_identity['email'] ?? '');
+        if (count($admin_info) > 0) {
+          if ($adminname === '') $adminname = (string)$admin_info[0]['name'];
+          if ($adminemail === '') $adminemail = (string)$admin_info[0]['email'];
+        }
         if (!isset($_POST["id"]) || (isset($_POST["id"]) && $_POST["id"] == "")) {
           echo "<FONT COLOR=red><B>Cannot find any user to validate</B></FONT><BR>";
         } else {
@@ -453,9 +472,9 @@ function checkform(form) {
       // Check if we are trying to approve a user and if we are entitled to do that
       // Only masters can approve other members
       if (isset($_REQUEST['action']) && $_REQUEST['action'] == "approve") {  
-        if ($user_info[0]['role'] == "master") {
+        if ($actor_is_master) {
           $canapprove = True;
-          $adminref = $user_info[0]['ref'];
+          $adminref = $actor_legacy_ref;
           if (isset($_REQUEST["id"]) && $_REQUEST["id"] != "") {
             $user_info = get_user_info('select',$_REQUEST["id"]);
             if (count($user_info) > 0) {
@@ -499,7 +518,7 @@ function checkform(form) {
         }
 
         // Admin toolbar
-        if ((isset($role) && $role == "master") || (isset($canapprove) && $canapprove)) show_admin_toolbar();
+        if ($actor_is_master || (isset($canapprove) && $canapprove)) show_admin_toolbar();
 
         // Start the form
         echo '<form method="post" name="manageuser" action="user.php" onsubmit="return checkform(this);">';
@@ -522,6 +541,12 @@ function checkform(form) {
         } else {
           echo '<TR id="email_tr"><TD class="selection">Your e-mail</TD><TD><input type="text" name="email" size=60 value="';
           echo $_POST["email"] . '"></TD></TR>';
+        }
+
+        // X.509 issuer binding (read-only). Local accounts deliberately have no CA.
+        if ($auth_source === 'certificate') {
+          echo '<TR><TD class="selection">'.atlas_h(atlas_t('certificate_authority')).'</TD><TD>'.atlas_h($sslcaname!==''?$sslcaname:$sslca_dn).'</TD></TR>';
+          if($sslca_dn!=='') echo '<TR><TD class="selection">'.atlas_h(atlas_t('ca_dn')).'</TD><TD><span class="atlas-code">'.atlas_h($sslca_dn).'</span></TD></TR>';
         }
 
         // Role
@@ -616,16 +641,22 @@ function checkform(form) {
         echo '</TABLE>';
         if (isset($_REQUEST['action']) && $_REQUEST['action'] == "approve" && $canapprove) {
           echo '<input type="hidden" name="id" value="'.$userid.'">';
-          echo '<input type="hidden" name="aid" value="'.$adminref.'">';
+          echo '<input type="hidden" name="aid" value="'.$actor_legacy_ref.'">';
           echo '<input type="submit" name="validate" value="Validate">';
+          $actorNow=atlas_current_identity();
+          if(($actorNow['role']??'')==='master' && (int)$userid !== (int)($actorNow['legacy_ref']??0) && !str_starts_with((string)($user_info[0]['dn']??''),'LOCAL:')) {
+            $confirm=atlas_lang()==='it'?'Cancellare questa utenza? I riferimenti storici saranno preservati.':'Delete this user? Historical references will be preserved.';
+            $label=atlas_lang()==='it'?'Cancella utente (preserva storico)':'Delete user (preserve history)';
+            echo '<button type="submit" name="delete_user" value="1" class="atlas-danger-button" onclick="return confirm(\''.atlas_h($confirm).'\')">'.atlas_h($label).'</button>';
+          }
         } else {
           echo '<input type="submit" name="submit" value="Submit">';
           echo '<input type="reset" value="Reset">';
         }
         echo '</form>';
-      } elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "list" && $role == "master") {
+      } elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "list" && $actor_is_master) {
         // Admin toolbar
-        if (isset($rolefk) && $rolefk > 2) show_admin_toolbar();
+        if ($actor_is_master) show_admin_toolbar();
 
         echo '<TABLE id="userlist_tbl" border="1" rules="groups" summary="User List">';
         echo '<COLGROUP width="250"></COLGROUP>';
@@ -658,7 +689,9 @@ function checkform(form) {
           echo '<TR class="userlist'.$rowtype.'"><TD><A HREF="user.php?action=approve&id='.$user_data['ref'].'">'.$user_data['name'].'</A></TD>';
           echo '<TD><A HREF="mailto:'.$user_data['email'].'">'.$user_data['email'].'</A></TD>'."\n";
           echo '<TD>'.$user_data['dn'].'</TD>'."\n";
-          if ($user_data['enabled'] == 1 && strtotime($user_data['valid_end']) > time()) {
+          if (!empty($user_data['deleted_at'])) {
+            echo '<TD align="center"><FONT COLOR="#666666"><B>DELETED</B></FONT></TD>'."\n";
+          } elseif ($user_data['enabled'] == 1 && strtotime($user_data['valid_end']) > time()) {
             echo '<TD align="center"><FONT COLOR="GREEN"><B>ACTIVE</B></FONT></TD>'."\n";
           } else {
             echo '<TD align="center"><FONT COLOR="RED"><B>EXPIRED</B></FONT></TD>'."\n";
@@ -696,9 +729,9 @@ function checkform(form) {
         }
         echo '[last]';
         if ($pagenum != $maxpages) echo '</A>';
-      } elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "search" && $rolefk > 2) {
+      } elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "search" && $actor_is_master) {
         // Admin toolbar
-        if (isset($rolefk) && $rolefk > 2) show_admin_toolbar();
+        if ($actor_is_master) show_admin_toolbar();
 
         echo '<form method="post" name="searchuser" action="user.php">';
         echo '<TABLE id="usersearch_tbl" border="1" rules="groups" summary="User Search">';
@@ -716,8 +749,6 @@ function checkform(form) {
 ?>
 <?php if (!isset($_REQUEST["quiet"])) { ?>
 
-You are logged in as <?php echo $ssluserdetails; ?><BR>
-Your certificate is valid until <?php echo $sslcertexpire; ?><BR>
       </div>
     </div>
     <div id="content_footer"></div>

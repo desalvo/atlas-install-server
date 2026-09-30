@@ -7,12 +7,12 @@
 | --- | --- |
 | Product | LJSF 3 - ATLAS Installation System |
 | Application version | 3.0.0 |
-| Package revision | r30 |
+| Package revision | r32 |
 | API version | v1 |
 | Base path | `/atlas_install/api/v1` |
 | Format | JSON / HTTPS |
 
-> Normative reference for REST API v1 included in package r30. Legacy endpoints remain available but are outside the REST contract.
+> Normative reference for REST API v1 included in package r32. Legacy endpoints remain available but are outside the REST contract.
 
 <div class="pagebreak"></div>
 
@@ -20,7 +20,7 @@
 
 - **Product:** LJSF 3 - ATLAS Installation System
 - **Application version:** 3.0.0
-- **Package revision:** r30
+- **Package revision:** r32
 - **Base path:** `/atlas_install/api/v1`
 - **Media type:** `application/json; charset=UTF-8`
 - **Response cache:** `Cache-Control: no-store`
@@ -847,3 +847,7 @@ if r.status_code >= 400:
 - [ ] Use pagination and reasonable limits.
 - [ ] Before DELETE, account for dependencies and handle 409.
 - [ ] Use dedicated automation identities with the least required role.
+
+### Deleting the `users` resource
+
+`DELETE /atlas_install/api/v1/users/{ref}` performs a soft deletion: it disables the user, clears active privileges, closes validity, and records `deleted_at`. The row is not physically removed because requests, logs, and other historical objects may reference it. A successful request returns `204 No Content`.

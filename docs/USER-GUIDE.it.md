@@ -7,7 +7,7 @@
 | --- | --- |
 | Nome | LJSF 3 - ATLAS Installation System |
 | Versione | 3.0.0 |
-| Revisione pacchetto | r30 |
+| Revisione pacchetto | r32 |
 | Creatore / maintainer | Alessandro De Salvo |
 | Licenza | EUPL-1.2 |
 | Web root | `/atlas_install/` |
@@ -380,13 +380,13 @@ Le variabili legacy specifiche dell'agente software possono essere presenti per 
 
 ## Appendice B. REST API - riferimento completo
 
-> Documento normativo per la superficie REST API v1 inclusa nel pacchetto r30. Gli endpoint legacy restano disponibili ma non fanno parte del contratto REST.
+> Documento normativo per la superficie REST API v1 inclusa nel pacchetto r32. Gli endpoint legacy restano disponibili ma non fanno parte del contratto REST.
 
 ## 1. Identità del servizio
 
 - **Product:** LJSF 3 - ATLAS Installation System
 - **Application version:** 3.0.0
-- **Package revision:** r30
+- **Package revision:** r32
 - **Base path:** `/atlas_install/api/v1`
 - **Media type:** `application/json; charset=UTF-8`
 - **Response cache:** `Cache-Control: no-store`
@@ -1227,3 +1227,15 @@ if r.status_code >= 400:
 | Legacy endpoint | Interfaccia storica non appartenente al contratto REST v1. |
 | Request ID | Identificatore di correlazione restituito/loggato per una richiesta. |
 
+
+## Identità X.509, CA e conservazione storica degli utenti
+
+Per una sessione autenticata con certificato personale, la sezione **Dettagli utente corrente** mostra il DN del soggetto, la CA emittente, il DN della CA, lo stato di riconoscimento dell'utente nell'applicazione e il ruolo effettivo. Se il DN è conosciuto ma la CA presentata è diversa da quella memorizzata per l'utenza, la UI evidenzia il mismatch e non assegna alcun ruolo. La sezione spiega inoltre se il ruolo manca perché l'utenza è disabilitata, scaduta, in attesa di approvazione o priva di un ruolo attivo.
+
+I record storici che non contengono ancora informazioni sulla CA sono indicati come **legacy non vincolati alla CA**. Per compatibilità, il ruolo continua a essere riconosciuto finché l'utente non aggiorna esplicitamente il proprio profilo con il certificato corrente, momento in cui la CA viene associata al record.
+
+Una sessione locale con ruolo `master` è considerata a tutti gli effetti un'identità amministrativa: `protected/user.php` e le altre pagine protette non richiedono un certificato quando l'utente locale possiede il ruolo necessario. La compatibilità con il codice storico viene ottenuta tramite una identità `LOCAL:<username>` mantenuta nella tabella `user`, ma le decisioni di autorizzazione usano sempre la sessione locale corrente e non i campi TLS.
+
+Da `protected/user.php`, un amministratore con ruolo `master` può cancellare un'utenza X.509. La cancellazione è **logica**: il record `user` viene conservato, disabilitato e marcato con data di cancellazione. Le chiavi esterne e i riferimenti storici presenti in richieste, log, release, task e altri record continuano quindi a risolvere l'identità originaria.
+
+Le sessioni locali sono identificate esplicitamente come **Utente locale** e non vengono descritte come sessioni certificate. I controlli di autorizzazione delle pagine protette usano l'identità unificata e rispettano il ruolo locale `user`, `admin` o `master`.

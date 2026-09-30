@@ -7,7 +7,7 @@
 | --- | --- |
 | Name | LJSF 3 - ATLAS Installation System |
 | Version | 3.0.0 |
-| Package revision | r30 |
+| Package revision | r32 |
 | Creator / maintainer | Alessandro De Salvo |
 | License | EUPL-1.2 |
 | Web root | `/atlas_install/` |
@@ -301,13 +301,13 @@ Legacy software-agent variables can also exist for compatibility; do not confuse
 
 ## Appendix B. REST API - complete reference
 
-> Normative reference for REST API v1 included in package r30. Legacy endpoints remain available but are outside the REST contract.
+> Normative reference for REST API v1 included in package r32. Legacy endpoints remain available but are outside the REST contract.
 
 ## 1. Service identity
 
 - **Product:** LJSF 3 - ATLAS Installation System
 - **Application version:** 3.0.0
-- **Package revision:** r30
+- **Package revision:** r32
 - **Base path:** `/atlas_install/api/v1`
 - **Media type:** `application/json; charset=UTF-8`
 - **Response cache:** `Cache-Control: no-store`
@@ -1148,3 +1148,15 @@ if r.status_code >= 400:
 | Legacy endpoint | Historical interface outside the REST v1 contract. |
 | Request ID | Correlation identifier returned/logged for a request. |
 
+
+## X.509 identity, CA binding and historical user retention
+
+For a session authenticated with a personal certificate, **Current user details** shows the subject DN, issuing CA, CA DN, whether the user is known to the application, and the effective role. If the DN is known but the presented certificate was issued by a different CA from the one stored for the account, the UI highlights the mismatch and no role is assigned. The same section explains when a role is missing because the account is disabled, expired, pending approval, or has no active role.
+
+Historical records that do not yet contain CA information are marked as **legacy CA-unbound**. For backward compatibility, the role remains recognized until the user explicitly updates the profile while presenting the current certificate, at which point the CA is bound to the record.
+
+A local `master` session is a first-class administrative identity: `protected/user.php` and other protected pages do not require a certificate when the local account has the required role. Legacy compatibility is provided through a `LOCAL:<username>` row in the historical `user` table, while authorization decisions always use the current local session rather than TLS fields.
+
+From `protected/user.php`, a `master` administrator can delete an X.509 user. Deletion is **soft**: the `user` row is retained, disabled, and marked with a deletion timestamp. Foreign keys and historical references in requests, logs, releases, tasks, and other records continue to resolve the original identity.
+
+Local sessions are explicitly identified as **Local user** and are never described as certificate sessions. Authorization checks on protected pages use the unified identity and honor the local `user`, `admin`, or `master` role.

@@ -696,6 +696,8 @@ CREATE TABLE `user` (
   `ref` int(11) NOT NULL auto_increment,
   `name` varchar(50) NOT NULL default '',
   `dn` varchar(200) default NULL,
+  `ca_dn` varchar(255) default NULL,
+  `ca_name` varchar(255) default NULL,
   `email` varchar(150) default NULL,
   `priv_view` int(11) NOT NULL default '0',
   `priv_insert` int(11) NOT NULL default '0',
@@ -707,9 +709,14 @@ CREATE TABLE `user` (
   `valid_start` datetime default NULL,
   `valid_end` datetime default NULL,
   `enabled` int(11) NOT NULL default '1',
+  `deleted_at` datetime default NULL,
+  `deleted_by` int(11) default NULL,
   PRIMARY KEY  (`ref`),
   KEY `rolefk` (`rolefk`),
-  KEY `name` (`name`)
+  KEY `name` (`name`),
+  KEY `user_dn_indx` (`dn`),
+  KEY `user_ca_dn_indx` (`ca_dn`),
+  KEY `user_deleted_at_indx` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 

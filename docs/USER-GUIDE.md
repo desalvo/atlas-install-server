@@ -7,7 +7,7 @@
 | --- | --- |
 | Name | LJSF 3 - ATLAS Installation System |
 | Version | 3.0.0 |
-| Package revision | r30 |
+| Package revision | r32 |
 | Creator / maintainer | Alessandro De Salvo |
 | License | EUPL-1.2 |
 | Web root | `/atlas_install/` |
@@ -301,13 +301,13 @@ Legacy software-agent variables can also exist for compatibility; do not confuse
 
 ## Appendix B. REST API - complete reference
 
-> Normative reference for REST API v1 included in package r30. Legacy endpoints remain available but are outside the REST contract.
+> Normative reference for REST API v1 included in package r32. Legacy endpoints remain available but are outside the REST contract.
 
 ## 1. Service identity
 
 - **Product:** LJSF 3 - ATLAS Installation System
 - **Application version:** 3.0.0
-- **Package revision:** r30
+- **Package revision:** r32
 - **Base path:** `/atlas_install/api/v1`
 - **Media type:** `application/json; charset=UTF-8`
 - **Response cache:** `Cache-Control: no-store`

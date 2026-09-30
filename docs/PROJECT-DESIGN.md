@@ -6,7 +6,7 @@
 | --- | --- |
 | Product | LJSF 3 - ATLAS Installation System |
 | Application version | 3.0.0 |
-| Package revision | r30 |
+| Package revision | r32 |
 | Creator / maintainer | Alessandro De Salvo |
 | License | EUPL-1.2 |
 | Repository | `desalvo/atlas-install-server` |
@@ -32,7 +32,7 @@ The repository documentation describes the current system, not a chronological r
 
 **Project:** ATLAS Installation Server  
 **Version:** 3.0.0  
-**Package revision:** r30  
+**Package revision:** r32  
 **Creator / maintainer:** Alessandro De Salvo  
 **Repository:** `desalvo/atlas-install-server`  
 **Container image:** `desalvo/atlas-install-server`  
