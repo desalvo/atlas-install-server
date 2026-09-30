@@ -1,3 +1,20 @@
+## 3.0.0 r34
+
+- Rebuilt the common Web application shell to match the documented `ui-overview.png` mock-up: 74 px Earth top bar, 248 px dark navigation sidebar, active Home treatment, grouped navigation, compact footer, language/help/user controls and the same LJSF 3 branding.
+- Replaced the legacy home search page with the documented operational dashboard while keeping the historical endpoints available from the sidebar. Dashboard KPIs, charts, recent requests/tasks and resource summaries are populated from the live ATLAS database.
+- Reused exact visual crops from the documentation mock-up for the top-bar and dashboard Earth imagery so deployed UI and documentation share the same source artwork.
+- Reworked the identity footer into the documented bottom status bar while preserving the collapsible certificate/local-user details and all r33 X.509/CA diagnostics.
+- Added responsive drawer behaviour for the new sidebar and kept the compact-table/mobile adaptations from prior revisions.
+- Updated static CI with explicit r34 UI-parity regression checks and retained the complete r33 DN canonicalization suite.
+
+## 3.0.0 r33
+
+- Added robust X.509 DN canonicalization across OpenSSL slash and RFC2253/RFC4514 comma-separated representations, including RDN-order normalization, escaped values, common attribute aliases, multi-valued RDN ordering and Grid proxy CN stripping.
+- X.509 identity lookup now keeps the exact-match fast path and falls back to canonical comparison of historical certificate-user rows without rewriting stored DNs.
+- After a canonical match, the exact historical `user.dn` value is exported back through the legacy SSL identity variables so existing literal legacy lookups continue to resolve the same row.
+- CA binding remains enforced and CA DNs are compared canonically; the UI explicitly distinguishes unknown DN, matching CA, different CA and legacy records without CA metadata.
+- Added focused DN/CA regression tests and retained all r32 local-authentication, CA-binding and soft-delete behavior.
+
 ## 3.0.0 r32
 
 - Unified local and X.509 identity handling in legacy protected pages; local `master` sessions are authoritative for administration and are no longer misclassified as certificate sessions.

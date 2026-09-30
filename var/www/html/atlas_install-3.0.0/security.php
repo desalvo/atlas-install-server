@@ -252,10 +252,12 @@ function atlas_identity_summary_html(): string {
     if(($i['source']??'')==='certificate') {
         $known=!empty($i['known_user']); $caStatus=(string)($i['ca_status']??'unknown'); $reason=(string)($i['role_reason']??'');
         $caLabel=(string)($i['ca_name']??''); if($caLabel==='')$caLabel=(string)($i['ca_dn']??'');
+        $bindingKey=!$known?'identity_dn_unknown':($caStatus==='match'?'identity_dn_ca_match':($caStatus==='mismatch'?'identity_dn_ca_mismatch':'identity_dn_legacy_ca'));
         $parts=[
           '<strong>'.atlas_h(atlas_t('certificate')).':</strong> '.atlas_h($i['name']??''),
           '<strong>DN:</strong> <span class="atlas-code">'.atlas_h($i['dn']??'').'</span>',
           '<strong>'.atlas_h(atlas_t('certificate_authority')).':</strong> '.atlas_h($caLabel!==''?$caLabel:atlas_t('not_available')),
+          '<strong>'.atlas_h(atlas_t('identity_binding_status')).':</strong> '.atlas_h(atlas_t($bindingKey)),
           '<strong>'.atlas_h(atlas_t('known_user')).':</strong> '.atlas_h($known?atlas_t('yes'):atlas_t('no')),
           '<strong>'.atlas_h(atlas_t('role')).':</strong> '.atlas_h($i['role']?:atlas_t('not_assigned'))
         ];
@@ -276,7 +278,12 @@ function atlas_identity_summary_html(): string {
     return '<strong>'.atlas_h(atlas_t('local_user')).':</strong> '.atlas_h($i['username']??'').' · '.atlas_h($i['name']??'').' · <strong>'.atlas_h(atlas_t('email')).':</strong> '.atlas_h($i['email']??'').' · <strong>'.atlas_h(atlas_t('role')).':</strong> '.atlas_h($i['role']??'');
 }
 function atlas_identity_details_html(): string {
-    return '<details class="atlas-identity-footer"><summary>'.atlas_h(atlas_t('current_user_details')).'</summary><div class="atlas-identity-body">'.atlas_identity_summary_html().'</div></details>';
+    $stamp=date('d/m/Y H:i');
+    return '<footer class="atlas-shell-footer">'
+      .'<a class="atlas-shell-footer-brand" href="/atlas_install/"><img src="/atlas_install/img/ljsf3-logo.png" alt="LJSF 3"><span>ATLAS Installation System</span></a>'
+      .'<details class="atlas-identity-footer"><summary>'.atlas_h(atlas_t('current_user_details')).'</summary><div class="atlas-identity-body">'.atlas_identity_summary_html().'</div></details>'
+      .'<div class="atlas-shell-version">v3.0.0&nbsp;&nbsp;·&nbsp;&nbsp;'.atlas_h($stamp).'</div>'
+      .'</footer>';
 }
 function atlas_render_message_page(string $title,string $message,string $kind='warning'): never {
     if(!headers_sent()) header('Content-Type: text/html; charset=UTF-8');
@@ -304,7 +311,17 @@ function atlas_access_denied(string $detail=''): never {
 function atlas_require_client_certificate(): void { if(atlas_is_cli())return; $i=atlas_cert_identity(); if(!$i)atlas_access_denied(atlas_t('certificate_required')); }
 function atlas_require_authenticated(): void { if(atlas_is_cli())return; if(!atlas_is_authenticated())atlas_access_denied(); $i=atlas_current_identity(); if(($i['source']??'')==='local' && !empty($i['must_change_password']) && !str_contains((string)($_SERVER['REQUEST_URI']??''),'/auth/change_password.php')) { header('Location: /atlas_install/auth/change_password.php'); exit; } }
 function atlas_require_sensitive_request_certificate(): void { if(atlas_is_cli())return; $path=parse_url((string)($_SERVER['REQUEST_URI']??''),PHP_URL_PATH)?:''; if(preg_match('~^/atlas_install/protected(?:/|$)~',$path)) atlas_require_authenticated(); }
-function atlas_export_legacy_identity(): void { if(atlas_is_cli())return; $i=atlas_current_identity(); if(!$i||($i['source']??'')!=='local')return; $dn='LOCAL:'.(string)$i['username']; putenv('ATLAS_AUTH_SOURCE=local'); putenv('SSL_CLIENT_S_DN='.$dn); putenv('SSL_CLIENT_S_DN_CN='.(string)$i['username']); putenv('SSL_CLIENT_S_DN_Email='.(string)($i['email']??'')); $_SERVER['ATLAS_AUTH_SOURCE']='local'; $_SERVER['SSL_CLIENT_S_DN']=$dn; $_SERVER['SSL_CLIENT_S_DN_CN']=(string)$i['username']; $_SERVER['SSL_CLIENT_S_DN_Email']=(string)($i['email']??''); }
+function atlas_export_legacy_identity(): void {
+    if(atlas_is_cli())return;
+    $i=atlas_current_identity(); if(!$i)return;
+    $source=(string)($i['source']??'');
+    if($source==='local') $dn='LOCAL:'.(string)$i['username'];
+    elseif($source==='certificate' && !empty($i['known_user'])) $dn=(string)($i['dn']??'');
+    else return;
+    $cn=(string)($i['username']??$i['name']??''); $email=(string)($i['email']??'');
+    putenv('ATLAS_AUTH_SOURCE='.$source); putenv('SSL_CLIENT_S_DN='.$dn); putenv('SSL_CLIENT_S_DN_CN='.$cn); putenv('SSL_CLIENT_S_DN_Email='.$email);
+    $_SERVER['ATLAS_AUTH_SOURCE']=$source; $_SERVER['SSL_CLIENT_S_DN']=$dn; $_SERVER['SSL_CLIENT_S_DN_CN']=$cn; $_SERVER['SSL_CLIENT_S_DN_Email']=$email;
+} 
 
 function atlas_append_identity_footer(): void {
     if(atlas_is_cli() || ob_get_level() < 1) return;

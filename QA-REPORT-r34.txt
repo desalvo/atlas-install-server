@@ -1,0 +1,28 @@
+ATLAS Installation Server 3.0.0-r34 QA
+
+Scope
+-----
+- real application shell aligned to docs/assets/ui-overview.png
+- fixed 74 px global top bar and 248 px desktop sidebar matching the documented reference viewport
+- dashboard home with the same cards, chart groups, recent-data tables, resource section and quick links as the mock-up
+- live database-backed dashboard values instead of mock values
+- exact Earth visual assets derived from the documented mock-up
+- common bottom identity/version bar with collapsible X.509/local-user details
+- responsive mobile drawer and existing mobile table behaviour retained
+- all r33 DN canonicalization and CA-binding behaviour retained
+
+Validation
+----------
+- PHP syntax: PASS
+- shell syntax: PASS
+- repository static CI suite: PASS
+- r33 DN canonicalization regression suite: PASS
+- r34 documented UI structure regression checks: PASS
+- top-bar visual asset present and dimensioned 1060x74: PASS
+- dashboard Earth visual asset present and dimensioned 768x137: PASS
+- no database migration required: PASS
+- historical application endpoints retained in navigation: PASS
+
+Reference
+---------
+The visual source of truth is docs/assets/ui-overview.png. The application now uses the same shell geometry and artwork. Runtime counts/statuses remain data-driven, so their numeric contents naturally differ from the illustrative values shown in the documentation image.

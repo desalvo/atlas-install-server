@@ -1,0 +1,26 @@
+ATLAS Installation Server 3.0.0-r33 QA
+
+Scope
+-----
+- canonical X.509 DN matching for OpenSSL slash and RFC2253/RFC4514 representations
+- order normalization between slash root-to-leaf and RFC leaf-to-root forms
+- escaped DN values, attribute aliases, multi-valued RDNs and Grid proxy CN handling
+- non-destructive matching of historical user.dn values
+- export of the exact DB-stored DN back to legacy pages after a canonical match
+- canonical CA-DN comparison while preserving r32 CA mismatch enforcement
+- explicit X.509 identity states for unknown DN, matching CA, different CA and legacy/no-CA records
+
+Validation
+----------
+- PHP syntax: PASS
+- shell syntax: PASS
+- static CI suite: PASS
+- DN canonicalization unit/regression tests: PASS
+- supplied INFN DN slash/RFC equivalence: PASS
+- Grid proxy normalization tests: PASS
+- CA match/mismatch/legacy-unbound tests: PASS
+- legacy DB-DN re-export regression guard: PASS
+
+Notes
+-----
+No migration rewrites historical certificate DNs. Exact string matching remains the fast path. When that fails, certificate-user rows are compared using the canonical DN representation; the selected row keeps its original user.dn, which is then exported to legacy code through SSL_CLIENT_S_DN.

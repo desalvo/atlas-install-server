@@ -156,17 +156,115 @@ function atlas_totp_verify(string $secret,string $code): bool { $code=preg_repla
 function atlas_auth_setting(string $name,string $default=''): string { atlas_local_auth_schema(); $db=atlas_local_db(); $st=$db->prepare('SELECT value FROM atlas_auth_setting WHERE name=?'); $st->bind_param('s',$name); $st->execute(); $r=$st->get_result()->fetch_assoc(); return $r?(string)$r['value']:$default; }
 function atlas_set_auth_setting(string $name,string $value): void { atlas_local_auth_schema(); $db=atlas_local_db(); $st=$db->prepare('INSERT INTO atlas_auth_setting(name,value) VALUES(?,?) ON DUPLICATE KEY UPDATE value=VALUES(value)'); $st->bind_param('ss',$name,$value); $st->execute(); }
 
+function atlas_dn_split_unescaped(string $value, string $delimiter): array {
+    $parts=[]; $buf=''; $escaped=false; $quoted=false; $len=strlen($value);
+    for($i=0;$i<$len;$i++){
+        $ch=$value[$i];
+        if($escaped){ $buf.=$ch; $escaped=false; continue; }
+        if($ch==='\\'){ $buf.=$ch; $escaped=true; continue; }
+        if($ch==='"'){ $buf.=$ch; $quoted=!$quoted; continue; }
+        if(!$quoted && $ch===$delimiter){ $parts[]=$buf; $buf=''; continue; }
+        $buf.=$ch;
+    }
+    $parts[]=$buf;
+    return $parts;
+}
+function atlas_dn_unescape_value(string $value): string {
+    $value=trim($value);
+    if(strlen($value)>=2 && $value[0]==='"' && $value[strlen($value)-1]==='"') $value=substr($value,1,-1);
+    $out=''; $len=strlen($value);
+    for($i=0;$i<$len;$i++){
+        if($value[$i]!=='\\'){ $out.=$value[$i]; continue; }
+        if($i+2<$len && ctype_xdigit($value[$i+1].$value[$i+2])){ $out.=chr(hexdec($value[$i+1].$value[$i+2])); $i+=2; continue; }
+        if($i+1<$len){ $out.=$value[++$i]; continue; }
+        $out.='\\';
+    }
+    $out=preg_replace('/\s+/u',' ',trim($out));
+    return is_string($out)?$out:'';
+}
+function atlas_dn_attribute_name(string $name): string {
+    $name=strtoupper(trim($name));
+    $aliases=[
+      'E'=>'EMAILADDRESS', 'EMAIL'=>'EMAILADDRESS', 'EMAILADDRESS'=>'EMAILADDRESS', '1.2.840.113549.1.9.1'=>'EMAILADDRESS',
+      'S'=>'ST', 'STATEORPROVINCENAME'=>'ST', '2.5.4.8'=>'ST',
+      'COMMONNAME'=>'CN', '2.5.4.3'=>'CN', 'COUNTRYNAME'=>'C', '2.5.4.6'=>'C',
+      'ORGANIZATIONNAME'=>'O', '2.5.4.10'=>'O', 'ORGANIZATIONALUNITNAME'=>'OU', '2.5.4.11'=>'OU',
+      'LOCALITYNAME'=>'L', '2.5.4.7'=>'L', 'DOMAINCOMPONENT'=>'DC', '0.9.2342.19200300.100.1.25'=>'DC',
+      'SERIALNUMBER'=>'SERIALNUMBER', '2.5.4.5'=>'SERIALNUMBER', 'USERID'=>'UID', '0.9.2342.19200300.100.1.1'=>'UID'
+    ];
+    return $aliases[$name]??$name;
+}
+function atlas_dn_parse_rdn(string $rdn): ?array {
+    $avas=[];
+    foreach(atlas_dn_split_unescaped($rdn,'+') as $ava){
+        $escaped=false; $quoted=false; $eq=-1; $len=strlen($ava);
+        for($i=0;$i<$len;$i++){
+            $ch=$ava[$i];
+            if($escaped){$escaped=false;continue;}
+            if($ch==='\\'){$escaped=true;continue;}
+            if($ch==='"'){$quoted=!$quoted;continue;}
+            if(!$quoted && $ch==='='){$eq=$i;break;}
+        }
+        if($eq<=0) return null;
+        $type=atlas_dn_attribute_name(substr($ava,0,$eq));
+        if($type==='') return null;
+        $value=atlas_dn_unescape_value(substr($ava,$eq+1));
+        $fold=function_exists('mb_strtolower')?mb_strtolower($value,'UTF-8'):strtolower($value);
+        $avas[]=['type'=>$type,'value'=>$fold];
+    }
+    usort($avas,static fn($a,$b)=>strcmp($a['type']."\0".$a['value'],$b['type']."\0".$b['value']));
+    return $avas;
+}
+function atlas_dn_components(string $dn, bool $stripProxy=false): ?array {
+    $dn=trim($dn); if($dn==='') return null;
+    $slash=str_starts_with($dn,'/');
+    $raw=$slash?atlas_dn_split_unescaped(substr($dn,1),'/'):atlas_dn_split_unescaped($dn,',');
+    $rdns=[];
+    foreach($raw as $part){ if(trim($part)==='') continue; $parsed=atlas_dn_parse_rdn($part); if($parsed===null)return null; $rdns[]=$parsed; }
+    if(!$rdns)return null;
+    // OpenSSL's slash notation is root-to-leaf; RFC2253/RFC4514 is leaf-to-root.
+    if($slash) $rdns=array_reverse($rdns);
+    if($stripProxy){
+        while($rdns){
+            $rdn=$rdns[0];
+            if(count($rdn)!==1 || $rdn[0]['type']!=='CN') break;
+            $v=$rdn[0]['value'];
+            if($v!=='proxy' && !preg_match('/^[0-9]+$/D',$v)) break;
+            array_shift($rdns);
+        }
+    }
+    return $rdns?:null;
+}
+function atlas_canonicalize_dn(string $dn, bool $stripProxy=false): string {
+    $parts=atlas_dn_components($dn,$stripProxy); if($parts===null)return '';
+    return (string)json_encode($parts,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
+}
 function atlas_normalize_subject_dn(string $dn): string {
-    $dn=trim($dn);
-    $dn=preg_replace('/\/CN=proxy/','',$dn);
-    $dn=preg_replace('/\/CN=[0-9]+/','',$dn);
-    $dn=preg_replace('/\/CN=[0-9]+/','',$dn);
+    $dn=trim($dn); if($dn==='')return '';
+    if(str_starts_with($dn,'/')){
+        // Preserve historical slash representation while removing Grid proxy suffix RDNs.
+        do { $old=$dn; $dn=preg_replace('~/CN=(?:proxy|[0-9]+)$~i','',$dn); } while($dn!==$old);
+        return trim((string)$dn);
+    }
+    // In RFC notation proxy RDNs are leaf-most and therefore appear first.
+    do { $old=$dn; $dn=preg_replace('/^\s*CN\s*=\s*(?:proxy|[0-9]+)\s*,\s*/i','',$dn); } while($dn!==$old);
     return trim((string)$dn);
 }
 function atlas_normalize_issuer_dn(string $dn): string { return preg_replace('/\s+/',' ',trim($dn)); }
+function atlas_ca_binding_status(string $storedDn, string $storedName, array $issuer): string {
+    $storedDn=atlas_normalize_issuer_dn($storedDn); $storedName=trim($storedName);
+    if($storedDn!==''){
+        $storedCanon=atlas_canonicalize_dn($storedDn); $presentedCanon=(string)($issuer['ca_dn_canonical']??atlas_canonicalize_dn((string)($issuer['ca_dn']??'')));
+        return ($storedCanon!=='' && $presentedCanon!=='' ? hash_equals($storedCanon,$presentedCanon) : hash_equals($storedDn,(string)($issuer['ca_dn']??'')))?'match':'mismatch';
+    }
+    if($storedName!=='') return strcasecmp($storedName,(string)($issuer['ca_name']??''))===0?'match':'mismatch';
+    return 'legacy_unbound';
+}
 function atlas_cert_issuer_info(): array {
+    $dn=atlas_normalize_issuer_dn((string)($_SERVER['SSL_CLIENT_I_DN']??getenv('SSL_CLIENT_I_DN')?:''));
     return [
-      'ca_dn'=>atlas_normalize_issuer_dn((string)($_SERVER['SSL_CLIENT_I_DN']??getenv('SSL_CLIENT_I_DN')?:'')),
+      'ca_dn'=>$dn,
+      'ca_dn_canonical'=>atlas_canonicalize_dn($dn),
       'ca_name'=>trim((string)($_SERVER['SSL_CLIENT_I_DN_CN']??getenv('SSL_CLIENT_I_DN_CN')?:'')),
       'serial'=>trim((string)($_SERVER['SSL_CLIENT_M_SERIAL']??getenv('SSL_CLIENT_M_SERIAL')?:'')),
       'valid_end'=>trim((string)($_SERVER['SSL_CLIENT_V_END']??getenv('SSL_CLIENT_V_END')?:'')),
@@ -176,27 +274,40 @@ function atlas_cert_identity(): ?array {
     $verify=(string)($_SERVER['SSL_CLIENT_VERIFY']??getenv('SSL_CLIENT_VERIFY')?:'');
     $dn=(string)($_SERVER['SSL_CLIENT_S_DN']??getenv('SSL_CLIENT_S_DN')?:'');
     if($verify!=='SUCCESS'||$dn==='') return null;
-    $norm=atlas_normalize_subject_dn($dn); $issuer=atlas_cert_issuer_info();
-    $name=(string)($_SERVER['SSL_CLIENT_S_DN_CN']??getenv('SSL_CLIENT_S_DN_CN')?:$norm);
+    $presentedDn=atlas_normalize_subject_dn($dn); $canonicalDn=atlas_canonicalize_dn($presentedDn,true); $issuer=atlas_cert_issuer_info();
+    $name=(string)($_SERVER['SSL_CLIENT_S_DN_CN']??getenv('SSL_CLIENT_S_DN_CN')?:$presentedDn);
     $email=(string)($_SERVER['SSL_CLIENT_S_DN_Email']??getenv('SSL_CLIENT_S_DN_Email')?:'');
-    $role=''; $enabled=0; $known=false; $caStatus='unknown'; $reason='unknown_dn'; $legacyRef=null; $storedCaDn=''; $storedCaName='';
+    $role=''; $enabled=0; $known=false; $caStatus='unknown'; $reason='unknown_dn'; $legacyRef=null; $storedCaDn=''; $storedCaName=''; $storedDn=''; $matchMethod='none';
     try {
-        $db=atlas_local_db();
-        $st=$db->prepare('SELECT u.ref,u.name,u.email,u.rolefk,u.enabled,u.valid_start,u.valid_end,u.ca_dn,u.ca_name,r.description role FROM user u LEFT JOIN role r ON ABS(u.rolefk)=r.ref WHERE u.dn=? ORDER BY u.enabled DESC,u.ref DESC LIMIT 1');
+        $db=atlas_local_db(); $row=null;
+        // Fast path: preserve the traditional exact lookup when the representation already matches.
+        $st=$db->prepare('SELECT u.ref,u.name,u.email,u.dn,u.rolefk,u.enabled,u.valid_start,u.valid_end,u.ca_dn,u.ca_name,r.description role FROM user u LEFT JOIN role r ON ABS(u.rolefk)=r.ref WHERE u.dn=? ORDER BY u.enabled DESC,u.ref DESC LIMIT 1');
         if(!$st) throw new RuntimeException('certificate identity prepare failed: '.$db->error);
-        $st->bind_param('s',$norm); $st->execute(); $row=$st->get_result()->fetch_assoc();
+        $st->bind_param('s',$presentedDn); $st->execute(); $row=$st->get_result()->fetch_assoc();
+        if($row){ $matchMethod='exact'; }
+        elseif($canonicalDn!==''){
+            // Historical databases contain both OpenSSL slash and RFC2253 forms. Compare canonical
+            // forms in PHP so no destructive DN migration or schema change is required.
+            $q=$db->query("SELECT u.ref,u.name,u.email,u.dn,u.rolefk,u.enabled,u.valid_start,u.valid_end,u.ca_dn,u.ca_name,r.description role FROM user u LEFT JOIN role r ON ABS(u.rolefk)=r.ref WHERE u.dn IS NOT NULL AND u.dn<>'' AND u.dn NOT LIKE 'LOCAL:%' ORDER BY u.enabled DESC,u.ref DESC");
+            if(!$q) throw new RuntimeException('certificate canonical lookup failed: '.$db->error);
+            $matches=[];
+            while($candidate=$q->fetch_assoc()) if(hash_equals($canonicalDn,atlas_canonicalize_dn((string)$candidate['dn'],true))) $matches[]=$candidate;
+            if($matches){ $row=$matches[0]; $matchMethod='canonical'; if(count($matches)>1) atlas_auth_log('certificate_dn_ambiguous',['presented_dn'=>$presentedDn,'matches'=>count($matches),'selected_ref'=>(int)$row['ref']]); }
+        }
         if($row){
-            $known=true; $legacyRef=(int)$row['ref']; $name=(string)$row['name']; $email=(string)($row['email']??$email); $enabled=(int)$row['enabled'];
+            $known=true; $legacyRef=(int)$row['ref']; $storedDn=(string)$row['dn']; $name=(string)$row['name']; $email=(string)($row['email']??$email); $enabled=(int)$row['enabled'];
             $storedCaDn=atlas_normalize_issuer_dn((string)($row['ca_dn']??'')); $storedCaName=trim((string)($row['ca_name']??''));
-            if($storedCaDn!=='') $caStatus=hash_equals($storedCaDn,$issuer['ca_dn'])?'match':'mismatch';
-            elseif($storedCaName!=='') $caStatus=(strcasecmp($storedCaName,$issuer['ca_name'])===0)?'match':'mismatch';
-            else $caStatus='legacy_unbound';
+            $caStatus=atlas_ca_binding_status($storedCaDn,$storedCaName,$issuer);
             $now=time(); $vs=!empty($row['valid_start'])?strtotime((string)$row['valid_start']):null; $ve=!empty($row['valid_end'])?strtotime((string)$row['valid_end']):null;
             $valid=($vs===null||$vs<=$now)&&($ve===null||$ve>$now); $approved=((int)$row['rolefk'])>0;
             if(!$enabled) $reason='disabled'; elseif(!$valid) $reason='expired'; elseif($caStatus==='mismatch') $reason='ca_mismatch'; elseif(!$approved) $reason='pending_approval'; elseif(empty($row['role'])) $reason='no_role'; else {$role=(string)$row['role'];$reason='role_assigned';}
-        }
+            atlas_auth_log('certificate_dn_matched',['legacy_ref'=>$legacyRef,'match_method'=>$matchMethod,'ca_status'=>$caStatus]);
+        } else atlas_auth_log('certificate_dn_unknown',['presented_dn'=>$presentedDn]);
     } catch(Throwable $e){ atlas_auth_log('certificate_role_lookup_failed',['error'=>$e->getMessage()]); }
-    return ['source'=>'certificate','username'=>$name,'name'=>$name,'first_name'=>'','last_name'=>'','email'=>$email,'role'=>$role,'enabled'=>$enabled,'dn'=>$norm,'must_change_password'=>0,
+    // For a known certificate user expose the exact historical DB DN. This is intentionally not
+    // the canonical form: legacy pages still use literal user.dn comparisons.
+    $effectiveDn=$known?$storedDn:$presentedDn;
+    return ['source'=>'certificate','username'=>$name,'name'=>$name,'first_name'=>'','last_name'=>'','email'=>$email,'role'=>$role,'enabled'=>$enabled,'dn'=>$effectiveDn,'presented_dn'=>$presentedDn,'canonical_dn'=>$canonicalDn,'dn_match_method'=>$matchMethod,'must_change_password'=>0,
       'legacy_ref'=>$legacyRef,'known_user'=>$known,'ca_status'=>$caStatus,'role_reason'=>$reason,'ca_dn'=>$issuer['ca_dn'],'ca_name'=>$issuer['ca_name'],'stored_ca_dn'=>$storedCaDn,'stored_ca_name'=>$storedCaName,'cert_serial'=>$issuer['serial'],'cert_valid_end'=>$issuer['valid_end']];
 }
 function atlas_sync_local_legacy_user(array $identity): ?int {

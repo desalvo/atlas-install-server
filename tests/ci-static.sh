@@ -164,15 +164,15 @@ fi
 
 
 printf '== r20 branding/i18n/auth/charts/mobile/documentation regressions ==\n'
-for token in 'atlas-mobile-menu-toggle' 'atlas-mobile-menu-backdrop' 'atlas-menu-brand'; do
-  grep -q "$token" "$APP_DIR/css/menubar.php" || { printf 'Mobile menu token missing: %s\n' "$token" >&2; fail=1; }
+for token in 'atlas-sidebar-toggle' 'atlas-mobile-menu-backdrop' 'atlas-sidebar-home'; do
+  grep -q "$token" "$APP_DIR/css/menubar.php" "$APP_DIR/css/main_header.php" || { printf 'Responsive shell token missing: %s\n' "$token" >&2; fail=1; }
 done
 grep -q "params.get('per_page')" "$APP_DIR/css/page_header.php" || { printf 'Browser pagination missing.\n' >&2; fail=1; }
-grep -q 'href="documentation.php"' "$APP_DIR/index.php" || { printf 'Home documentation link is not local.\n' >&2; fail=1; }
+grep -q 'documentation.php' "$APP_DIR/css/main_header.php" || { printf 'Documentation link is not present in the common header.\n' >&2; fail=1; }
 [[ -s "$APP_DIR/documentation.php" ]] || { printf 'In-app documentation page missing.\n' >&2; fail=1; }
 [[ -s "$APP_DIR/i18n.php" ]] || { printf 'i18n helper missing.\n' >&2; fail=1; }
 [[ -s "$APP_DIR/img/ljsf3-logo.png" && -s "$APP_DIR/img/ljsf3-icon.png" && -s "$APP_DIR/img/favicon.ico" ]] || { printf 'LJSF 3 logo/favicon assets missing.\n' >&2; fail=1; }
-grep -q 'atlas_language_selector_html' "$APP_DIR/css/main_header.php" || { printf 'Language selector missing from header.\n' >&2; fail=1; }
+grep -q '/atlas_install/lang.php?lang=' "$APP_DIR/css/main_header.php" || { printf 'Language selector missing from header.\n' >&2; fail=1; }
 grep -q 'atlas_identity_details_html' "$APP_DIR/security.php" || { printf 'Collapsible identity details missing.\n' >&2; fail=1; }
 grep -q 'go_login' "$APP_DIR/security.php" || { printf 'Access-denied login guidance missing.\n' >&2; fail=1; }
 [[ -s sql/local-auth-schema.sql ]] || { printf 'Local auth schema SQL missing.\n' >&2; fail=1; }
@@ -199,7 +199,7 @@ grep -q 'atlas-mobile-record' "$APP_DIR/css/modern.css" || { printf 'Mobile comp
 
 printf '== r24 mobile menu and list.php structural regressions ==\n'
 grep -q "function initAll(){initAutocompleteFallback();initLegacyDefinitionSubmit();}" "$APP_DIR/js/atlas-ui.js" || { printf 'atlas-ui.js expected autocomplete/legacy-submit initialization missing.\n' >&2; fail=1; }
-grep -q "bar.addEventListener('click'" "$APP_DIR/css/menubar.php" || { printf 'Delegated common mobile submenu handler missing.\n' >&2; fail=1; }
+grep -q "atlas-sidebar-heading" "$APP_DIR/css/menubar.php" || { printf 'Common responsive sidebar section handler missing.\n' >&2; fail=1; }
 grep -q 'id="atlas-list-filter-form"' "$APP_DIR/list.php" || { printf 'Valid external list filter form missing.\n' >&2; fail=1; }
 grep -q '<THEAD><TR class="atlas-list-column-row">' "$APP_DIR/list.php" || { printf 'Valid list table header row missing.\n' >&2; fail=1; }
 if grep -q '</TR><TBODY>' "$APP_DIR/list.php"; then printf 'Repeated invalid TBODY markup remains in list.php.\n' >&2; fail=1; fi
@@ -247,7 +247,7 @@ grep -Fq 'function atlas_totp_qr_data_uri' "$APP_DIR/local_auth.php" || { printf
 grep -Fq 'qrencode' Dockerfile || { printf 'Container QR encoder dependency missing.\n' >&2; fail=1; }
 grep -Fq "atlas_app_log('http_5xx_completed'" "$APP_DIR/security.php" || { printf 'HTTP 5xx completion logging missing.\n' >&2; fail=1; }
 grep -Fq "atlas_app_log('req_data_query'" "$APP_DIR/protected/req.php" || { printf 'req.php diagnostic logging missing.\n' >&2; fail=1; }
-grep -Fq 'class="atlas-home-footer"' "$APP_DIR/index.php" || { printf 'Home footer flow marker missing.\n' >&2; fail=1; }
+grep -Fq 'atlas-shell-footer' "$APP_DIR/security.php" || { printf 'Common application footer shell missing.\n' >&2; fail=1; }
 
 printf '== r27 authenticated compatibility/logging/list regressions ==\n'
 for token in 'atlas_sync_local_legacy_user' 'local_legacy_identity_synced' 'local_legacy_identity_sync_failed'; do
@@ -271,6 +271,25 @@ grep -q '{{APP_NAME}}-db-admin' kubernetes/templates/20-deployment.yaml.tpl || {
 [[ -s "$APP_DIR/docs/LJSF3-Manual.it.pdf" && -s "$APP_DIR/docs/LJSF3-Manual.en.pdf" ]] || { printf 'PDF manuals missing.\n' >&2; fail=1; }
 grep -q 'initLegacyDefinitionSubmit' "$APP_DIR/js/atlas-ui.js" || { printf 'Legacy definition submit fallback missing.\n' >&2; fail=1; }
 grep -q 'atlas_translate_legacy_html' "$APP_DIR/i18n.php" || { printf 'Legacy UI translation layer missing.\n' >&2; fail=1; }
+
+echo "== r33 X.509 DN canonicalization regressions =="
+php tests/test-dn-canonicalization.php
+grep -q "atlas_canonicalize_dn" var/www/html/atlas_install-3.0.0/local_auth.php
+grep -q "match_method.*canonical\|matchMethod='canonical'" var/www/html/atlas_install-3.0.0/local_auth.php
+grep -q "known_user.*dn\|source==='certificate' && !empty(\$i\['known_user'\])" var/www/html/atlas_install-3.0.0/security.php
+grep -q "legacy_unbound" var/www/html/atlas_install-3.0.0/local_auth.php
+grep -q "identity_dn_ca_match" var/www/html/atlas_install-3.0.0/i18n.php
+grep -q "identity_binding_status" var/www/html/atlas_install-3.0.0/security.php
+
+printf '== r34 documented UI parity regressions ==\n'
+[[ -s "$APP_DIR/img/mockup-topbar.png" && -s "$APP_DIR/img/mockup-earth-banner.jpg" ]] || { printf 'Documented UI earth/header assets missing.\n' >&2; fail=1; }
+for token in 'atlas-dashboard-hero' 'atlas-kpi-grid' 'atlas-dashboard-row three' 'atlas-resource-panel' 'atlas-quick-grid'; do
+  grep -Fq "$token" "$APP_DIR/index.php" || { printf 'Dashboard mock-up structure missing: %s\n' "$token" >&2; fail=1; }
+done
+grep -Fq -- '--atlas-sidebar-width:248px' "$APP_DIR/css/modern.css" || { printf 'Reference sidebar width is not locked to the documented mock-up.\n' >&2; fail=1; }
+grep -Fq 'atlas-shell-footer' "$APP_DIR/css/modern.css" || { printf 'Mock-up footer styling missing.\n' >&2; fail=1; }
+grep -Fq 'atlas-topbar-sky' "$APP_DIR/css/main_header.php" || { printf 'Mock-up top-bar structure missing.\n' >&2; fail=1; }
+grep -Fq 'atlas-sidebar-section' "$APP_DIR/css/menubar.php" || { printf 'Mock-up sidebar structure missing.\n' >&2; fail=1; }
 
 exit "$fail"
 
