@@ -114,6 +114,14 @@ function atlas_same_origin_guard(): void {
     // and strict/Lax secure cookies. Do not reject these forms based on proxy-
     // dependent Origin reconstruction; their own CSRF validation is authoritative.
     if (preg_match('~/auth/(?:login|change_password)\.php/?$~', $requestPath)) return;
+    // Modern browsers provide Fetch Metadata independently of reverse-proxy
+    // Host/scheme reconstruction. If the browser explicitly marks this as a
+    // same-origin navigation/form submission, accept it before evaluating
+    // Origin/Host. This avoids false positives behind TLS-passthrough/reverse
+    // proxies while still rejecting cross-site browser requests.
+    $fetchSite = strtolower(trim((string)($_SERVER['HTTP_SEC_FETCH_SITE'] ?? '')));
+    if ($fetchSite === 'same-origin') return;
+
     $origin = (string)($_SERVER['HTTP_ORIGIN'] ?? '');
     if ($origin === '') return; // preserve non-browser API/agent clients
     $originParts = parse_url($origin);
@@ -158,7 +166,7 @@ function atlas_same_origin_guard(): void {
     }
     $samePort = $explicitPublicPort === null || $explicitPublicPort === $originPort || $standardOriginPort;
     if (!in_array($originScheme, ['http','https'], true) || !$sameHost || !$samePort) {
-        atlas_app_log('same_origin_rejected',['origin'=>$origin,'host'=>$requestHostRaw,'forwarded_host'=>$forwardedHostRaw,'configured_host'=>$configuredHostRaw]);
+        atlas_app_log('same_origin_rejected',['origin'=>$origin,'host'=>$requestHostRaw,'forwarded_host'=>$forwardedHostRaw,'configured_host'=>$configuredHostRaw,'sec_fetch_site'=>$fetchSite,'path'=>$requestPath]);
         http_response_code(403);
         exit('Cross-origin state-changing request rejected');
     }
@@ -282,6 +290,7 @@ function atlas_append_identity_footer(): void {
     if(stripos($ct,'application/json')!==false||stripos($ct,'text/plain')!==false||preg_match('~/(?:protected/)?exec/|/(?:healthz|readyz)\.php|chart\.php~i',$uri)) return;
     $body=ob_get_clean(); if($body===false)return;
     if(stripos($body,'<html')===false){ echo $body; return; }
+    $body=atlas_translate_legacy_html($body);
     if(stripos($body,'name="viewport"')===false && stripos($body,"name='viewport'")===false) $body=preg_replace('~<head([^>]*)>~i','<head$1><meta name="viewport" content="width=device-width,initial-scale=1">',$body,1);
     if(stripos($body,'modern.css')===false) $body=preg_replace('~</head>~i','<link rel="stylesheet" href="/atlas_install/css/modern.css"></head>',$body,1);
     if(stripos($body,'atlas-identity-footer')===false){

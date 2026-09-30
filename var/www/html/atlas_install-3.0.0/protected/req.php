@@ -1,5 +1,6 @@
 <?php
  require_once __DIR__.'/../config.php';
+ @set_time_limit((int)atlas_env('ATLAS_REQUEST_TIMEOUT_SECONDS','120'));
  atlas_app_log('req_bootstrap_enter',['method'=>(string)($_SERVER['REQUEST_METHOD']??'GET')]);
  if (!isset($_POST['ws']) or $_POST['ws'] == '') { ?>
 <?php atlas_app_log('req_enter',['method'=>(string)($_SERVER['REQUEST_METHOD']??'GET')]); ?>
@@ -264,74 +265,75 @@ function checkform(form) {
   }
 
   if (!isset($_POST['ws']) or $_POST['ws'] == '') {
-  # Query header
-  $q_hdr  = ("SELECT request.id
-                    ,request_type.description
-                    ,release_stat.name
-                    ,site.cename
-                    ,request_status.description
-                    ,request.request_date
-                    ,request.update_date
-                    ,user.name
-                    ,request.user_comments
-                    ,request.admin_comments
-                    ,request.statusfk
-                    ,request.adminfk
-                    ,user.email
-                    ,site.cs
-                    ,request.relfk
-                    ,request.typefk");
-  $q_body = (" FROM request,release_stat,site,user,request_type,request_status
-              WHERE     request.sitefk=site.ref
-                    AND request.userfk=user.ref
-                    AND request.relfk=release_stat.ref
-                    AND request.typefk=request_type.ref
-                    AND request.statusfk=request_status.ref");
-  if (isset($_GET['id']))     $q_body .= " AND request.id=" . db_quote($_GET['id'],'ro');
-  if (isset($_GET['status'])) $q_body .= " AND request.statusfk=" . db_int($_GET['status']);
-  if (isset($_GET['rel']))    $q_body .= " AND release_stat.name LIKE " . db_quote($_GET['rel'],'ro');
-  if (isset($_GET['ce']))   $q_body .= " AND site.cename LIKE " . db_quote($_GET['ce'],'ro');
-  if (isset($_GET['site']))   $q_body .= " AND site.name LIKE " . db_quote($_GET['site'],'ro');
 
-  # Get the number of records
-  $limit  = 20;
-  $offset = 0;
-  $query = ("SELECT count(*) " . $q_body);
-  atlas_app_log('req_count_query');
-  $result = db_query($query,"ro");
-  $row = mysqli_fetch_row($result);
-  $records = $row ? (int)$row[0] : 0;
-  $maxpage = intval(($records-1)/$limit);
-  $pagerange = 20;
-  $page = 0;
+# Optimized request list queries. The count query only joins tables required
+# by active filters, while the page query fetches requester/admin data in one
+# pass (no per-row admin lookup).
+$filters = array();
+$count_from = " FROM request r";
+$count_joins = "";
+$need_rs = isset($_GET['rel']);
+$need_site = isset($_GET['ce']) || isset($_GET['site']);
+if ($need_rs) $count_joins .= " JOIN release_stat rs ON rs.ref=r.relfk";
+if ($need_site) $count_joins .= " JOIN site s ON s.ref=r.sitefk";
+if (isset($_GET['id']) && $_GET['id'] !== '') $filters[] = "r.id=" . db_quote($_GET['id'],'ro');
+if (isset($_GET['status']) && $_GET['status'] !== '') $filters[] = "r.statusfk=" . db_int($_GET['status']);
+if (isset($_GET['rel']) && $_GET['rel'] !== '') $filters[] = "rs.name LIKE " . db_quote($_GET['rel'],'ro');
+if (isset($_GET['ce']) && $_GET['ce'] !== '') $filters[] = "s.cename LIKE " . db_quote($_GET['ce'],'ro');
+if (isset($_GET['site']) && $_GET['site'] !== '') $filters[] = "s.name LIKE " . db_quote($_GET['site'],'ro');
+$count_where = count($filters) ? " WHERE ".implode(" AND ",$filters) : "";
 
-  if (isset($_GET['step'])) $limit = db_int($_GET['step'],1,500);
+$limit = isset($_GET['step']) ? db_int($_GET['step'],1,500) : 20;
+$offset = 0;
+$query = "SELECT COUNT(*)".$count_from.$count_joins.$count_where;
+atlas_app_log('req_count_query',['filtered'=>count($filters)>0]);
+$result = db_query($query,"ro");
+$row = mysqli_fetch_row($result);
+$records = $row ? (int)$row[0] : 0;
+$maxpage = max(0, (int)ceil(max(0,$records)/max(1,$limit))-1);
+$pagerange = 20;
+$page = 0;
 
-  # Check the requested page
-  if (isset($_GET['page'])) {
-    $page = db_int($_GET['page'],1)-1;
-    if ($page < 0) $page = 0;
-    if ($page > $maxpage) $page = $maxpage;
-    $offset = $page*$limit;
+if (isset($_GET['page'])) {
+  $page = max(0, db_int($_GET['page'],1)-1);
+  if ($page > $maxpage) $page = $maxpage;
+  $offset = $page*$limit;
+}
+
+# Build the current GET string
+$getstr = "";
+foreach($_GET as $key=>$value) {
+  if ($key != "page") {
+    if ($getstr != "") $getstr .= "&";
+    $getstr .= rawurlencode((string)$key);
+    if ($value != "") $getstr .= "=" . rawurlencode((string)$value);
   }
+}
 
-  # Build the current GET string
-  $getstr = "";
-  foreach($_GET as $key=>$value) {
-    if ($key != "page") {
-      if ($getstr != "") $getstr = $getstr . "&";
-      $getstr = $getstr . $key;
-      if ($value != "") $getstr = $getstr . "=" . $value;
-    }
-  }
+$data_filters = array();
+if (isset($_GET['id']) && $_GET['id'] !== '') $data_filters[] = "r.id=" . db_quote($_GET['id'],'ro');
+if (isset($_GET['status']) && $_GET['status'] !== '') $data_filters[] = "r.statusfk=" . db_int($_GET['status']);
+if (isset($_GET['rel']) && $_GET['rel'] !== '') $data_filters[] = "rs.name LIKE " . db_quote($_GET['rel'],'ro');
+if (isset($_GET['ce']) && $_GET['ce'] !== '') $data_filters[] = "s.cename LIKE " . db_quote($_GET['ce'],'ro');
+if (isset($_GET['site']) && $_GET['site'] !== '') $data_filters[] = "s.name LIKE " . db_quote($_GET['site'],'ro');
+$data_where = count($data_filters) ? " WHERE ".implode(" AND ",$data_filters) : "";
 
-  # Fetch the given page
-  $query  = ($q_hdr . $q_body);
-  $query .= (" ORDER BY request.request_date DESC, site.cename");
-  $query .= (" LIMIT " . db_int($offset,0) . "," . db_int($limit,1,500));
-  // SQL query disclosure disabled
-  atlas_app_log('req_data_query',['records'=>$records,'limit'=>$limit,'offset'=>$offset]);
-  $result = db_query($query,"ro");
+$query = "SELECT r.id, rt.description, rs.name, s.cename, st.description,"
+       . " r.request_date, r.update_date, requester.name, r.user_comments,"
+       . " r.admin_comments, r.statusfk, r.adminfk, requester.email, s.cs,"
+       . " r.relfk, r.typefk, adminuser.name AS admin_name, adminuser.email AS admin_email"
+       . " FROM request r"
+       . " JOIN release_stat rs ON rs.ref=r.relfk"
+       . " JOIN site s ON s.ref=r.sitefk"
+       . " LEFT JOIN user requester ON requester.ref=r.userfk"
+       . " JOIN request_type rt ON rt.ref=r.typefk"
+       . " JOIN request_status st ON st.ref=r.statusfk"
+       . " LEFT JOIN user adminuser ON adminuser.ref=r.adminfk"
+       . $data_where
+       . " ORDER BY r.request_date DESC, s.cename"
+       . " LIMIT " . db_int($offset,0) . "," . db_int($limit,1,500);
+atlas_app_log('req_data_query',['records'=>$records,'limit'=>$limit,'offset'=>$offset]);
+$result = db_query($query,"ro");
   while ( $row = mysqli_fetch_array($result) ) {
     if (   ($role == "admin" && ($row[11] == $adminfk || $row[11] == NULL)) || $role == "master"
         || (isset($priv_update) && $priv_update == 1)) {
@@ -381,15 +383,12 @@ function checkform(form) {
       }
       echo ("</TD>");
     }
-    if ($row[11] != "") {
-      $resqry = "SELECT user.name,user.email FROM user WHERE ref=" . $row[11];
-      $resadm = db_query($resqry,"ro");
-      $rowadm = mysqli_fetch_row($resadm);
-      echo ("<TD>");
-      if($rowadm) echo ("<A HREF='mailto:" . atlas_h((string)$rowadm[1]) . "'>" . atlas_h((string)$rowadm[0]) . "</A>"); else echo '-'; echo '</TD>';
-    } else {
-      echo ("<TD>-</TD>");
-    }
+    echo ("<TD>");
+    if (!empty($row[16])) {
+      if (!empty($row[17])) echo ("<A HREF='mailto:" . atlas_h((string)$row[17]) . "'>" . atlas_h((string)$row[16]) . "</A>");
+      else echo atlas_h((string)$row[16]);
+    } else echo '-';
+    echo ('</TD>');
     if (($role == "admin" && ($row[11] == $adminfk || $row[11] == NULL)) || $role == "master") {
       echo '<TD><input type="submit" value="Update"></TD></form>';
     } else {

@@ -245,6 +245,7 @@ CREATE TABLE `ljsf_sched` (
   `sched_date` datetime NOT NULL default '0000-00-00 00:00:00',
   `exec_date` datetime default NULL,
   `statusfk` int(11) NOT NULL default '0',
+  `force_run` int(11) NOT NULL default '0',
   `description` varchar(255) default NULL,
   PRIMARY KEY  (`ref`,`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -461,21 +462,27 @@ CREATE TABLE `request` (
   `userfk` int(11) NOT NULL default '0',
   `adminfk` int(11) default NULL,
   `statusfk` int(11) NOT NULL default '0',
+  `force_run` int(11) NOT NULL default '0',
   `request_date` datetime default NULL,
   `update_date` datetime default NULL,
   `user_comments` varchar(255) default NULL,
   `admin_comments` varchar(255) default NULL,
   PRIMARY KEY  (`id`),
   KEY `request_relfk_indx` (`relfk`),
-  KEY `statusfk` (`statusfk`)
+  KEY `statusfk` (`statusfk`),
+  KEY `request_sitefk_indx` (`sitefk`),
+  KEY `request_userfk_indx` (`userfk`),
+  KEY `request_typefk_indx` (`typefk`),
+  KEY `request_adminfk_indx` (`adminfk`),
+  KEY `request_request_date_indx` (`request_date`),
+  KEY `request_status_date_indx` (`statusfk`,`request_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Table structure for table `request_status`
 --
 
-DROP TABLE IF EXISTS `request_status`;
-CREATE TABLE `request_status` (
+DROP TABLE IF EXISTS `request_status`;CREATE TABLE `request_status` (
   `ref` int(11) NOT NULL auto_increment,
   `description` varchar(128) default NULL,
   PRIMARY KEY  (`ref`),

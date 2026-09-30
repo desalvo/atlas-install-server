@@ -801,7 +801,13 @@ CREATE TABLE `request` (
   `admin_comments` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `request_relfk_indx` (`relfk`),
-  KEY `statusfk` (`statusfk`)
+  KEY `statusfk` (`statusfk`),
+  KEY `request_sitefk_indx` (`sitefk`),
+  KEY `request_userfk_indx` (`userfk`),
+  KEY `request_typefk_indx` (`typefk`),
+  KEY `request_adminfk_indx` (`adminfk`),
+  KEY `request_request_date_indx` (`request_date`),
+  KEY `request_status_date_indx` (`statusfk`,`request_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -811,8 +817,7 @@ CREATE TABLE `request` (
 
 DROP TABLE IF EXISTS `request_status`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `request_status` (
+/*!40101 SET character_set_client = utf8 */;CREATE TABLE `request_status` (
   `ref` int(11) NOT NULL AUTO_INCREMENT,
   `description` varchar(128) DEFAULT NULL,
   PRIMARY KEY (`ref`),

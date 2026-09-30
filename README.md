@@ -1,5 +1,11 @@
 # LJSF 3 — ATLAS Installation System
 
+**Application version:** 3.0.0  
+**Package revision:** r31  
+**Creator / maintainer:** Alessandro De Salvo  
+**License:** EUPL-1.2  
+**Target:** Rocky Linux 10 / PHP 8.3+ / Kubernetes or Docker Compose
+
 LJSF 3 is the ATLAS installation and deployment management service. It provides release, site, architecture, InfoSys, target, task and installation-request management through a responsive Web UI and a set of legacy-compatible machine endpoints.
 
 ### Runtime diagnostics and responsive list view
@@ -19,7 +25,7 @@ Public read-only areas remain accessible without authentication. Protected funct
 
 ## Database
 
-The application uses separate RW, RO and broker identities. MariaDB TLS is configurable. `ATLAS_DB_AUTO_INIT=1` enables idempotent startup checks: if the application database is absent, the bundled default schema is installed; if only local-authentication tables are absent, they are created without replacing existing application data. The Kubernetes wizard can provide a temporary bootstrap/admin database credential and removes its password from the bootstrap Secret after a successful rollout.
+The application uses separate RW, RO and broker identities. MariaDB TLS is configurable. `ATLAS_DB_AUTO_INIT=1` enables idempotent startup checks: if the application database is absent, the bundled default schema is installed; if only local-authentication tables are absent, they are created without replacing existing application data. The Kubernetes wizard can retain a dedicated schema-migration/admin database credential in the Kubernetes Secret `<app>-db-admin`, separate from runtime RW/RO/broker credentials. Actual encryption at rest requires Kubernetes Secret encryption to be enabled in the cluster.
 
 ## User interface
 
@@ -35,17 +41,16 @@ Apache terminates TLS in the pod. HAProxy Ingress operates in TLS passthrough mo
 
 ## Documentation
 
-- Italian user guide: `docs/USER-GUIDE.it.md`
-- English user guide: `docs/USER-GUIDE.en.md`
-- Architecture: `docs/ARCHITECTURE.md`
-- Kubernetes: `docs/KUBERNETES.md`
-- Kubernetes wizard: `docs/KUBERNETES-WIZARD.md`
-- Operations: `docs/OPERATIONS.md`
-- Security: `docs/SECURITY.md`
-- Development: `docs/DEVELOPMENT.md`
-- CI/CD: `docs/GITHUB-CI.md`
+The documentation is organized as a current-system handbook rather than a revision diary.
 
-The same functional documentation is available from the **Documentation** link in the application home page.
+- [Italian complete manual](docs/USER-GUIDE.it.md)
+- [English complete manual](docs/USER-GUIDE.en.md)
+- [Italian REST API reference](docs/REST-API.it.md)
+- [English REST API reference](docs/REST-API.en.md)
+- [Documentation index](docs/DOCUMENTATION.md)
+- [Project design](docs/PROJECT-DESIGN.md)
+- PDF manuals are included in `docs/LJSF3-Manual.it.pdf` and `docs/LJSF3-Manual.en.pdf`.
+
 
 ## Kubernetes quick start
 
@@ -55,7 +60,7 @@ chmod +x atlas-install-k8s-wizard.sh
 ./atlas-install-k8s-wizard.sh
 ```
 
-The wizard remembers non-secret choices, keeps application database passwords in Kubernetes Secrets, supports database TLS, generates RWO-safe maintenance jobs, adds both HAProxy Ingress class forms, self-updates from GitHub and immediately re-executes itself after a verified update.
+The wizard remembers non-secret choices, keeps application database passwords in Kubernetes Secrets, can retain a dedicated schema-migration credential for automatic post-restore migrations, supports database TLS, generates RWO-safe maintenance jobs, adds both HAProxy Ingress class forms, self-updates from GitHub and immediately re-executes itself after a verified update.
 
 ## Container image
 

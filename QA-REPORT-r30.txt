@@ -1,0 +1,24 @@
+LJSF 3 / ATLAS Installation System 3.0.0-r30 - QA report
+========================================================
+Scope: documentation-focused release based on r29.
+
+Validated:
+- PHP syntax: PASS
+- shell syntax: PASS
+- static CI suite: PASS
+- Kubernetes/GitHub YAML parsing: PASS
+- wizard SHA256 sidecar: PASS
+- detailed Italian/English operations and administration manuals: PASS
+- detailed Italian/English REST API references: PASS
+- REST auth/status/response/endpoint/field examples: PASS
+- architecture/auth/Kubernetes/migration/data-model/API diagrams: PASS
+- sanitized illustrative UI and API screenshots: PASS
+- PDF rendering and text extraction: PASS
+- Web documentation embeds language-specific complete manual: PASS
+- GitHub README/project documentation index: PASS
+
+Generated PDFs:
+- docs/LJSF3-Manual.it.pdf: 42 pages
+- docs/LJSF3-Manual.en.pdf: detailed English handbook
+- docs/LJSF3-REST-API.it.pdf: 28 pages
+- docs/LJSF3-REST-API.en.pdf: detailed English REST reference

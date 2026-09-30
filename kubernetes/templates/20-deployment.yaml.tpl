@@ -25,6 +25,10 @@ spec:
             - name: https
               containerPort: 8443
               protocol: TCP
+          envFrom:
+            - secretRef:
+                name: {{APP_NAME}}-db-admin
+                optional: true
           env:
             - name: ATLAS_ENV_FILE
               value: /var/lib/atlas-install/config/atlas-install.env

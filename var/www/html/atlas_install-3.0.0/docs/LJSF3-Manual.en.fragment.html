@@ -1,0 +1,2841 @@
+<h1 id="ljsf-3---atlas-installation-system">LJSF 3 - ATLAS Installation
+System</h1>
+<h2 id="complete-operations-and-administration-manual">Complete
+operations and administration manual</h2>
+<p><img src="docs/assets/ljsf3-logo.png" /></p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Item</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Name</td>
+<td>LJSF 3 - ATLAS Installation System</td>
+</tr>
+<tr class="even">
+<td>Version</td>
+<td>3.0.0</td>
+</tr>
+<tr class="odd">
+<td>Package revision</td>
+<td>r30</td>
+</tr>
+<tr class="even">
+<td>Creator / maintainer</td>
+<td>Alessandro De Salvo</td>
+</tr>
+<tr class="odd">
+<td>License</td>
+<td>EUPL-1.2</td>
+</tr>
+<tr class="even">
+<td>Web root</td>
+<td><code>/atlas_install/</code></td>
+</tr>
+<tr class="odd">
+<td>REST API</td>
+<td><code>/atlas_install/api/v1/</code></td>
+</tr>
+<tr class="even">
+<td>Reference platform</td>
+<td>Rocky Linux 10 / PHP 8.3+ / Kubernetes / MariaDB-Galera</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>This manual describes the current application behavior and is not a
+changelog. Example hostnames, users and application data are
+illustrative.</p>
+</blockquote>
+<div class="pagebreak">
+
+</div>
+<h2 id="structured-contents">Structured contents</h2>
+<ol type="1">
+<li>Purpose and operating model</li>
+<li>System architecture</li>
+<li>Kubernetes topology and networking</li>
+<li>Container startup and readiness</li>
+<li>Configuration and Secrets</li>
+<li>Database, schema and migrations</li>
+<li>Authentication, roles and authorization</li>
+<li>TOTP and QR codes</li>
+<li>Web navigation and responsive UI</li>
+<li>Releases and architectures</li>
+<li>Sites, InfoSys, targets and tasks</li>
+<li>Installation requests</li>
+<li>Installation status and list.php</li>
+<li>Charts, summaries and CronJobs</li>
+<li>Logging and observability</li>
+<li>REST API - model and usage</li>
+<li>Operational security</li>
+<li>Backup, restore and compatibility</li>
+<li>Troubleshooting</li>
+<li>Development and GitHub</li>
+<li>Appendix A. Configuration variables</li>
+<li>Appendix B. REST endpoints</li>
+<li>Appendix C. Glossary</li>
+</ol>
+<h2 id="purpose-and-operating-model">1. Purpose and operating model</h2>
+<p>LJSF 3 manages the ATLAS software-deployment lifecycle: release and
+architecture definitions, sites and resources, installation requests,
+operational tasks, installation status, subscriptions, reports and
+administrative functions. The application preserves legacy interfaces
+and adds a versioned REST API for new clients.</p>
+<figure>
+<img src="docs/assets/ui-overview.png" alt="UI overview" />
+<figcaption aria-hidden="true">UI overview</figcaption>
+</figure>
+<p><em>Illustrative LJSF 3 UI screenshot with demonstration
+data.</em></p>
+<h2 id="system-architecture">2. System architecture</h2>
+<p>Browser/API traffic enters through HAProxy Ingress in TLS passthrough
+mode. Apache terminates TLS, validates client certificates according to
+path policy, and forwards PHP to PHP-FPM. The app uses separate MariaDB
+connections for read, write and broker access; the migrator can use a
+separate administrative credential. The persistent volume stores managed
+configuration, logs and summaries.</p>
+<figure>
+<img src="docs/assets/arch.png" alt="System architecture" />
+<figcaption aria-hidden="true">System architecture</figcaption>
+</figure>
+<h2 id="kubernetes-topology-and-networking">3. Kubernetes topology and
+networking</h2>
+<p>The Deployment exposes HTTPS on its configured container port and the
+Service publishes 443. HAProxy manifests include both
+<code>spec.ingressClassName: haproxy</code> and
+<code>kubernetes.io/ingress.class: haproxy</code>, plus SSL passthrough.
+With a <code>ReadWriteOnce</code> PVC, CronJobs mounting the same volume
+are co-located on the server node.</p>
+<figure>
+<img src="docs/assets/k8s.png" alt="Kubernetes topology" />
+<figcaption aria-hidden="true">Kubernetes topology</figcaption>
+</figure>
+<h3 id="main-kubernetes-objects">3.1 Main Kubernetes objects</h3>
+<ul>
+<li><strong>Deployment</strong> runs Apache and PHP-FPM and mounts TLS,
+bootstrap configuration and the PVC.</li>
+<li><strong>Service</strong> publishes the pod HTTPS endpoint inside the
+cluster.</li>
+<li><strong>HAProxy Ingress</strong> performs TLS passthrough so Apache
+receives the original client certificate.</li>
+<li><strong>PVC</strong> stores managed configuration, logs, caches and
+summaries.</li>
+<li><strong>Summary/Cleanup CronJobs</strong> calculate local reporting
+data and enforce retention.</li>
+<li><strong>Bootstrap/TLS/DB-admin Secrets</strong> separate runtime
+configuration, server credentials and optional schema-migration
+privilege.</li>
+</ul>
+<h3 id="post-rollout-checks">3.2 Post-rollout checks</h3>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">kubectl</span> <span class="at">-n</span> atlas-install rollout status deploy/atlas-install</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">kubectl</span> <span class="at">-n</span> atlas-install get pods <span class="at">-o</span> wide</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">kubectl</span> <span class="at">-n</span> atlas-install get ingress,svc,pvc,cronjob</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ex">kubectl</span> <span class="at">-n</span> atlas-install get events <span class="at">--sort-by</span><span class="op">=</span>.lastTimestamp <span class="kw">|</span> <span class="fu">tail</span> <span class="at">-50</span></span></code></pre></div>
+<h2 id="container-startup-and-readiness">4. Container startup and
+readiness</h2>
+<ol type="1">
+<li>configuration sync from bootstrap Secret</li>
+<li>local-auth encryption key</li>
+<li>HTTPS certificate validation</li>
+<li>DB/auth-schema check and migration</li>
+<li>IGTF trust restore and initial fetch-crl</li>
+<li>Apache render/validation</li>
+<li>PHP-FPM startup</li>
+<li>Apache startup <code>healthz.php</code> shows that the Web process
+is alive. <code>readyz.php</code> also validates DB readiness; do not
+confuse liveness with readiness.</li>
+</ol>
+<h3 id="startup-diagnostics">4.1 Startup diagnostics</h3>
+<p>Startup logs expose configuration sync, DB migration, IGTF/fetch-crl,
+PHP-FPM and Apache stages. If the container never starts and logs are
+empty, inspect <code>kubectl describe pod</code> and cluster events for
+mount, Multi-Attach, Secret or scheduling failures.</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">kubectl</span> <span class="at">-n</span> atlas-install exec deploy/atlas-install <span class="at">--</span> curl <span class="at">-fsS</span> http://127.0.0.1/atlas_install/healthz.php</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">kubectl</span> <span class="at">-n</span> atlas-install exec deploy/atlas-install <span class="at">--</span> curl <span class="at">-fsS</span> http://127.0.0.1/atlas_install/readyz.php</span></code></pre></div>
+<h2 id="configuration-and-secrets">5. Configuration and Secrets</h2>
+<p>The bootstrap Secret is the authoritative source for
+<code>atlas-install.env</code>. The entrypoint atomically synchronizes
+the persistent file when the Secret changes. DB passwords and TLS keys
+are not stored in the wizard local state. The DB-admin migration
+credential is optional and separate from normal <code>dbwriter</code>
+access.</p>
+<h3 id="kubernetes-wizard">5.1 Kubernetes wizard</h3>
+<p>The wizard is idempotent: it reuses non-secret choices as defaults,
+preserves existing passwords unless changed, and restarts the Deployment
+only when a change requires reload. It supports optional DB TLS, PVC
+size/access mode, ingress class, CPU/memory resources and separated DB
+credentials.</p>
+<h3 id="database-tls">5.2 Database TLS</h3>
+<p><code>ATLAS_DB_SSL=1</code> enables TLS for application DB
+connections. <code>ATLAS_DB_SSL_VERIFY=1</code> enables server
+certificate verification and <code>ATLAS_DB_SSL_CA</code> identifies the
+CA. Compare a pod-local <code>mariadb --ssl</code> test with PHP
+behavior when troubleshooting. A Kubernetes Secret is base64-encoded,
+not automatically encrypted at rest; actual at-rest encryption requires
+API-server/etcd encryption configuration.</p>
+<h2 id="database-schema-and-migrations">6. Database, schema and
+migrations</h2>
+<p>Startup migrations are idempotent: after restoring an older dump, the
+application adds missing objects required by the current version (auth
+tables, columns, indexes and migration markers) without recreating an
+existing database. The canonical full schema is loaded only when the
+application database is absent.</p>
+<h3 id="database-credential-separation">6.1 Database credential
+separation</h3>
+<ul>
+<li><strong>RO</strong> for reads/readiness.</li>
+<li><strong>RW</strong> for normal application writes.</li>
+<li><strong>Broker</strong> for dedicated legacy execution paths.</li>
+<li><strong>Bootstrap/admin</strong> for DDL and schema migration
+only.</li>
+</ul>
+<h3 id="restoring-an-older-dump">6.2 Restoring an older dump</h3>
+<p>Restore data, preserve/recreate Secrets, start with
+<code>ATLAS_DB_AUTO_INIT=1</code>, inspect migration logs, verify auth
+tables/columns/indexes, wait for readiness, then test local login and
+protected operations before reopening production writes.</p>
+<figure>
+<img src="docs/assets/migrate.png" alt="Schema migration flow" />
+<figcaption aria-hidden="true">Schema migration flow</figcaption>
+</figure>
+<figure>
+<img src="docs/assets/model.png" alt="Core data model" />
+<figcaption aria-hidden="true">Core data model</figcaption>
+</figure>
+<h2 id="authentication-roles-and-authorization">7. Authentication, roles
+and authorization</h2>
+<p>X.509 client certificates and local accounts are supported. Local
+roles are <code>user</code>, <code>admin</code>, <code>master</code>.
+Protected pages keep header/menu on denial and direct the user to local
+login or an appropriate certificate. For legacy compatibility, an
+authenticated local account is synchronized to a
+<code>LOCAL:&lt;username&gt;</code> identity in the historical
+<code>user</code> table.</p>
+<h3 id="conceptual-access-matrix">7.1 Conceptual access matrix</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Identity</th>
+<th>Public reads</th>
+<th>Protected functions</th>
+<th>User/config administration</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Anonymous</td>
+<td>Where exposed</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr class="even">
+<td>Valid but unmapped certificate</td>
+<td>Public only</td>
+<td>No until mapped</td>
+<td>No</td>
+</tr>
+<tr class="odd">
+<td>Local <code>user</code></td>
+<td>Yes</td>
+<td>Role-permitted operations</td>
+<td>No</td>
+</tr>
+<tr class="even">
+<td><code>admin</code></td>
+<td>Yes</td>
+<td>Normal administrative operations</td>
+<td>Function-dependent</td>
+</tr>
+<tr class="odd">
+<td><code>master</code></td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<h3 id="client-certificates">7.2 Client certificates</h3>
+<p>TLS passthrough lets Apache validate the client certificate directly.
+The normalized DN is mapped through the historical
+<code>user</code>/<code>role</code> tables; certificate validity alone
+does not grant application privileges.</p>
+<figure>
+<img src="docs/assets/auth.png" alt="Authentication flow" />
+<figcaption aria-hidden="true">Authentication flow</figcaption>
+</figure>
+<h2 id="totp-and-qr-codes">8. TOTP and QR codes</h2>
+<p>Local accounts can enroll one or more TOTP authenticators. The secret
+is stored encrypted; enrollment shows both the Base32 string and a
+locally generated QR code using an <code>otpauth://</code> URI. The QR
+is not sent to external services. Verification accepts the current time
+slice plus adjacent slices to tolerate small clock skew.</p>
+<h3 id="totp-enrollment">8.1 TOTP enrollment</h3>
+<p>Generate the secret, display Base32 and QR, scan it with an
+authenticator, verify a code, then enable the credential. Keep
+cluster/device time synchronized with NTP because clock drift is a
+common source of rejected codes.</p>
+<h2 id="web-navigation-and-responsive-ui">9. Web navigation and
+responsive UI</h2>
+<p>Language follows the browser (<code>it*</code> -&gt; Italian,
+otherwise English) and can be overridden using the selector. On mobile
+the menu is a vertical drawer. Wide tables become collapsible records:
+collapsed rows show priority fields, expanded rows show details
+vertically. Browser views default to 200 rows per page; this does not
+constrain API or machine-oriented queries.</p>
+<h2 id="releases-and-architectures">10. Releases and architectures</h2>
+<p>Releases are defined in <code>release_data</code>; architectures in
+<code>release_arch</code>. Protected functions support
+define/update/delete subject to DB dependencies. Core fields include
+name/tag/package, architecture, obsolete/autoinstall flags, software
+paths, criticality and validity windows.</p>
+<h2 id="sites-infosys-targets-and-tasks">11. Sites, InfoSys, targets and
+tasks</h2>
+<p>Sites contain ATLAS/grid identity, OS/architecture, filesystem,
+capacity and status. InfoSys (<code>bdii</code>) stores endpoints and
+preference/enable flags. Targets define auto-install destinations; tasks
+define reusable operations. Legacy definition pages remain for
+compatibility and are authorization-protected.</p>
+<h2 id="installation-requests">12. Installation requests</h2>
+<p><code>protected/req.php</code> displays and manages requests. The
+query is paginated and optimized with explicit joins and dedicated
+indexes. Slow query events are logged as
+<code>slow_database_query</code>. Requests reference site, release,
+type, requester, assigned administrator and status.</p>
+<h2 id="installation-status-and-list.php">13. Installation status and
+list.php</h2>
+<p><code>list.php</code> provides search, filters and sorting in a
+collapsed section. Records are collapsible on desktop as well: collapsed
+rows show at least Num, Release number, Site name and Release arch;
+details expand without forcing horizontal scrolling. Historical status
+colors are preserved. Footer and identity details are separate from the
+data frame.</p>
+<h2 id="charts-summaries-and-cronjobs">14. Charts, summaries and
+CronJobs</h2>
+<p>CronJobs do not generate images through external services. They
+produce summaries/cache; the Web UI renders charts locally on demand as
+SVG/HTML. This removes external rendering dependencies and keeps
+rendering deterministic inside the cluster.</p>
+<figure>
+<img src="docs/assets/local-chart-example.png" alt="Local chart example" />
+<figcaption aria-hidden="true">Local chart example</figcaption>
+</figure>
+<h2 id="logging-and-observability">15. Logging and observability</h2>
+<p>The app writes structured <code>[ATLAS_APP]</code> events with
+<code>request_id</code>, URI and event name, excluding
+passwords/secrets. Persistent
+<code>/var/lib/atlas-install/log/php-application.log</code> is tailed by
+the entrypoint to stderr so <code>kubectl logs</code> also receives
+PHP-FPM errors. Key events include <code>php_error</code>,
+<code>uncaught_exception</code>, <code>http_5xx_completed</code>,
+<code>same_origin_rejected</code>, <code>slow_database_query</code>,
+auth events and diagnostic checkpoints for critical pages.</p>
+<h3 id="correlation-and-commands">15.1 Correlation and commands</h3>
+<p>A valid incoming <code>X-Request-ID</code> is reused; otherwise the
+application creates one. Use the request id shown in an error/response
+to locate the matching log event.</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">kubectl</span> logs <span class="at">-n</span> atlas-install deploy/atlas-install <span class="at">-f</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">kubectl</span> logs <span class="at">-n</span> atlas-install deploy/atlas-install <span class="at">--since</span><span class="op">=</span>30m <span class="kw">|</span> <span class="fu">grep</span> <span class="st">&#39;\[ATLAS_APP\]&#39;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">kubectl</span> exec <span class="at">-n</span> atlas-install deploy/atlas-install <span class="at">--</span> tail <span class="at">-200</span> /var/lib/atlas-install/log/php-application.log</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">kubectl</span> logs <span class="at">-n</span> atlas-install deploy/atlas-install <span class="at">--since</span><span class="op">=</span>10m <span class="at">-f</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">kubectl</span> exec <span class="at">-n</span> atlas-install deploy/atlas-install <span class="at">--</span> tail <span class="at">-100</span> /var/lib/atlas-install/log/php-application.log</span></code></pre></div>
+<h2 id="rest-api---model-and-usage">16. REST API - model and usage</h2>
+<p>REST API v1 is parallel to legacy endpoints. It uses resource URIs,
+JSON, standard HTTP methods, status codes and request IDs. See
+<code>REST-API.it.md</code>/<code>REST-API.en.md</code> and this manual
+API appendix for the full reference.</p>
+<figure>
+<img src="docs/assets/api-example.png" alt="REST API" />
+<figcaption aria-hidden="true">REST API</figcaption>
+</figure>
+<h2 id="operational-security">17. Operational security</h2>
+<ul>
+<li>Require TLS for public traffic and credential-bearing API
+calls.</li>
+<li>Configure database TLS and CA verification.</li>
+<li>Use least privilege for RO/RW/broker/migrator accounts.</li>
+<li>Never log passwords, tokens, TOTP codes or private keys.</li>
+<li>Keep IGTF/CRLs current and verify fetch-crl in startup logs.</li>
+<li>Enable Kubernetes Secret encryption at rest.</li>
+<li>Grant master only to appropriate operators/administrators.</li>
+<li>Monitor 401/403/5xx and slow queries.</li>
+</ul>
+<h2 id="backup-restore-and-compatibility">18. Backup, restore and
+compatibility</h2>
+<p>A restore can move the DB back to an older schema: keep the startup
+migrator enabled so missing tables/indexes/columns are recreated.
+Migrations must not delete data. Before major restores preserve Secrets,
+TLS, PVC and configuration; after restore verify readiness, migrator
+logs, auth tables, indexes and local login.</p>
+<h2 id="troubleshooting">19. Troubleshooting</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Symptom</th>
+<th>Check</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Pod not Ready</td>
+<td>Compare <code>/readyz.php</code>, startup logs, DB TLS, auth schema
+and bootstrap Secret.</td>
+</tr>
+<tr class="even">
+<td>Web 500</td>
+<td>Use <code>X-Request-ID</code> and search <code>[ATLAS_APP]</code>;
+inspect the persistent log file too.</td>
+</tr>
+<tr class="odd">
+<td>Local login fails</td>
+<td>Check enabled account, must-change-password, TOTP and auth tables;
+distinguish from same-origin/CSRF.</td>
+</tr>
+<tr class="even">
+<td>Certificate denied</td>
+<td>Check TLS passthrough, SSL_CLIENT_VERIFY, normalized DN and
+<code>user</code> mapping.</td>
+</tr>
+<tr class="odd">
+<td>req.php is slow</td>
+<td>Search <code>slow_database_query</code>, inspect
+indexes/cardinality; do not raise timeout as the first fix.</td>
+</tr>
+<tr class="even">
+<td>CronJob Pending with RWO</td>
+<td>Verify podAffinity to server node and Multi-Attach events.</td>
+</tr>
+<tr class="odd">
+<td>Wrong language</td>
+<td>Check <code>lang.php</code> preference and
+<code>Accept-Language</code>.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="development-and-github">20. Development and GitHub</h2>
+<p>The canonical repository contains Dockerfile/Containerfile,
+Kubernetes manifests, wizard, static tests and documentation. Every
+revision should run PHP/shell lint, YAML parsing, Secret-hygiene checks,
+UI/API regression tests and multiarch CI build. REST v1 contract changes
+must be backward-compatible or use a new API version.</p>
+<p>ewpage ## Appendix A. Main configuration variables</p>
+<p>The following variables are the primary operating contract between
+the wizard, Kubernetes Secrets, the entrypoint and the application.
+Passwords are listed only by variable name: their values must not appear
+in deployment documentation, logs or wizard state files.</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>ATLAS_PUBLIC_HOSTNAME</code></td>
+<td>Public DNS hostname used by Apache/TLS and same-origin checks.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_HTTPS_PORT</code></td>
+<td>HTTPS port inside the container (normally 8443).</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_ENV_FILE</code></td>
+<td>Managed runtime environment file path.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_BOOTSTRAP_ENV</code></td>
+<td>Mounted bootstrap Secret file used to refresh the managed env
+file.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_BOOTSTRAP_SYNC_SECONDS</code></td>
+<td>Interval used to detect bootstrap Secret changes.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_DB_NAME</code></td>
+<td>Application database name, normally atlas_install_panda.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_DB_RW_HOST / USER / PASSWORD</code></td>
+<td>Read-write database endpoint and credentials.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_DB_RO_HOST / USER / PASSWORD</code></td>
+<td>Read-only database endpoint and credentials.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_DB_BROKER_HOST / USER / PASSWORD</code></td>
+<td>Broker/legacy execution database endpoint and credentials.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_DB_BOOTSTRAP_USER / PASSWORD</code></td>
+<td>Optional privileged credential used by startup schema
+migration.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_DB_AUTO_INIT</code></td>
+<td>Enable idempotent application/auth schema initialization at
+startup.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_DB_SSL</code></td>
+<td>Enable TLS for MariaDB connections.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_DB_SSL_VERIFY</code></td>
+<td>Enable server-certificate verification for DB TLS.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_DB_SSL_CA</code></td>
+<td>CA bundle/path used to verify the MariaDB server certificate.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_DB_SLOW_QUERY_MS</code></td>
+<td>Threshold for slow_database_query logging.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_REQUEST_TIMEOUT_SECONDS</code></td>
+<td>Application-side timeout margin for long protected request
+pages.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_TLS_CERT_FILE</code></td>
+<td>Server certificate/full-chain file mounted in the container.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_TLS_KEY_FILE</code></td>
+<td>Server private key file mounted in the container.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_IGTF_DIR</code></td>
+<td>Active IGTF trust-anchor/CRL directory.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_IGTF_CACHE_DIR</code></td>
+<td>Cache used by IGTF refresh logic.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_IGTF_REFRESH_SECONDS</code></td>
+<td>Periodic IGTF/CRL refresh interval.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_CRL_MAX_AGE_SECONDS</code></td>
+<td>Maximum accepted CRL age.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_CRL_FETCH_TIMEOUT_SECONDS</code></td>
+<td>Timeout used for CRL retrieval.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_LOCAL_AUTH_KEY_FILE</code></td>
+<td>Local-auth encryption key file for encrypted TOTP secrets.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_APP_ERROR_LOG</code></td>
+<td>Persistent PHP/application log path tailed into container
+stderr.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_UPLOAD_PATH</code></td>
+<td>Persistent upload/data path.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_ARCHIVE_PATH</code></td>
+<td>Archive/log backup path.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_CACHE_PATH</code></td>
+<td>Application cache path.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_KML_CACHE</code></td>
+<td>KML cache path.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_VO</code></td>
+<td>VO label, normally ATLAS.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_EMAIL</code></td>
+<td>Application sender/contact email setting.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_CONTACTS</code></td>
+<td>Installation-team contact string.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_DEFAULT_INFOSYS</code></td>
+<td>Default InfoSys/BDII endpoint.</td>
+</tr>
+<tr class="even">
+<td><code>ATLAS_ACTIVITY_PERIOD</code></td>
+<td>Default activity period used by legacy views.</td>
+</tr>
+<tr class="odd">
+<td><code>ATLAS_DEBUG</code></td>
+<td>Enable verbose diagnostic behavior; not for normal production
+use.</td>
+</tr>
+</tbody>
+</table>
+<p>Legacy software-agent variables can also exist for compatibility; do
+not confuse them with Web-server runtime configuration. Before changing
+a production value, verify whether it is wizard-managed and therefore
+refreshed from the bootstrap Secret.</p>
+<h2 id="appendix-b.-rest-api---complete-reference">Appendix B. REST API
+- complete reference</h2>
+<blockquote>
+<p>Normative reference for REST API v1 included in package r30. Legacy
+endpoints remain available but are outside the REST contract.</p>
+</blockquote>
+<h2 id="service-identity">1. Service identity</h2>
+<ul>
+<li><strong>Product:</strong> LJSF 3 - ATLAS Installation System</li>
+<li><strong>Application version:</strong> 3.0.0</li>
+<li><strong>Package revision:</strong> r30</li>
+<li><strong>Base path:</strong> <code>/atlas_install/api/v1</code></li>
+<li><strong>Media type:</strong>
+<code>application/json; charset=UTF-8</code></li>
+<li><strong>Response cache:</strong>
+<code>Cache-Control: no-store</code></li>
+<li><strong>API version header:</strong>
+<code>X-API-Version: v1</code></li>
+<li><strong>Request correlation:</strong> <code>X-Request-ID</code></li>
+</ul>
+<figure>
+<img src="docs/assets/api.png" alt="REST request lifecycle" />
+<figcaption aria-hidden="true">REST request lifecycle</figcaption>
+</figure>
+<p><em>Figure: REST request lifecycle.</em></p>
+<h2 id="authentication-model">2. Authentication model</h2>
+<p>The API reuses the application identity model. Identity resolution
+is: an existing local Web session; a valid X.509 client certificate;
+then, as a REST-specific fallback, HTTP Basic using a local account. If
+the local account has at least one active TOTP credential, Basic
+authentication also requires <code>X-ATLAS-TOTP</code>.</p>
+<figure>
+<img src="docs/assets/auth.png" alt="Authentication model" />
+<figcaption aria-hidden="true">Authentication model</figcaption>
+</figure>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Mechanism</th>
+<th>Transport</th>
+<th>Requirements</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>X.509 certificate</td>
+<td>TLS client certificate</td>
+<td>TLS reaches Apache; <code>SSL_CLIENT_VERIFY=SUCCESS</code>; DN
+mapped in <code>user</code>.</td>
+<td>Suitable for personal/robot certificates.</td>
+</tr>
+<tr class="even">
+<td>Local session</td>
+<td>Secure Web cookie</td>
+<td>Unexpired local session and enabled account.</td>
+<td>Useful for browser-originated API calls.</td>
+</tr>
+<tr class="odd">
+<td>HTTP Basic</td>
+<td><code>Authorization: Basic ...</code></td>
+<td>Enabled local account, valid password,
+<code>must_change_password=0</code>.</td>
+<td>Use only over HTTPS.</td>
+</tr>
+<tr class="even">
+<td>Basic + TOTP</td>
+<td>Basic + <code>X-ATLAS-TOTP: 123456</code></td>
+<td>Required when at least one active TOTP exists.</td>
+<td>Six digits; current TOTP slice +/- 1 is accepted.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="authentication-examples">2.1 Authentication examples</h3>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Basic without TOTP</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">--fail-with-body</span> <span class="at">-u</span> operator:<span class="st">&#39;PASSWORD&#39;</span> <span class="dt">\</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  https://atlas-install.example.org/atlas_install/api/v1/me</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Basic with TOTP</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">--fail-with-body</span> <span class="at">-u</span> operator:<span class="st">&#39;PASSWORD&#39;</span> <span class="dt">\</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">-H</span> <span class="st">&#39;X-ATLAS-TOTP: 123456&#39;</span> <span class="dt">\</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  https://atlas-install.example.org/atlas_install/api/v1/me</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># X.509</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">--fail-with-body</span> <span class="at">--cert</span> client.pem <span class="at">--key</span> client.key <span class="dt">\</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  https://atlas-install.example.org/atlas_install/api/v1/me</span></code></pre></div>
+<h3 id="authentication-failures">2.2 Authentication failures</h3>
+<ul>
+<li><code>401 authentication_required</code>: no valid identity.
+Response includes
+<code>WWW-Authenticate: Basic realm="LJSF 3 REST API"</code>.</li>
+<li><code>401 totp_required</code>: Basic credentials are valid but TOTP
+is missing/invalid.</li>
+<li><code>403 password_change_required</code>: the local account must
+change its password through the Web UI before API use.</li>
+<li><code>403 forbidden</code>: valid authentication but insufficient
+role.</li>
+</ul>
+<h2 id="http-and-json-conventions">3. HTTP and JSON conventions</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Item</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>GET collection</td>
+<td><code>200</code> with
+<code>{data:[...], meta:{resource,total,limit,offset,count}}</code></td>
+</tr>
+<tr class="even">
+<td>GET item</td>
+<td><code>200</code> with <code>{data:{...}}</code>; <code>404</code> if
+not found</td>
+</tr>
+<tr class="odd">
+<td>POST collection</td>
+<td>Requires JSON body; <code>201 Created</code>; <code>Location</code>
+header; response contains created id and location</td>
+</tr>
+<tr class="even">
+<td>PATCH item</td>
+<td>Partial update; <code>200</code> with the updated resource</td>
+</tr>
+<tr class="odd">
+<td>PUT item</td>
+<td>Currently has the same supplied-field partial-update semantics as
+PATCH; it is not a full replacement</td>
+</tr>
+<tr class="even">
+<td>DELETE item</td>
+<td><code>204 No Content</code>; <code>404</code> if missing;
+<code>409</code> on database conflicts</td>
+</tr>
+<tr class="odd">
+<td>OPTIONS</td>
+<td>Returns supported method names; router advertises GET, HEAD, POST,
+PUT, PATCH, DELETE, OPTIONS</td>
+</tr>
+<tr class="even">
+<td>HEAD</td>
+<td>Accepted on read routes; web server may suppress the body as
+required by HTTP</td>
+</tr>
+<tr class="odd">
+<td>Content-Type</td>
+<td>POST/PUT/PATCH with a non-empty body require
+<code>application/json</code>; otherwise <code>415</code></td>
+</tr>
+<tr class="even">
+<td>Unknown JSON field</td>
+<td><code>400 unknown_field</code>; immutable keys are also rejected on
+update</td>
+</tr>
+<tr class="odd">
+<td>Arrays/objects in fields</td>
+<td>Rejected with <code>400 invalid_field</code>; resource fields are
+scalar</td>
+</tr>
+<tr class="even">
+<td>Caching</td>
+<td>All API responses send <code>Cache-Control: no-store</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="error-envelope">3.1 Error envelope</h3>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;status&quot;</span><span class="fu">:</span> <span class="dv">400</span><span class="fu">,</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;code&quot;</span><span class="fu">:</span> <span class="st">&quot;invalid_request&quot;</span><span class="fu">,</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;...&quot;</span><span class="fu">,</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;request_id&quot;</span><span class="fu">:</span> <span class="st">&quot;7c3f2a9b...&quot;</span><span class="fu">,</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;details&quot;</span><span class="fu">:</span> <span class="fu">{}</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<h3 id="status-codes">3.2 Status codes</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>HTTP</th>
+<th>Name</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>200</td>
+<td>OK</td>
+<td>Successful read or update.</td>
+</tr>
+<tr class="even">
+<td>201</td>
+<td>Created</td>
+<td>Successful creation; use <code>Location</code>.</td>
+</tr>
+<tr class="odd">
+<td>204</td>
+<td>No Content</td>
+<td>Successful deletion.</td>
+</tr>
+<tr class="even">
+<td>400</td>
+<td>Bad Request</td>
+<td>Invalid id/JSON/field/request.</td>
+</tr>
+<tr class="odd">
+<td>401</td>
+<td>Unauthorized</td>
+<td>Missing authentication or TOTP required.</td>
+</tr>
+<tr class="even">
+<td>403</td>
+<td>Forbidden</td>
+<td>Insufficient role or password change required.</td>
+</tr>
+<tr class="odd">
+<td>404</td>
+<td>Not Found</td>
+<td>Unknown route/resource/record.</td>
+</tr>
+<tr class="even">
+<td>405</td>
+<td>Method Not Allowed</td>
+<td>Method unsupported by route.</td>
+</tr>
+<tr class="odd">
+<td>409</td>
+<td>Conflict</td>
+<td>Database constraint/conflict during write/delete.</td>
+</tr>
+<tr class="even">
+<td>415</td>
+<td>Unsupported Media Type</td>
+<td>Non-JSON request body.</td>
+</tr>
+<tr class="odd">
+<td>500</td>
+<td>Internal Server Error</td>
+<td>Internal error; correlate <code>request_id</code> with logs.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="collections-filtering-search-pagination-and-sorting">4.
+Collections, filtering, search, pagination and sorting</h2>
+<p>Every exposed field can be supplied as a query parameter for exact
+matching (<code>field=value</code>). <code>q</code> performs
+<code>LIKE %q%</code> only on the resource search fields.
+<code>limit</code> defaults to 200 and is capped at 1000;
+<code>offset</code> cannot be negative. <code>sort</code> must be an
+exposed field or the primary key is used; <code>order</code> accepts
+<code>ASC</code> or <code>DESC</code>, otherwise <code>ASC</code>.</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="st">&#39;https://atlas-install.example.org/atlas_install/api/v1/releases?limit=100&amp;offset=0&amp;sort=name&amp;order=DESC&amp;q=24.3&#39;</span></span></code></pre></div>
+<h2 id="resource-matrix">5. Resource matrix</h2>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Resource</th>
+<th>DB table</th>
+<th>Key</th>
+<th>GET</th>
+<th>Write</th>
+<th><code>q</code> fields</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>releases</td>
+<td>release_data</td>
+<td>ref</td>
+<td>public</td>
+<td>authenticated user</td>
+<td>name, tag, package, comments</td>
+</tr>
+<tr class="even">
+<td>sites</td>
+<td>site</td>
+<td>ref</td>
+<td>public</td>
+<td>authenticated user</td>
+<td>cs, cename, name, atlas_name, alias, arch</td>
+</tr>
+<tr class="odd">
+<td>requests</td>
+<td>request</td>
+<td>id</td>
+<td>authenticated user</td>
+<td>authenticated user</td>
+<td>id, user_comments, admin_comments</td>
+</tr>
+<tr class="even">
+<td>tasks</td>
+<td>task</td>
+<td>ref</td>
+<td>public</td>
+<td>authenticated user</td>
+<td>name, description, target</td>
+</tr>
+<tr class="odd">
+<td>architectures</td>
+<td>release_arch</td>
+<td>ref</td>
+<td>public</td>
+<td>authenticated user</td>
+<td>platform_type, os_type, gcc_ver, mode, description</td>
+</tr>
+<tr class="even">
+<td>targets</td>
+<td>autoinstall_target</td>
+<td>ref</td>
+<td>public</td>
+<td>authenticated user</td>
+<td>name, description</td>
+</tr>
+<tr class="odd">
+<td>infosys</td>
+<td>bdii</td>
+<td>ref</td>
+<td>public</td>
+<td>authenticated user</td>
+<td>hostname, ns, lb, ld, wmproxy, myproxy</td>
+</tr>
+<tr class="even">
+<td>release-subscriptions</td>
+<td>release_subscription</td>
+<td>ref</td>
+<td>authenticated user</td>
+<td>authenticated user</td>
+<td>sitename, pattern, comment</td>
+</tr>
+<tr class="odd">
+<td>release-status</td>
+<td>release_stat</td>
+<td>ref</td>
+<td>public</td>
+<td>authenticated user</td>
+<td>name, tag, status, comments</td>
+</tr>
+<tr class="even">
+<td>grids</td>
+<td>grid</td>
+<td>ref</td>
+<td>public</td>
+<td>authenticated user</td>
+<td>name, description</td>
+</tr>
+<tr class="odd">
+<td>facilities</td>
+<td>facility</td>
+<td>ref</td>
+<td>public</td>
+<td>authenticated user</td>
+<td>name, description</td>
+</tr>
+<tr class="even">
+<td>site-types</td>
+<td>site_type</td>
+<td>ref</td>
+<td>public</td>
+<td>authenticated user</td>
+<td>name, description</td>
+</tr>
+<tr class="odd">
+<td>request-statuses</td>
+<td>request_status</td>
+<td>ref</td>
+<td>public</td>
+<td>master role</td>
+<td>description</td>
+</tr>
+<tr class="even">
+<td>request-types</td>
+<td>request_type</td>
+<td>ref</td>
+<td>public</td>
+<td>master role</td>
+<td>field, description, comment</td>
+</tr>
+<tr class="odd">
+<td>users</td>
+<td>user</td>
+<td>ref</td>
+<td>master role</td>
+<td>master role</td>
+<td>name, dn, email</td>
+</tr>
+<tr class="even">
+<td>local-users</td>
+<td>atlas_local_user</td>
+<td>id</td>
+<td>master role</td>
+<td>master role</td>
+<td>username, first_name, last_name, email, role</td>
+</tr>
+</tbody>
+</table>
+<h2 id="special-endpoints">6. Special endpoints</h2>
+<h3 id="get"><code>GET /</code></h3>
+<p>Returns API name, version, documentation URL and resource list.</p>
+<h3 id="get-health"><code>GET /health</code></h3>
+<p>API health only; it is not the full application readiness probe.
+Response:
+<code>{"status":"ok","api":"v1","request_id":"..."}</code>.</p>
+<h3 id="get-me"><code>GET /me</code></h3>
+<p>Requires authentication and returns the effective identity.
+<code>password_hash</code> is always removed.</p>
+<h3 id="get-openapi"><code>GET /openapi</code></h3>
+<p>Returns a compact OpenAPI 3.1 document with paths and methods; this
+manual is the more detailed source for fields, authentication and
+semantics.</p>
+<figure>
+<img src="docs/assets/api-example.png"
+alt="API request/response screenshot" />
+<figcaption aria-hidden="true">API request/response
+screenshot</figcaption>
+</figure>
+<h2 id="complete-resource-reference">7. Complete resource reference</h2>
+<h3 id="releases">7.1 <code>releases</code></h3>
+<p><strong>DB table:</strong> <code>release_data</code><br />
+<strong>Key:</strong> <code>ref</code> (integer)<br />
+<strong>Read access:</strong> public<br />
+<strong>Write access:</strong> authenticated user<br />
+<strong><code>q</code> search fields:</strong>
+<code>name, tag, package, comments</code></p>
+<p><strong>Methods:</strong></p>
+<ul>
+<li><code>GET /releases</code></li>
+<li><code>GET /releases/{id}</code></li>
+<li><code>POST /releases</code></li>
+<li><code>PATCH /releases/{id}</code></li>
+<li><code>PUT /releases/{id}</code></li>
+<li><code>DELETE /releases/{id}</code></li>
+</ul>
+<p><strong>Exposed fields:</strong></p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>DB type</th>
+<th>Nullable</th>
+<th>Writable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ref</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>no</td>
+<td>Numeric resource identifier.</td>
+</tr>
+<tr class="even">
+<td>name</td>
+<td>varchar(50)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Canonical or displayed name.</td>
+</tr>
+<tr class="odd">
+<td>build</td>
+<td>varchar(15)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="even">
+<td>typefk</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Type reference.</td>
+</tr>
+<tr class="odd">
+<td>archfk</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="even">
+<td>sw_archfk</td>
+<td>int(11)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="odd">
+<td>userfk</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>User reference.</td>
+</tr>
+<tr class="even">
+<td>obsolete</td>
+<td>int(11)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Obsolete-release flag.</td>
+</tr>
+<tr class="odd">
+<td>autoinstall</td>
+<td>int(11)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Automatic-installation flag.</td>
+</tr>
+<tr class="even">
+<td>requires</td>
+<td>varchar(30)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="odd">
+<td>dbrelease</td>
+<td>varchar(10)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="even">
+<td>installer_version</td>
+<td>varchar(10)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="odd">
+<td>install_tools_version</td>
+<td>varchar(10)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="even">
+<td>sw_name</td>
+<td>varchar(255)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="odd">
+<td>sw_revision</td>
+<td>varchar(20)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="even">
+<td>sw_physicalpath</td>
+<td>varchar(255)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="odd">
+<td>sw_logicalpath</td>
+<td>varchar(255)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="even">
+<td>tag</td>
+<td>varchar(100)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Software/release tag.</td>
+</tr>
+<tr class="odd">
+<td>package</td>
+<td>varchar(255)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Software package or descriptor.</td>
+</tr>
+<tr class="even">
+<td>comments</td>
+<td>varchar(255)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Operational comments.</td>
+</tr>
+<tr class="odd">
+<td>date</td>
+<td>datetime</td>
+<td>NO</td>
+<td>yes</td>
+<td>Date/time associated with the record.</td>
+</tr>
+<tr class="even">
+<td>cvmfs_available</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="odd">
+<td>critical</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Critical-release flag.</td>
+</tr>
+<tr class="even">
+<td>critical_validity_from</td>
+<td>datetime</td>
+<td>YES</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="odd">
+<td>critical_validity_to</td>
+<td>datetime</td>
+<td>YES</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="even">
+<td>critical_description</td>
+<td>varchar(25)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/releases<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/releases/123</span></code></pre></div>
+<h3 id="sites">7.2 <code>sites</code></h3>
+<p><strong>DB table:</strong> <code>site</code><br />
+<strong>Key:</strong> <code>ref</code> (integer)<br />
+<strong>Read access:</strong> public<br />
+<strong>Write access:</strong> authenticated user<br />
+<strong><code>q</code> search fields:</strong>
+<code>cs, cename, name, atlas_name, alias, arch</code></p>
+<p><strong>Methods:</strong></p>
+<ul>
+<li><code>GET /sites</code></li>
+<li><code>GET /sites/{id}</code></li>
+<li><code>POST /sites</code></li>
+<li><code>PATCH /sites/{id}</code></li>
+<li><code>PUT /sites/{id}</code></li>
+<li><code>DELETE /sites/{id}</code></li>
+</ul>
+<p><strong>Exposed fields:</strong></p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>DB type</th>
+<th>Nullable</th>
+<th>Writable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ref</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>no</td>
+<td>Numeric resource identifier.</td>
+</tr>
+<tr class="even">
+<td>cs</td>
+<td>varchar(128)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Legacy computer-service identifier.</td>
+</tr>
+<tr class="odd">
+<td>cename</td>
+<td>varchar(50)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Legacy CE name.</td>
+</tr>
+<tr class="even">
+<td>name</td>
+<td>varchar(30)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Canonical or displayed name.</td>
+</tr>
+<tr class="odd">
+<td>atlas_name</td>
+<td>varchar(30)</td>
+<td>NO</td>
+<td>yes</td>
+<td>ATLAS site name.</td>
+</tr>
+<tr class="even">
+<td>tier_level</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Site tier level.</td>
+</tr>
+<tr class="odd">
+<td>gridfk</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Grid reference.</td>
+</tr>
+<tr class="even">
+<td>facilityfk</td>
+<td>int(11)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Facility reference.</td>
+</tr>
+<tr class="odd">
+<td>activity_typefk</td>
+<td>int(11)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Activity-type reference.</td>
+</tr>
+<tr class="even">
+<td>osname</td>
+<td>varchar(128)</td>
+<td>NO</td>
+<td>yes</td>
+<td>OS name.</td>
+</tr>
+<tr class="odd">
+<td>osrelease</td>
+<td>varchar(128)</td>
+<td>NO</td>
+<td>yes</td>
+<td>OS release.</td>
+</tr>
+<tr class="even">
+<td>osversion</td>
+<td>varchar(128)</td>
+<td>NO</td>
+<td>yes</td>
+<td>OS version.</td>
+</tr>
+<tr class="odd">
+<td>arch</td>
+<td>varchar(20)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="even">
+<td>tags</td>
+<td>varchar(255)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="odd">
+<td>alias</td>
+<td>varchar(128)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="even">
+<td>swarea</td>
+<td>varchar(255)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="odd">
+<td>fstype</td>
+<td>varchar(15)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Filesystem type.</td>
+</tr>
+<tr class="even">
+<td>mountpoint</td>
+<td>varchar(255)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Mount point.</td>
+</tr>
+<tr class="odd">
+<td>capacity</td>
+<td>int(11)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Capacity.</td>
+</tr>
+<tr class="even">
+<td>available</td>
+<td>int(11)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Available space.</td>
+</tr>
+<tr class="odd">
+<td>quota</td>
+<td>int(11)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Quota.</td>
+</tr>
+<tr class="even">
+<td>status</td>
+<td>int(11)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Application status.</td>
+</tr>
+<tr class="odd">
+<td>attr</td>
+<td>int(10)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="even">
+<td>host_status</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="odd">
+<td>resource_status</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="even">
+<td>last_activity</td>
+<td>timestamp</td>
+<td>YES</td>
+<td>yes</td>
+<td>Last recorded activity.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/sites<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/sites/123</span></code></pre></div>
+<h3 id="requests">7.3 <code>requests</code></h3>
+<p><strong>DB table:</strong> <code>request</code><br />
+<strong>Key:</strong> <code>id</code> (string)<br />
+<strong>Read access:</strong> authenticated user<br />
+<strong>Write access:</strong> authenticated user<br />
+<strong><code>q</code> search fields:</strong>
+<code>id, user_comments, admin_comments</code></p>
+<p><strong>Methods:</strong></p>
+<ul>
+<li><code>GET /requests</code></li>
+<li><code>GET /requests/{id}</code></li>
+<li><code>POST /requests</code></li>
+<li><code>PATCH /requests/{id}</code></li>
+<li><code>PUT /requests/{id}</code></li>
+<li><code>DELETE /requests/{id}</code></li>
+</ul>
+<p><strong>Exposed fields:</strong></p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>DB type</th>
+<th>Nullable</th>
+<th>Writable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>id</td>
+<td>varchar(128)</td>
+<td>NO</td>
+<td>no</td>
+<td>Resource identifier.</td>
+</tr>
+<tr class="even">
+<td>bdiifk</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="odd">
+<td>sitefk</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Site reference.</td>
+</tr>
+<tr class="even">
+<td>relfk</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Release reference.</td>
+</tr>
+<tr class="odd">
+<td>typefk</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Type reference.</td>
+</tr>
+<tr class="even">
+<td>userfk</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>User reference.</td>
+</tr>
+<tr class="odd">
+<td>adminfk</td>
+<td>int(11)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Assigned administrator/operator reference.</td>
+</tr>
+<tr class="even">
+<td>statusfk</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Request-status reference.</td>
+</tr>
+<tr class="odd">
+<td>force_run</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Force-execution flag.</td>
+</tr>
+<tr class="even">
+<td>request_date</td>
+<td>datetime</td>
+<td>YES</td>
+<td>yes</td>
+<td>Request date/time.</td>
+</tr>
+<tr class="odd">
+<td>update_date</td>
+<td>datetime</td>
+<td>YES</td>
+<td>yes</td>
+<td>Last update date/time.</td>
+</tr>
+<tr class="even">
+<td>user_comments</td>
+<td>varchar(255)</td>
+<td>YES</td>
+<td>yes</td>
+<td>User comments.</td>
+</tr>
+<tr class="odd">
+<td>admin_comments</td>
+<td>varchar(255)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Administrative comments.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/requests<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/requests/REQ-EXAMPLE-001</span></code></pre></div>
+<h3 id="tasks">7.4 <code>tasks</code></h3>
+<p><strong>DB table:</strong> <code>task</code><br />
+<strong>Key:</strong> <code>ref</code> (integer)<br />
+<strong>Read access:</strong> public<br />
+<strong>Write access:</strong> authenticated user<br />
+<strong><code>q</code> search fields:</strong>
+<code>name, description, target</code></p>
+<p><strong>Methods:</strong></p>
+<ul>
+<li><code>GET /tasks</code></li>
+<li><code>GET /tasks/{id}</code></li>
+<li><code>POST /tasks</code></li>
+<li><code>PATCH /tasks/{id}</code></li>
+<li><code>PUT /tasks/{id}</code></li>
+<li><code>DELETE /tasks/{id}</code></li>
+</ul>
+<p><strong>Exposed fields:</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>DB type</th>
+<th>Nullable</th>
+<th>Writable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ref</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>no</td>
+<td>Numeric resource identifier.</td>
+</tr>
+<tr class="even">
+<td>name</td>
+<td>varchar(50)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Canonical or displayed name.</td>
+</tr>
+<tr class="odd">
+<td>description</td>
+<td>varchar(255)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Human-readable description.</td>
+</tr>
+<tr class="even">
+<td>target</td>
+<td>varchar(20)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Task target.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/tasks<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/tasks/123</span></code></pre></div>
+<h3 id="architectures">7.5 <code>architectures</code></h3>
+<p><strong>DB table:</strong> <code>release_arch</code><br />
+<strong>Key:</strong> <code>ref</code> (integer)<br />
+<strong>Read access:</strong> public<br />
+<strong>Write access:</strong> authenticated user<br />
+<strong><code>q</code> search fields:</strong>
+<code>platform_type, os_type, gcc_ver, mode, description</code></p>
+<p><strong>Methods:</strong></p>
+<ul>
+<li><code>GET /architectures</code></li>
+<li><code>GET /architectures/{id}</code></li>
+<li><code>POST /architectures</code></li>
+<li><code>PATCH /architectures/{id}</code></li>
+<li><code>PUT /architectures/{id}</code></li>
+<li><code>DELETE /architectures/{id}</code></li>
+</ul>
+<p><strong>Exposed fields:</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>DB type</th>
+<th>Nullable</th>
+<th>Writable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ref</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>no</td>
+<td>Numeric resource identifier.</td>
+</tr>
+<tr class="even">
+<td>platform_type</td>
+<td>varchar(16)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Platform type.</td>
+</tr>
+<tr class="odd">
+<td>os_type</td>
+<td>varchar(128)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Operating-system type.</td>
+</tr>
+<tr class="even">
+<td>gcc_ver</td>
+<td>varchar(128)</td>
+<td>NO</td>
+<td>yes</td>
+<td>GCC/toolchain version.</td>
+</tr>
+<tr class="odd">
+<td>mode</td>
+<td>varchar(10)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Build mode.</td>
+</tr>
+<tr class="even">
+<td>description</td>
+<td>varchar(255)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Human-readable description.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/architectures<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/architectures/123</span></code></pre></div>
+<h3 id="targets">7.6 <code>targets</code></h3>
+<p><strong>DB table:</strong> <code>autoinstall_target</code><br />
+<strong>Key:</strong> <code>ref</code> (integer)<br />
+<strong>Read access:</strong> public<br />
+<strong>Write access:</strong> authenticated user<br />
+<strong><code>q</code> search fields:</strong>
+<code>name, description</code></p>
+<p><strong>Methods:</strong></p>
+<ul>
+<li><code>GET /targets</code></li>
+<li><code>GET /targets/{id}</code></li>
+<li><code>POST /targets</code></li>
+<li><code>PATCH /targets/{id}</code></li>
+<li><code>PUT /targets/{id}</code></li>
+<li><code>DELETE /targets/{id}</code></li>
+</ul>
+<p><strong>Exposed fields:</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>DB type</th>
+<th>Nullable</th>
+<th>Writable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ref</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>no</td>
+<td>Numeric resource identifier.</td>
+</tr>
+<tr class="even">
+<td>name</td>
+<td>varchar(15)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Canonical or displayed name.</td>
+</tr>
+<tr class="odd">
+<td>description</td>
+<td>varchar(255)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Human-readable description.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/targets<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/targets/123</span></code></pre></div>
+<h3 id="infosys">7.7 <code>infosys</code></h3>
+<p><strong>DB table:</strong> <code>bdii</code><br />
+<strong>Key:</strong> <code>ref</code> (integer)<br />
+<strong>Read access:</strong> public<br />
+<strong>Write access:</strong> authenticated user<br />
+<strong><code>q</code> search fields:</strong>
+<code>hostname, ns, lb, ld, wmproxy, myproxy</code></p>
+<p><strong>Methods:</strong></p>
+<ul>
+<li><code>GET /infosys</code></li>
+<li><code>GET /infosys/{id}</code></li>
+<li><code>POST /infosys</code></li>
+<li><code>PATCH /infosys/{id}</code></li>
+<li><code>PUT /infosys/{id}</code></li>
+<li><code>DELETE /infosys/{id}</code></li>
+</ul>
+<p><strong>Exposed fields:</strong></p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>DB type</th>
+<th>Nullable</th>
+<th>Writable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ref</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>no</td>
+<td>Numeric resource identifier.</td>
+</tr>
+<tr class="even">
+<td>facilityfk</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Facility reference.</td>
+</tr>
+<tr class="odd">
+<td>hostname</td>
+<td>varchar(128)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Host name.</td>
+</tr>
+<tr class="even">
+<td>port</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>TCP port.</td>
+</tr>
+<tr class="odd">
+<td>ns</td>
+<td>varchar(255)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="even">
+<td>lb</td>
+<td>varchar(255)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="odd">
+<td>ld</td>
+<td>varchar(255)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="even">
+<td>wmproxy</td>
+<td>varchar(255)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="odd">
+<td>myproxy</td>
+<td>varchar(255)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="even">
+<td>preferred</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Preference flag.</td>
+</tr>
+<tr class="odd">
+<td>enabled</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Enable flag (0/1).</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/infosys<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/infosys/123</span></code></pre></div>
+<h3 id="release-subscriptions">7.8
+<code>release-subscriptions</code></h3>
+<p><strong>DB table:</strong> <code>release_subscription</code><br />
+<strong>Key:</strong> <code>ref</code> (integer)<br />
+<strong>Read access:</strong> authenticated user<br />
+<strong>Write access:</strong> authenticated user<br />
+<strong><code>q</code> search fields:</strong>
+<code>sitename, pattern, comment</code></p>
+<p><strong>Methods:</strong></p>
+<ul>
+<li><code>GET /release-subscriptions</code></li>
+<li><code>GET /release-subscriptions/{id}</code></li>
+<li><code>POST /release-subscriptions</code></li>
+<li><code>PATCH /release-subscriptions/{id}</code></li>
+<li><code>PUT /release-subscriptions/{id}</code></li>
+<li><code>DELETE /release-subscriptions/{id}</code></li>
+</ul>
+<p><strong>Exposed fields:</strong></p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>DB type</th>
+<th>Nullable</th>
+<th>Writable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ref</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>no</td>
+<td>Numeric resource identifier.</td>
+</tr>
+<tr class="even">
+<td>sitename</td>
+<td>varchar(50)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Site name.</td>
+</tr>
+<tr class="odd">
+<td>userfk</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>User reference.</td>
+</tr>
+<tr class="even">
+<td>pattern</td>
+<td>varchar(50)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Subscription pattern.</td>
+</tr>
+<tr class="odd">
+<td>date</td>
+<td>datetime</td>
+<td>NO</td>
+<td>yes</td>
+<td>Date/time associated with the record.</td>
+</tr>
+<tr class="even">
+<td>comment</td>
+<td>varchar(255)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/release-subscriptions<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/release-subscriptions/123</span></code></pre></div>
+<h3 id="release-status">7.9 <code>release-status</code></h3>
+<p><strong>DB table:</strong> <code>release_stat</code><br />
+<strong>Key:</strong> <code>ref</code> (integer)<br />
+<strong>Read access:</strong> public<br />
+<strong>Write access:</strong> authenticated user<br />
+<strong><code>q</code> search fields:</strong>
+<code>name, tag, status, comments</code></p>
+<p><strong>Methods:</strong></p>
+<ul>
+<li><code>GET /release-status</code></li>
+<li><code>GET /release-status/{id}</code></li>
+<li><code>POST /release-status</code></li>
+<li><code>PATCH /release-status/{id}</code></li>
+<li><code>PUT /release-status/{id}</code></li>
+<li><code>DELETE /release-status/{id}</code></li>
+</ul>
+<p><strong>Exposed fields:</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>DB type</th>
+<th>Nullable</th>
+<th>Writable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ref</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>no</td>
+<td>Numeric resource identifier.</td>
+</tr>
+<tr class="even">
+<td>sitefk</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Site reference.</td>
+</tr>
+<tr class="odd">
+<td>name</td>
+<td>varchar(50)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Canonical or displayed name.</td>
+</tr>
+<tr class="even">
+<td>userfk</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>User reference.</td>
+</tr>
+<tr class="odd">
+<td>pin</td>
+<td>int(11)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Pin flag.</td>
+</tr>
+<tr class="even">
+<td>pinuserfk</td>
+<td>int(11)</td>
+<td>YES</td>
+<td>yes</td>
+<td>User who set the pin.</td>
+</tr>
+<tr class="odd">
+<td>pindate</td>
+<td>datetime</td>
+<td>YES</td>
+<td>yes</td>
+<td>Pin date.</td>
+</tr>
+<tr class="even">
+<td>tag</td>
+<td>varchar(100)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Software/release tag.</td>
+</tr>
+<tr class="odd">
+<td>status</td>
+<td>varchar(100)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Application status.</td>
+</tr>
+<tr class="even">
+<td>comments</td>
+<td>varchar(255)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Operational comments.</td>
+</tr>
+<tr class="odd">
+<td>date</td>
+<td>datetime</td>
+<td>NO</td>
+<td>yes</td>
+<td>Date/time associated with the record.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/release-status<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/release-status/123</span></code></pre></div>
+<h3 id="grids">7.10 <code>grids</code></h3>
+<p><strong>DB table:</strong> <code>grid</code><br />
+<strong>Key:</strong> <code>ref</code> (integer)<br />
+<strong>Read access:</strong> public<br />
+<strong>Write access:</strong> authenticated user<br />
+<strong><code>q</code> search fields:</strong>
+<code>name, description</code></p>
+<p><strong>Methods:</strong></p>
+<ul>
+<li><code>GET /grids</code></li>
+<li><code>GET /grids/{id}</code></li>
+<li><code>POST /grids</code></li>
+<li><code>PATCH /grids/{id}</code></li>
+<li><code>PUT /grids/{id}</code></li>
+<li><code>DELETE /grids/{id}</code></li>
+</ul>
+<p><strong>Exposed fields:</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>DB type</th>
+<th>Nullable</th>
+<th>Writable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ref</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>no</td>
+<td>Numeric resource identifier.</td>
+</tr>
+<tr class="even">
+<td>name</td>
+<td>varchar(10)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Canonical or displayed name.</td>
+</tr>
+<tr class="odd">
+<td>description</td>
+<td>varchar(255)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Human-readable description.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/grids<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/grids/123</span></code></pre></div>
+<h3 id="facilities">7.11 <code>facilities</code></h3>
+<p><strong>DB table:</strong> <code>facility</code><br />
+<strong>Key:</strong> <code>ref</code> (integer)<br />
+<strong>Read access:</strong> public<br />
+<strong>Write access:</strong> authenticated user<br />
+<strong><code>q</code> search fields:</strong>
+<code>name, description</code></p>
+<p><strong>Methods:</strong></p>
+<ul>
+<li><code>GET /facilities</code></li>
+<li><code>GET /facilities/{id}</code></li>
+<li><code>POST /facilities</code></li>
+<li><code>PATCH /facilities/{id}</code></li>
+<li><code>PUT /facilities/{id}</code></li>
+<li><code>DELETE /facilities/{id}</code></li>
+</ul>
+<p><strong>Exposed fields:</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>DB type</th>
+<th>Nullable</th>
+<th>Writable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ref</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>no</td>
+<td>Numeric resource identifier.</td>
+</tr>
+<tr class="even">
+<td>name</td>
+<td>varchar(10)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Canonical or displayed name.</td>
+</tr>
+<tr class="odd">
+<td>description</td>
+<td>varchar(255)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Human-readable description.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/facilities<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/facilities/123</span></code></pre></div>
+<h3 id="site-types">7.12 <code>site-types</code></h3>
+<p><strong>DB table:</strong> <code>site_type</code><br />
+<strong>Key:</strong> <code>ref</code> (integer)<br />
+<strong>Read access:</strong> public<br />
+<strong>Write access:</strong> authenticated user<br />
+<strong><code>q</code> search fields:</strong>
+<code>name, description</code></p>
+<p><strong>Methods:</strong></p>
+<ul>
+<li><code>GET /site-types</code></li>
+<li><code>GET /site-types/{id}</code></li>
+<li><code>POST /site-types</code></li>
+<li><code>PATCH /site-types/{id}</code></li>
+<li><code>PUT /site-types/{id}</code></li>
+<li><code>DELETE /site-types/{id}</code></li>
+</ul>
+<p><strong>Exposed fields:</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>DB type</th>
+<th>Nullable</th>
+<th>Writable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ref</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>no</td>
+<td>Numeric resource identifier.</td>
+</tr>
+<tr class="even">
+<td>name</td>
+<td>varchar(50)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Canonical or displayed name.</td>
+</tr>
+<tr class="odd">
+<td>description</td>
+<td>varchar(255)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Human-readable description.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/site-types<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/site-types/123</span></code></pre></div>
+<h3 id="request-statuses">7.13 <code>request-statuses</code></h3>
+<p><strong>DB table:</strong> <code>request_status</code><br />
+<strong>Key:</strong> <code>ref</code> (integer)<br />
+<strong>Read access:</strong> public<br />
+<strong>Write access:</strong> master role<br />
+<strong><code>q</code> search fields:</strong>
+<code>description</code></p>
+<p><strong>Methods:</strong></p>
+<ul>
+<li><code>GET /request-statuses</code></li>
+<li><code>GET /request-statuses/{id}</code></li>
+<li><code>POST /request-statuses</code></li>
+<li><code>PATCH /request-statuses/{id}</code></li>
+<li><code>PUT /request-statuses/{id}</code></li>
+<li><code>DELETE /request-statuses/{id}</code></li>
+</ul>
+<p><strong>Exposed fields:</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>DB type</th>
+<th>Nullable</th>
+<th>Writable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ref</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>no</td>
+<td>Numeric resource identifier.</td>
+</tr>
+<tr class="even">
+<td>description</td>
+<td>varchar(128)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Human-readable description.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/request-statuses<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/request-statuses/123</span></code></pre></div>
+<h3 id="request-types">7.14 <code>request-types</code></h3>
+<p><strong>DB table:</strong> <code>request_type</code><br />
+<strong>Key:</strong> <code>ref</code> (integer)<br />
+<strong>Read access:</strong> public<br />
+<strong>Write access:</strong> master role<br />
+<strong><code>q</code> search fields:</strong>
+<code>field, description, comment</code></p>
+<p><strong>Methods:</strong></p>
+<ul>
+<li><code>GET /request-types</code></li>
+<li><code>GET /request-types/{id}</code></li>
+<li><code>POST /request-types</code></li>
+<li><code>PATCH /request-types/{id}</code></li>
+<li><code>PUT /request-types/{id}</code></li>
+<li><code>DELETE /request-types/{id}</code></li>
+</ul>
+<p><strong>Exposed fields:</strong></p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>DB type</th>
+<th>Nullable</th>
+<th>Writable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ref</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>no</td>
+<td>Numeric resource identifier.</td>
+</tr>
+<tr class="even">
+<td>level</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Level/precedence.</td>
+</tr>
+<tr class="odd">
+<td>field</td>
+<td>varchar(100)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Application field name.</td>
+</tr>
+<tr class="even">
+<td>description</td>
+<td>varchar(128)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Human-readable description.</td>
+</tr>
+<tr class="odd">
+<td>comment</td>
+<td>varchar(255)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/request-types<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/request-types/123</span></code></pre></div>
+<h3 id="users">7.15 <code>users</code></h3>
+<p><strong>DB table:</strong> <code>user</code><br />
+<strong>Key:</strong> <code>ref</code> (integer)<br />
+<strong>Read access:</strong> master role<br />
+<strong>Write access:</strong> master role<br />
+<strong><code>q</code> search fields:</strong>
+<code>name, dn, email</code></p>
+<p><strong>Methods:</strong></p>
+<ul>
+<li><code>GET /users</code></li>
+<li><code>GET /users/{id}</code></li>
+<li><code>POST /users</code></li>
+<li><code>PATCH /users/{id}</code></li>
+<li><code>PUT /users/{id}</code></li>
+<li><code>DELETE /users/{id}</code></li>
+</ul>
+<p><strong>Exposed fields:</strong></p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>DB type</th>
+<th>Nullable</th>
+<th>Writable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ref</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>no</td>
+<td>Numeric resource identifier.</td>
+</tr>
+<tr class="even">
+<td>name</td>
+<td>varchar(50)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Canonical or displayed name.</td>
+</tr>
+<tr class="odd">
+<td>dn</td>
+<td>varchar(200)</td>
+<td>YES</td>
+<td>yes</td>
+<td>X.509 Distinguished Name.</td>
+</tr>
+<tr class="even">
+<td>email</td>
+<td>varchar(150)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Associated email address.</td>
+</tr>
+<tr class="odd">
+<td>priv_view</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="even">
+<td>priv_insert</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="odd">
+<td>priv_update</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="even">
+<td>priv_pin</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="odd">
+<td>priv_relsub</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="even">
+<td>priv_critical</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="odd">
+<td>rolefk</td>
+<td>int(11)</td>
+<td>YES</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="even">
+<td>valid_start</td>
+<td>datetime</td>
+<td>YES</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="odd">
+<td>valid_end</td>
+<td>datetime</td>
+<td>YES</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="even">
+<td>enabled</td>
+<td>int(11)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Enable flag (0/1).</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/users<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/users/123</span></code></pre></div>
+<h3 id="local-users">7.16 <code>local-users</code></h3>
+<p><strong>DB table:</strong> <code>atlas_local_user</code><br />
+<strong>Key:</strong> <code>id</code> (integer)<br />
+<strong>Read access:</strong> master role<br />
+<strong>Write access:</strong> master role<br />
+<strong><code>q</code> search fields:</strong>
+<code>username, first_name, last_name, email, role</code></p>
+<p><strong>Methods:</strong></p>
+<ul>
+<li><code>GET /local-users</code></li>
+<li><code>GET /local-users/{id}</code></li>
+<li><code>POST /local-users</code></li>
+<li><code>PATCH /local-users/{id}</code></li>
+<li><code>PUT /local-users/{id}</code></li>
+<li><code>DELETE /local-users/{id}</code></li>
+</ul>
+<p><strong>Exposed fields:</strong></p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>DB type</th>
+<th>Nullable</th>
+<th>Writable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>id</td>
+<td>BIGINT</td>
+<td>NO</td>
+<td>no</td>
+<td>Resource identifier.</td>
+</tr>
+<tr class="even">
+<td>username</td>
+<td>VARCHAR(64)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Local account name.</td>
+</tr>
+<tr class="odd">
+<td>first_name</td>
+<td>VARCHAR(100)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="even">
+<td>last_name</td>
+<td>VARCHAR(100)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Canonical application-schema field; operational meaning depends on
+the resource.</td>
+</tr>
+<tr class="odd">
+<td>email</td>
+<td>VARCHAR(254)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Associated email address.</td>
+</tr>
+<tr class="even">
+<td>role</td>
+<td>VARCHAR(32)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Local application role: user, admin, or master.</td>
+</tr>
+<tr class="odd">
+<td>enabled</td>
+<td>TINYINT(1)</td>
+<td>NO</td>
+<td>yes</td>
+<td>Enable flag (0/1).</td>
+</tr>
+<tr class="even">
+<td>must_change_password</td>
+<td>TINYINT(1)</td>
+<td>NO</td>
+<td>yes</td>
+<td>When 1, password change is required before API use.</td>
+</tr>
+<tr class="odd">
+<td>created_at</td>
+<td>DATETIME</td>
+<td>NO</td>
+<td>yes</td>
+<td>Creation date/time.</td>
+</tr>
+<tr class="even">
+<td>updated_at</td>
+<td>DATETIME</td>
+<td>NO</td>
+<td>yes</td>
+<td>Last update date/time.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/local-users<span class="pp">?</span>limit=20<span class="kw">&amp;</span><span class="va">offset</span><span class="op">=</span>0</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://atlas-install.example.org/atlas_install/api/v1/local-users/123</span></code></pre></div>
+<p><code>password</code> is a special input-only field: accepted by
+POST/PATCH/PUT, minimum 8 characters, converted into
+<code>password_hash</code>, and never returned.</p>
+<h2 id="end-to-end-examples">8. End-to-end examples</h2>
+<h3 id="create-and-update-a-local-user">8.1 Create and update a local
+user</h3>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-u</span> admin:<span class="st">&#39;ADMIN_PASSWORD&#39;</span> <span class="at">-H</span> <span class="st">&#39;Content-Type: application/json&#39;</span> <span class="dt">\</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">-d</span> <span class="st">&#39;{&quot;username&quot;:&quot;operator&quot;,&quot;first_name&quot;:&quot;API&quot;,&quot;last_name&quot;:&quot;Operator&quot;,&quot;email&quot;:&quot;operator@example.org&quot;,&quot;role&quot;:&quot;user&quot;,&quot;enabled&quot;:1,&quot;password&quot;:&quot;StrongPass-2026&quot;}&#39;</span> <span class="dt">\</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  https://atlas-install.example.org/atlas_install/api/v1/local-users</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-u</span> admin:<span class="st">&#39;ADMIN_PASSWORD&#39;</span> <span class="at">-X</span> PATCH <span class="at">-H</span> <span class="st">&#39;Content-Type: application/json&#39;</span> <span class="dt">\</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">-d</span> <span class="st">&#39;{&quot;role&quot;:&quot;admin&quot;,&quot;must_change_password&quot;:0}&#39;</span> <span class="dt">\</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  https://atlas-install.example.org/atlas_install/api/v1/local-users/5</span></code></pre></div>
+<h3 id="python">8.2 Python</h3>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>base <span class="op">=</span> <span class="st">&#39;https://atlas-install.example.org/atlas_install/api/v1&#39;</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> requests.get(<span class="ss">f&#39;</span><span class="sc">{</span>base<span class="sc">}</span><span class="ss">/releases&#39;</span>, params<span class="op">=</span>{<span class="st">&#39;q&#39;</span>:<span class="st">&#39;24.3&#39;</span>,<span class="st">&#39;limit&#39;</span>:<span class="dv">50</span>}, timeout<span class="op">=</span><span class="dv">30</span>)</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>r.raise_for_status()</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> release <span class="kw">in</span> r.json()[<span class="st">&#39;data&#39;</span>]:</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(release[<span class="st">&#39;ref&#39;</span>], release[<span class="st">&#39;name&#39;</span>], release[<span class="st">&#39;tag&#39;</span>])</span></code></pre></div>
+<h3 id="robust-error-handling">8.3 Robust error handling</h3>
+<div class="sourceCode" id="cb26"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> requests.get(<span class="st">&#39;https://atlas-install.example.org/atlas_install/api/v1/requests&#39;</span>, timeout<span class="op">=</span><span class="dv">30</span>)</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> r.status_code <span class="op">&gt;=</span> <span class="dv">400</span>:</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    payload <span class="op">=</span> r.json()</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    err <span class="op">=</span> payload.get(<span class="st">&#39;error&#39;</span>, {})</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&#39;HTTP&#39;</span>, r.status_code, err.get(<span class="st">&#39;code&#39;</span>), err.get(<span class="st">&#39;message&#39;</span>), <span class="st">&#39;request_id=&#39;</span>, err.get(<span class="st">&#39;request_id&#39;</span>))</span></code></pre></div>
+<h2 id="security-compatibility-and-current-limitations">9. Security,
+compatibility and current limitations</h2>
+<ul>
+<li>Always use HTTPS; Basic sends reusable credentials on every
+request.</li>
+<li>Local passwords/hashes are never returned.</li>
+<li>Writes use parameterized queries and an exposed-field
+allowlist.</li>
+<li>There are currently no ETag/If-Match semantics and no
+<code>Idempotency-Key</code> header: clients must avoid blind POST
+retries.</li>
+<li>There are no bulk endpoints: each request modifies one
+resource.</li>
+<li><code>PUT</code> is intentionally patch-like in v1; do not assume
+full replacement semantics.</li>
+<li>Maximum page size is 1000; iterate with <code>offset</code> for
+larger datasets.</li>
+<li>Resources with DB dependencies may return 409 on DELETE/UPDATE due
+to constraints/conflicts.</li>
+<li>Legacy endpoints are separate; do not infer REST contracts from
+legacy endpoint syntax.</li>
+</ul>
+<h2 id="production-client-checklist">10. Production client
+checklist</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" />Verify the server TLS
+certificate.</label></li>
+<li><label><input type="checkbox" />Set explicit client-side
+timeouts.</label></li>
+<li><label><input type="checkbox" />Record and propagate
+<code>X-Request-ID</code> where possible.</label></li>
+<li><label><input type="checkbox" />Handle 401, 403, 409, 415 and 5xx
+separately.</label></li>
+<li><label><input type="checkbox" />Never log passwords, Basic
+Authorization or TOTP codes.</label></li>
+<li><label><input type="checkbox" />Use pagination and reasonable
+limits.</label></li>
+<li><label><input type="checkbox" />Before DELETE, account for
+dependencies and handle 409.</label></li>
+<li><label><input type="checkbox" />Use dedicated automation identities
+with the least required role.</label></li>
+</ul>
+<h2 id="appendix-c.-glossary">Appendix C. Glossary</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Term</th>
+<th>Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>BDII / InfoSys</td>
+<td>Information service used to discover resources/grid endpoints.</td>
+</tr>
+<tr class="even">
+<td>CRL</td>
+<td>Certificate Revocation List used for client-certificate
+validation.</td>
+</tr>
+<tr class="odd">
+<td>IGTF</td>
+<td>Trust federation/CA distribution used by the trust store.</td>
+</tr>
+<tr class="even">
+<td>RWO</td>
+<td>ReadWriteOnce: a volume writable from one node at a time.</td>
+</tr>
+<tr class="odd">
+<td>TOTP</td>
+<td>Time-based One-Time Password.</td>
+</tr>
+<tr class="even">
+<td>TLS passthrough</td>
+<td>Ingress forwards the TLS stream without termination, preserving the
+client certificate to Apache.</td>
+</tr>
+<tr class="odd">
+<td>Legacy endpoint</td>
+<td>Historical interface outside the REST v1 contract.</td>
+</tr>
+<tr class="even">
+<td>Request ID</td>
+<td>Correlation identifier returned/logged for a request.</td>
+</tr>
+</tbody>
+</table>

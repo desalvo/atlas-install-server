@@ -65,8 +65,14 @@ function db_query($query, $dest='rw', $commit=FALSE) {
     global $dbconn;
     try { $conn = db_conn($dest); }
     catch (Throwable $e) { db_err($e->getMessage()); }
+    $started = microtime(true);
     $result = $conn->query($query);
+    $elapsedMs = (int)round((microtime(true)-$started)*1000);
     if ($result === false) db_err($conn->error, $query);
+    $slowMs = (int)atlas_env('ATLAS_DB_SLOW_QUERY_MS','2000');
+    if ($slowMs > 0 && $elapsedMs >= $slowMs && function_exists('atlas_app_log')) {
+        atlas_app_log('slow_database_query',['dest'=>$dest,'duration_ms'=>$elapsedMs,'query_hash'=>hash('sha256',$query)]);
+    }
     if ($commit) $conn->commit();
     return $result;
 }

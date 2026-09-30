@@ -1,9 +1,39 @@
-# Project design documentation
+# LJSF 3 - Project design
+
+![LJSF 3](assets/ljsf3-logo.png)
+
+| Item | Value |
+| --- | --- |
+| Product | LJSF 3 - ATLAS Installation System |
+| Application version | 3.0.0 |
+| Package revision | r30 |
+| Creator / maintainer | Alessandro De Salvo |
+| License | EUPL-1.2 |
+| Repository | `desalvo/atlas-install-server` |
+| Container image | `desalvo/atlas-install-server` |
+
+## Visual architecture
+
+![System architecture](assets/arch.png)
+
+![Kubernetes topology](assets/k8s.png)
+
+![Authentication model](assets/auth.png)
+
+![Core data model](assets/model.png)
+
+## Documentation contract
+
+The repository documentation describes the current system, not a chronological request log. User-facing documentation is maintained in Italian and English; API behavior is documented from the v1 router contract and database schema. Changes to public API semantics require matching documentation and regression coverage.
+
+---
 
 ## 1. Project identity
 
 **Project:** ATLAS Installation Server  
 **Version:** 3.0.0  
+**Package revision:** r30  
+**Creator / maintainer:** Alessandro De Salvo  
 **Repository:** `desalvo/atlas-install-server`  
 **Container image:** `desalvo/atlas-install-server`  
 **Licence:** EUPL-1.2
@@ -39,7 +69,7 @@ Out of scope:
 - Kubernetes ingress-controller lifecycle;
 - PKI issuance of server/client certificates;
 - ATLAS software payload distribution outside the installation-server interfaces;
-- redesign of the historical database schema unless explicitly introduced by a future migration.
+- destructive redesign of the historical database schema. Additive, idempotent migrations required by current application features are in scope.
 
 ## 4. Architectural principles
 
@@ -208,3 +238,8 @@ A 3.0.0 release candidate is acceptable when:
 ## Kubernetes installation wizard
 
 The Kubernetes deployment layer includes a standalone Bash wizard. The wizard separates version-controlled templates from generated site-specific manifests, retrieves template updates from a user-confirmed GitHub repository/ref, persists only non-secret operator choices, and applies Kubernetes Secrets using client-generated manifests piped to `kubectl apply`. Host TLS material remains external to Git and the container image.
+
+
+## LJSF 3 schema migration policy
+
+At container startup, the application runs an idempotent schema migration check. It may create newly introduced tables, add missing columns, and add performance indexes required by the current release. This is intentionally safe after restoring an older database dump: existing data and objects are preserved. A dedicated Kubernetes Secret `<app>-db-admin` may retain the migration account. Kubernetes Secret objects are not inherently encrypted; production clusters should enable API-server/etcd encryption at rest.

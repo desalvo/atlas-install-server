@@ -1,32 +1,27 @@
 # LJSF 3 documentation
 
-This documentation describes the current behavior of LJSF 3 rather than the history of individual implementation changes.
+## User and operations manuals
 
-## User documentation
+- [Italian complete manual](USER-GUIDE.it.md)
+- [English complete manual](USER-GUIDE.en.md)
+- [Italian PDF](LJSF3-Manual.it.pdf)
+- [English PDF](LJSF3-Manual.en.pdf)
 
-- `USER-GUIDE.it.md` — guida utente in italiano.
-- `USER-GUIDE.en.md` — English user guide.
-- `APPLICATION.md` — application functions and data model.
-- `WEB-CONFIGURATION.md` — protected configuration console.
+## REST API
 
-## Administrator documentation
+- [Italian REST API reference](REST-API.it.md)
+- [English REST API reference](REST-API.en.md)
+- Runtime OpenAPI: `/atlas_install/api/v1/openapi`
 
-- `ADMIN-GUIDE.md` — administrative responsibilities.
-- `KUBERNETES.md` — Kubernetes deployment model.
-- `KUBERNETES-WIZARD.md` — interactive installer/updater.
-- `DOCKER-COMPOSE.md` — Docker Compose deployment.
-- `OPERATIONS.md` — logs, certificates, CRLs, backup and troubleshooting.
-- `../INSTALL-RHEL10.md` — native EL10 installation.
+## Project and operations
 
-## Engineering and security
-
-- `ARCHITECTURE.md` — request flow, database, identity and trust boundaries.
-- `SECURITY.md` — security controls and operational assumptions.
-- `DEVELOPMENT.md` — development workflow and validation.
-- `RELEASE-MANAGEMENT.md` — releases and rollback.
-- `GITHUB-CI.md` — CI/CD and image publication.
-
-The Web application exposes the corresponding functional documentation at `/atlas_install/documentation.php`, automatically in Italian or English according to browser language, with a manual language selector.
-
-- `REST-API.it.md` — REST API v1 (Italiano)
-- `REST-API.en.md` — REST API v1 (English)
+- [Project design](PROJECT-DESIGN.md)
+- [Architecture](ARCHITECTURE.md)
+- [Security](SECURITY.md)
+- [Kubernetes](KUBERNETES.md)
+- [Kubernetes wizard](KUBERNETES-WIZARD.md)
+- [Operations](OPERATIONS.md)
+- [Administration](ADMIN-GUIDE.md)
+- [Development](DEVELOPMENT.md)
+- [GitHub CI](GITHUB-CI.md)
+- [Release management](RELEASE-MANAGEMENT.md)

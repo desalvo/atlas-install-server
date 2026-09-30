@@ -1,3 +1,32 @@
+# Changelog
+
+## 3.0.0 r31
+
+- Fixed false cross-origin rejection for authenticated legacy POST forms behind HAProxy by honoring browser Fetch Metadata (`Sec-Fetch-Site: same-origin`) before proxy-dependent Origin reconstruction.
+- Added the Fetch Metadata value and request path to `same_origin_rejected` diagnostics.
+- Reworked legacy definition form submission for `archdef.php`, `isdef.php`, `reldef.php`, `sitedef.php`, `taskdef.php`, `tgtdef.php`, `ispardef.php`, `pardef.php`, and `sitepardef.php`. Select/Save/Delete actions are now submitted deterministically even when browsers repair invalid historical form/table markup.
+- Clone/new/update source selectors now preserve `mode` and source identifiers across the generated POST.
+- Added regression checks for same-origin legacy POSTs and definition-page Select flows.
+
+## 3.0.0 r30
+
+- Rebuilt Italian and English manuals as detailed current-system handbooks.
+- Added exhaustive REST API authentication, endpoint, field, response, status-code and client examples.
+- Added architecture, Kubernetes, authentication, database-migration, data-model and API-flow diagrams.
+- Added sanitized illustrative UI/API screenshots and a local-chart example.
+- Updated Web documentation, project design and GitHub documentation index.
+- Regenerated professional downloadable PDF manuals with table of contents, figures and endpoint reference.
+
+## 3.0.0-r29
+
+- Optimized `protected/req.php`: lightweight count query, explicit joins, no per-row admin lookup, and dedicated request indexes.
+- Added idempotent startup schema migrations for restored older database copies, including missing LJSF 3 tables/columns/indexes.
+- Added persistent, dedicated Kubernetes DB schema-migration Secret support; runtime RW credentials remain separate.
+- Added a browser-safe fallback for legacy definition-page Select/Save/Delete controls whose historical form/table markup is repaired differently by modern browsers.
+- Expanded central Italian/English translation coverage for legacy Web UI text.
+- Reorganized application and GitHub documentation into professional chapters with product metadata and separate navigation links.
+- Added downloadable Italian and English PDF manuals.
+
 ## 3.0.0-r28
 
 - Fixed nested config bootstrap path resolution for legacy_compat.php and security.php.

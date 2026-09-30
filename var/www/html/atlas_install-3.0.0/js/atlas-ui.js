@@ -25,40 +25,70 @@
     }
   }
 
-  function initMenu(){
-    var bar=document.getElementById('menubar');
-    var toggle=document.getElementById('atlas-mobile-menu-toggle');
-    var close=document.getElementById('atlas-mobile-menu-close');
-    var backdrop=document.getElementById('atlas-mobile-menu-backdrop');
-    if(!bar||!toggle||bar.dataset.atlasInlineReady==='1'||toggle.dataset.atlasBound==='1') return;
-    toggle.dataset.atlasBound='1';
-    function setOpen(open){
-      bar.classList.toggle('atlas-mobile-open',!!open);
-      toggle.setAttribute('aria-expanded',open?'true':'false');
-      if(backdrop){backdrop.hidden=!open;backdrop.classList.toggle('is-open',!!open);}
-      document.documentElement.classList.toggle('atlas-menu-open',!!open);
-    }
-    window.atlasSetMobileMenuOpen=setOpen;
-    window.atlasToggleMobileMenu=function(ev){ if(ev){ev.preventDefault();ev.stopPropagation();} setOpen(!bar.classList.contains('atlas-mobile-open')); return false; };
-    toggle.addEventListener('click',window.atlasToggleMobileMenu,false);
-    if(close) close.addEventListener('click',function(e){e.preventDefault();setOpen(false);},false);
-    if(backdrop) backdrop.addEventListener('click',function(){setOpen(false);},false);
-    document.addEventListener('keydown',function(e){if(e.key==='Escape')setOpen(false);},false);
-    var dirs=bar.querySelectorAll('#menu > li > a.dir');
-    for(var i=0;i<dirs.length;i++) dirs[i].addEventListener('click',function(e){
-      if(!isMobile()) return;
-      var li=this.parentElement, submenu=null;
-      for(var c=0;c<li.children.length;c++){ if(li.children[c].tagName==='UL'){submenu=li.children[c];break;} }
-      if(!submenu) return;
+  function initLegacyDefinitionSubmit(){
+    // A number of legacy definition pages place <form> tags inside tables.
+    // Browsers are allowed to repair that invalid markup differently, which
+    // can leave Select/Save/Delete controls associated with an empty form or
+    // outside the intended form entirely. Intercept these actions on the
+    // affected definition pages and rebuild a deterministic POST payload from
+    // the visible definition table and request parameters.
+    var legacyPage=/\/(?:archdef|isdef|reldef|sitedef|taskdef|tgtdef|ispardef|pardef|sitepardef)\.php$/i.test(window.location.pathname);
+    if(!legacyPage) return;
+
+    document.addEventListener('click',function(e){
+      var btn=e.target && e.target.closest ? e.target.closest('input[type="submit"],button[type="submit"]') : null;
+      if(!btn) return;
+      var value=(btn.value||btn.textContent||'').trim();
+      if(!/^(Select|Save|Delete|Update)$/i.test(value)) return;
+
+      // Always handle the legacy definition actions ourselves, even if the
+      // browser reports btn.form: repaired table markup may point at the wrong
+      // or an empty form.
+      var table=document.getElementById('select_tbl');
+      if(!table) return;
       e.preventDefault();
-      var opened=bar.querySelectorAll('#menu > li.atlas-mobile-section-open');
-      for(var j=0;j<opened.length;j++) if(opened[j]!==li) opened[j].classList.remove('atlas-mobile-section-open');
-      li.classList.toggle('atlas-mobile-section-open');
-    },false);
-    var links=bar.querySelectorAll('#menu ul a, #menu > li.atlas-menu-single > a:not(#trigger)');
-    for(var k=0;k<links.length;k++) links[k].addEventListener('click',function(){if(isMobile())setOpen(false);},false);
-    window.addEventListener('resize',function(){if(!isMobile())setOpen(false);},false);
+      e.stopPropagation();
+
+      var f=document.createElement('form');
+      f.method='post';
+      f.action=window.location.pathname;
+      f.style.display='none';
+
+      var seen={};
+      function append(name,value){
+        if(!name) return;
+        var h=document.createElement('input');
+        h.type='hidden'; h.name=name; h.value=value == null ? '' : String(value);
+        f.appendChild(h); seen[name]=true;
+      }
+
+      // Controls may have been foster-parented out of the table by the HTML
+      // parser. Read from the table first, then from the page's legacy forms.
+      var controls=[];
+      Array.prototype.push.apply(controls,table.querySelectorAll('input,select,textarea'));
+      var named=document.querySelectorAll('form[name="srcsel"] input,form[name="srcsel"] select,form[name="srcsel"] textarea,form[name$="def"] input,form[name$="def"] select,form[name$="def"] textarea');
+      Array.prototype.push.apply(controls,named);
+      // Finally include known source/mode controls wherever the parser moved them.
+      Array.prototype.push.apply(controls,document.querySelectorAll('[name="mode"],[name="archsrc"],[name="tasksrc"],[name="relsrc"],[name="tgtsrc"],[name="sitesrc"],[name="issrc"]'));
+
+      for(var i=0;i<controls.length;i++){
+        var c=controls[i]; if(!c.name || c.disabled || seen[c.name]) continue;
+        if((c.type==='checkbox'||c.type==='radio')&&!c.checked) continue;
+        if(c.tagName==='SELECT' && c.multiple){
+          for(var j=0;j<c.options.length;j++) if(c.options[j].selected) append(c.name,c.options[j].value);
+        } else append(c.name,c.value);
+      }
+
+      var params=new URLSearchParams(window.location.search);
+      ['mode','archsrc','tasksrc','relsrc','tgtsrc','sitesrc','issrc'].forEach(function(k){
+        if(params.has(k) && !seen[k]) append(k,params.get(k));
+      });
+      append(btn.name||'submit',value);
+      document.body.appendChild(f);
+      f.submit();
+    },true);
   }
-  function initAll(){initAutocompleteFallback();}
+
+  function initAll(){initAutocompleteFallback();initLegacyDefinitionSubmit();}
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initAll,false); else initAll();
 })();

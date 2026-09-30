@@ -113,3 +113,8 @@ The Web application renders charts locally as SVG/HTML on demand. Maintenance Cr
 
 ## Application errors in Kubernetes logs
 PHP warnings, exceptions, fatal errors, database errors, rejected same-origin requests and completed HTTP 5xx responses are written to the container standard error with the `[ATLAS_APP]` prefix and request ID. Use `kubectl logs -n <namespace> deploy/<deployment> -f` to inspect them.
+
+
+## LJSF 3 schema migration policy
+
+At container startup, the application runs an idempotent schema migration check. It may create newly introduced tables, add missing columns, and add performance indexes required by the current release. This is intentionally safe after restoring an older database dump: existing data and objects are preserved. A dedicated Kubernetes Secret `<app>-db-admin` may retain the migration account. Kubernetes Secret objects are not inherently encrypted; production clusters should enable API-server/etcd encryption at rest.

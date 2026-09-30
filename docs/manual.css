@@ -1,0 +1,31 @@
+@page { size: A4; margin: 18mm 16mm 20mm 16mm; @bottom-center { content: "LJSF 3 - ATLAS Installation System  |  " counter(page) " / " counter(pages); color:#718198; font-size:8.5pt; } }
+@page:first { margin-top: 20mm; @bottom-center { content: none; } }
+html { font-family: "DejaVu Sans", Arial, sans-serif; color:#17263b; font-size:10pt; line-height:1.42; }
+body { margin:0; }
+h1 { color:#0b3c78; font-size:26pt; line-height:1.05; margin:6mm 0 3mm; page-break-after:avoid; }
+h2 { color:#0d4e99; font-size:17pt; margin-top:8mm; padding-bottom:1.5mm; border-bottom:1.3pt solid #cddded; page-break-after:avoid; }
+h3 { color:#175fae; font-size:12.8pt; margin-top:5mm; page-break-after:avoid; }
+h4 { color:#284d78; font-size:11pt; page-break-after:avoid; }
+p { margin:2.2mm 0 3mm; }
+a { color:#0b67c2; text-decoration:none; }
+blockquote { margin:4mm 0; padding:3mm 4mm; background:#f2f7fc; border-left:3pt solid #2d76bd; color:#31455d; }
+code { font-family:"DejaVu Sans Mono",monospace; font-size:8.8pt; background:#f3f6f9; padding:0.2mm 0.7mm; border-radius:2px; }
+pre { font-family:"DejaVu Sans Mono",monospace; font-size:7.9pt; line-height:1.35; background:#081a2b; color:#e5f2ff; padding:3.5mm; border-radius:4px; white-space:pre-wrap; overflow-wrap:anywhere; page-break-inside:avoid; }
+pre code { background:transparent; color:inherit; padding:0; }
+table { width:100%; border-collapse:collapse; margin:3.5mm 0 5mm; table-layout:fixed; font-size:8.2pt; page-break-inside:auto; }
+thead { display:table-header-group; }
+tr { page-break-inside:avoid; }
+th { background:#0e4f91; color:white; text-align:left; font-weight:700; padding:2mm 2.2mm; border:0.5pt solid #c7d7e7; overflow-wrap:anywhere; }
+td { padding:1.8mm 2.2mm; border:0.5pt solid #d6e0ea; vertical-align:top; overflow-wrap:anywhere; }
+tr:nth-child(even) td { background:#f7f9fc; }
+ul,ol { padding-left:6mm; margin-top:2mm; margin-bottom:3mm; }
+li { margin:1.1mm 0; }
+img { max-width:100%; height:auto; display:block; margin:4mm auto 2mm; page-break-inside:avoid; }
+figure { page-break-inside:avoid; }
+nav#TOC { background:#f4f8fc; border:1pt solid #d5e2ef; border-radius:5px; padding:4mm 5mm; margin:5mm 0 8mm; }
+nav#TOC ul { list-style:none; padding-left:0; }
+nav#TOC ul ul { padding-left:5mm; }
+nav#TOC a { color:#244d78; }
+hr { border:0; border-top:1pt solid #dce5ee; margin:7mm 0; }
+.pagebreak { page-break-before:always; }
+.small { font-size:8pt; color:#687a8e; }

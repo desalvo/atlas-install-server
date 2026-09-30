@@ -44,6 +44,46 @@ function run_multi(mysqli $db,string $sql,string $label): void {
     } while(true);
 }
 
+
+function table_exists(mysqli $db,string $schema,string $table): bool {
+    $st=$db->prepare('SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA=? AND TABLE_NAME=? LIMIT 1');
+    $st->bind_param('ss',$schema,$table); $st->execute(); return (bool)$st->get_result()->fetch_row();
+}
+function column_exists(mysqli $db,string $schema,string $table,string $column): bool {
+    $st=$db->prepare('SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=? AND TABLE_NAME=? AND COLUMN_NAME=? LIMIT 1');
+    $st->bind_param('sss',$schema,$table,$column); $st->execute(); return (bool)$st->get_result()->fetch_row();
+}
+function index_exists(mysqli $db,string $schema,string $table,string $index): bool {
+    $st=$db->prepare('SELECT 1 FROM information_schema.STATISTICS WHERE TABLE_SCHEMA=? AND TABLE_NAME=? AND INDEX_NAME=? LIMIT 1');
+    $st->bind_param('sss',$schema,$table,$index); $st->execute(); return (bool)$st->get_result()->fetch_row();
+}
+function ensure_column(mysqli $db,string $schema,string $table,string $column,string $ddl): void {
+    if(!table_exists($db,$schema,$table)) return;
+    if(column_exists($db,$schema,$table,$column)) return;
+    logmsg("adding missing column $table.$column");
+    if(!@$db->query("ALTER TABLE `".$db->real_escape_string($table)."` ADD COLUMN ".$ddl)) throw new RuntimeException("add column $table.$column failed: ".$db->error);
+}
+function ensure_index(mysqli $db,string $schema,string $table,string $index,string $columns): void {
+    if(!table_exists($db,$schema,$table)) return;
+    if(index_exists($db,$schema,$table,$index)) return;
+    logmsg("adding missing index $table.$index");
+    $sql="ALTER TABLE `".$db->real_escape_string($table)."` ADD INDEX `".$db->real_escape_string($index)."` (".$columns.")";
+    if(!@$db->query($sql)) throw new RuntimeException("add index $table.$index failed: ".$db->error);
+}
+function migrate_schema(mysqli $db,string $schema): void {
+    // Migration ledger is deliberately independent from the historical schema_version table.
+    if(!@$db->query("CREATE TABLE IF NOT EXISTS atlas_schema_migration (name varchar(128) NOT NULL, applied_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(name)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci")) throw new RuntimeException('migration ledger create failed: '.$db->error);
+    // Objects introduced/required by LJSF 3. These ALTERs are safe after restoring an older dump.
+    ensure_column($db,$schema,'request','force_run','`force_run` int(11) NOT NULL DEFAULT 0 AFTER `statusfk`');
+    ensure_index($db,$schema,'request','request_sitefk_indx','`sitefk`');
+    ensure_index($db,$schema,'request','request_userfk_indx','`userfk`');
+    ensure_index($db,$schema,'request','request_typefk_indx','`typefk`');
+    ensure_index($db,$schema,'request','request_adminfk_indx','`adminfk`');
+    ensure_index($db,$schema,'request','request_request_date_indx','`request_date`');
+    ensure_index($db,$schema,'request','request_status_date_indx','`statusfk`,`request_date`');
+    @$db->query("INSERT IGNORE INTO atlas_schema_migration(name) VALUES ('r29-request-indexes-and-force-run')");
+}
+
 $dbname=envfile('ATLAS_DB_NAME','atlas_install_panda');
 if(!preg_match('/^[A-Za-z0-9_]+$/D',$dbname)) throw new RuntimeException('unsafe ATLAS_DB_NAME');
 $root='/var/www/html/atlas_install';
@@ -71,8 +111,7 @@ try {
     $db=connect_db($dbname, true);
     $required=['atlas_local_user','atlas_local_totp','atlas_local_session','atlas_auth_setting']; $missing=[];
     foreach($required as $t) {
-        $st=$db->prepare('SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA=? AND TABLE_NAME=? LIMIT 1');
-        $st->bind_param('ss',$dbname,$t); $st->execute(); if(!$st->get_result()->fetch_row()) $missing[]=$t;
+        if(!table_exists($db,$dbname,$t)) $missing[]=$t;
     }
     if($missing) {
         logmsg('local authentication tables missing: '.implode(',',$missing).'; initializing');
@@ -80,6 +119,8 @@ try {
         run_multi($db,$sql,'local authentication schema initialization');
         logmsg('local authentication schema initialized');
     }
+    migrate_schema($db,$dbname);
+    logmsg('application schema migration check completed');
     exit(0);
 } catch(Throwable $e) {
     logmsg('WARNING: '.$e->getMessage());

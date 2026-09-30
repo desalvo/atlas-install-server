@@ -87,3 +87,8 @@ On startup the container initializes `/etc/grid-security/certificates` from the 
 - `/atlas_install/readyz.php`: tests the read-only database connection and `SELECT 1`.
 
 Neither endpoint returns credentials or internal database errors.
+
+
+## LJSF 3 schema migration policy
+
+At container startup, the application runs an idempotent schema migration check. It may create newly introduced tables, add missing columns, and add performance indexes required by the current release. This is intentionally safe after restoring an older database dump: existing data and objects are preserved. A dedicated Kubernetes Secret `<app>-db-admin` may retain the migration account. Kubernetes Secret objects are not inherently encrypted; production clusters should enable API-server/etcd encryption at rest.

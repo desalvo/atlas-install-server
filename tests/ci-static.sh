@@ -178,7 +178,7 @@ grep -q 'go_login' "$APP_DIR/security.php" || { printf 'Access-denied login guid
 [[ -s sql/local-auth-schema.sql ]] || { printf 'Local auth schema SQL missing.\n' >&2; fail=1; }
 grep -q 'bootstrap-db.php' container/entrypoint.sh || { printf 'Application DB startup bootstrap missing.\n' >&2; fail=1; }
 grep -q 'ATLAS_DB_BOOTSTRAP_USER' scripts/atlas-install-k8s-wizard.sh || { printf 'Temporary DB bootstrap user support missing.\n' >&2; fail=1; }
-grep -q 'clear_bootstrap_admin_password' scripts/atlas-install-k8s-wizard.sh || { printf 'Temporary DB bootstrap password cleanup missing.\n' >&2; fail=1; }
+grep -q 'manage_db_admin_secret' scripts/atlas-install-k8s-wizard.sh || { printf 'Persistent DB schema-migration Secret support missing.\n' >&2; fail=1; }
 grep -q 'initial trust-anchor/fetch-crl' container/entrypoint.sh || { printf 'Initial fetch-crl startup logging missing.\n' >&2; fail=1; }
 if grep -RInE --include='*.php' --include='*.sh' 'chart\.apis\.google|google\.com/jsapi|google\.visualization|google\.load' "$APP_DIR" | grep -v '/emap.php:' | grep -q .; then
   printf 'External Google chart rendering reference remains.\n' >&2; fail=1
@@ -198,7 +198,7 @@ grep -q 'atlas-mobile-collapsible-table' "$APP_DIR/css/page_header.php" || { pri
 grep -q 'atlas-mobile-record' "$APP_DIR/css/modern.css" || { printf 'Mobile compact table CSS missing.\n' >&2; fail=1; }
 
 printf '== r24 mobile menu and list.php structural regressions ==\n'
-grep -q "function initAll(){initAutocompleteFallback();}" "$APP_DIR/js/atlas-ui.js" || { printf 'atlas-ui.js still owns duplicate menu handlers.\n' >&2; fail=1; }
+grep -q "function initAll(){initAutocompleteFallback();initLegacyDefinitionSubmit();}" "$APP_DIR/js/atlas-ui.js" || { printf 'atlas-ui.js expected autocomplete/legacy-submit initialization missing.\n' >&2; fail=1; }
 grep -q "bar.addEventListener('click'" "$APP_DIR/css/menubar.php" || { printf 'Delegated common mobile submenu handler missing.\n' >&2; fail=1; }
 grep -q 'id="atlas-list-filter-form"' "$APP_DIR/list.php" || { printf 'Valid external list filter form missing.\n' >&2; fail=1; }
 grep -q '<THEAD><TR class="atlas-list-column-row">' "$APP_DIR/list.php" || { printf 'Valid list table header row missing.\n' >&2; fail=1; }
@@ -260,6 +260,17 @@ grep -Fq 'php-application.log' Dockerfile || { printf 'r27 PHP-FPM application l
 if grep -Fq "</TD>\\n');" var/www/html/atlas_install-3.0.0/list.php; then printf 'r27 list.php still emits literal backslash-n text\n' >&2; fail=1; fi
 grep -Fq 'preserve legacy installation-state colours' var/www/html/atlas_install-3.0.0/css/modern.css || { printf 'r27 list status colour compatibility missing\n' >&2; fail=1; }
 for token in req_bootstrap_enter req_include_dependencies req_dependencies_loaded; do grep -Fq "$token" var/www/html/atlas_install-3.0.0/protected/req.php || { printf 'r27 req diagnostic checkpoint missing: %s\n' "$token" >&2; fail=1; }; done
+
+
+printf '== r29 schema/query/docs regressions ==\n'
+grep -q 'request_status_date_indx' container/bootstrap-db.php || { printf 'r29 request index migration missing.\n' >&2; fail=1; }
+grep -q 'request_request_date_indx' container/bootstrap-db.php || { printf 'r29 request-date index migration missing.\n' >&2; fail=1; }
+grep -q 'adminuser.name AS admin_name' "$APP_DIR/protected/req.php" || { printf 'req.php N+1 admin lookup optimization missing.\n' >&2; fail=1; }
+grep -q 'manage_db_admin_secret' scripts/atlas-install-k8s-wizard.sh || { printf 'Persistent db-admin Secret management missing.\n' >&2; fail=1; }
+grep -q '{{APP_NAME}}-db-admin' kubernetes/templates/20-deployment.yaml.tpl || { printf 'Deployment db-admin envFrom missing.\n' >&2; fail=1; }
+[[ -s "$APP_DIR/docs/LJSF3-Manual.it.pdf" && -s "$APP_DIR/docs/LJSF3-Manual.en.pdf" ]] || { printf 'PDF manuals missing.\n' >&2; fail=1; }
+grep -q 'initLegacyDefinitionSubmit' "$APP_DIR/js/atlas-ui.js" || { printf 'Legacy definition submit fallback missing.\n' >&2; fail=1; }
+grep -q 'atlas_translate_legacy_html' "$APP_DIR/i18n.php" || { printf 'Legacy UI translation layer missing.\n' >&2; fail=1; }
 
 exit "$fail"
 
@@ -324,3 +335,20 @@ grep -q 'ATLAS_PUBLIC_HOSTNAME' "$APP_ROOT/security.php" || { echo "ERROR: confi
 grep -q 'data-atlas-datalist' "$APP_ROOT/index.php" || { echo "ERROR: home autocomplete fallback missing" >&2; exit 1; }
 grep -q 'atlas-autocomplete-popup' "$APP_ROOT/css/modern.css" || { echo "ERROR: mobile autocomplete CSS missing" >&2; exit 1; }
 grep -q 'atlasFallbackBound' "$APP_ROOT/css/menubar.php" || { echo "ERROR: common mobile menu fallback missing" >&2; exit 1; }
+
+# r30 detailed documentation / REST API reference regressions
+echo "== r30 detailed documentation regressions =="
+test -s docs/USER-GUIDE.it.md
+test -s docs/USER-GUIDE.en.md
+test -s docs/REST-API.it.md
+test -s docs/REST-API.en.md
+test -s docs/LJSF3-Manual.it.pdf
+test -s docs/LJSF3-Manual.en.pdf
+test -s docs/LJSF3-REST-API.it.pdf
+test -s docs/LJSF3-REST-API.en.pdf
+grep -q 'X-ATLAS-TOTP' docs/REST-API.it.md
+grep -q 'password_change_required' docs/REST-API.en.md
+grep -q 'Idempotency-Key' docs/REST-API.it.md
+grep -q 'assets/arch.png' docs/USER-GUIDE.it.md
+grep -q 'assets/migrate.png' docs/USER-GUIDE.en.md
+grep -q 'LJSF3-REST-API' var/www/html/atlas_install-3.0.0/documentation.php

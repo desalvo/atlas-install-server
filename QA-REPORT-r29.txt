@@ -1,0 +1,34 @@
+LJSF 3 / ATLAS Installation System 3.0.0-r29 - QA report
+========================================================
+
+Scope
+-----
+- optimized protected/req.php query plan and removed N+1 admin lookups
+- idempotent startup schema migration for post-restore compatibility
+- persistent dedicated Kubernetes DB schema-migration Secret
+- legacy definition Select/Save/Delete browser fallback
+- expanded centralized Italian/English legacy UI translation
+- restructured Web/GitHub documentation and downloadable PDF manuals
+
+Validated
+---------
+- PHP syntax: PASS
+- shell syntax: PASS
+- static CI suite: PASS
+- Kubernetes YAML: PASS
+- GitHub workflow YAML: PASS
+- Docker Compose YAML: PASS
+- Kubernetes Deployment template render/parse: PASS
+- Italian PDF manual render: PASS (4 pages reviewed)
+- English PDF manual render: PASS
+- UI translation preserves form attribute values/scripts: PASS
+- req.php N+1 admin lookup removed: PASS
+- request startup indexes present in canonical schema + migration: PASS
+- dedicated db-admin Secret is optional in Deployment: PASS
+- wizard stores no schema-migration password in local state: PASS
+
+Runtime validation still required on the target cluster
+-------------------------------------------------------
+- EXPLAIN/latency of req.php against the production data volume
+- actual ALTER/index creation time on the restored production schema
+- browser execution of legacy definition-page fallback controls

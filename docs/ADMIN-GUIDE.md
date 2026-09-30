@@ -192,3 +192,8 @@ The container also refreshes IGTF trust anchors and CRLs automatically; see `KUB
 - The RW account therefore needs the relevant `CREATE` privileges for automatic initialization. If it does not, startup continues and the exact failure is written to Kubernetes logs with the `[atlas-db-bootstrap]` prefix.
 - Access-denied/error pages render the same full navigation menu as ordinary pages.
 - The mobile drawer uses descriptive, section-specific menu labels rather than generic `Definition/Update/Removal` entries.
+
+
+## LJSF 3 schema migration policy
+
+At container startup, the application runs an idempotent schema migration check. It may create newly introduced tables, add missing columns, and add performance indexes required by the current release. This is intentionally safe after restoring an older database dump: existing data and objects are preserved. A dedicated Kubernetes Secret `<app>-db-admin` may retain the migration account. Kubernetes Secret objects are not inherently encrypted; production clusters should enable API-server/etcd encryption at rest.

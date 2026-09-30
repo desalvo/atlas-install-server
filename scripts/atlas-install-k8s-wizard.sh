@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-WIZARD_VERSION="3.0.0-r28"
+WIZARD_VERSION="3.0.0-r31"
 DEFAULT_REPO="desalvo/atlas-install-server"
 DEFAULT_REF="main"
 DEFAULT_NAMESPACE="atlas-install"
@@ -56,6 +56,7 @@ MANAGE_SECRETS=""
 NON_INTERACTIVE=0
 TLS_SECRET_CHANGED=0
 BOOTSTRAP_SECRET_CHANGED=0
+DB_ADMIN_SECRET_CHANGED=0
 SELF_UPDATE_OVERRIDE=""
 ORIGINAL_ARGS=("$@")
 
@@ -93,8 +94,8 @@ Optional environment variables for automation:
   ATLAS_DB_RO_PASSWORD                Bootstrap RO database password
   ATLAS_DB_BROKER_PASSWORD            Bootstrap broker database password
   ATLAS_LOCAL_ADMIN_PASSWORD           Initial/reset local admin password
-  ATLAS_DB_BOOTSTRAP_USER              One-time schema bootstrap DB user (default: root)
-  ATLAS_DB_BOOTSTRAP_PASSWORD          One-time schema bootstrap DB password; removed from Secret after successful rollout
+  ATLAS_DB_BOOTSTRAP_USER              Persistent schema-migration DB user (default: root)
+  ATLAS_DB_BOOTSTRAP_PASSWORD          Schema-migration DB password stored in a dedicated Kubernetes Secret
   ATLAS_TLS_CERT_FILE                 Host certificate/full-chain PEM path
   ATLAS_TLS_KEY_FILE                  Host private-key PEM path
   ATLAS_WIZARD_AUTO_UPDATE=1           Enable self-update in non-interactive mode
@@ -517,15 +518,6 @@ apply_bootstrap_secret_content() {
   ro_pw="$(require_or_keep_password_raw ATLAS_DB_RO_PASSWORD 'RO database password' "$ro_old")"
   broker_pw="$(require_or_keep_password_raw ATLAS_DB_BROKER_PASSWORD 'Broker database password' "$broker_old")"
   bootstrap_pw=""
-  if [[ -n "${ATLAS_DB_BOOTSTRAP_PASSWORD:-}" ]]; then
-    bootstrap_pw="$(env_quote "$ATLAS_DB_BOOTSTRAP_PASSWORD")"
-  elif (( NON_INTERACTIVE )); then
-    [[ -n "$bootstrap_old" ]] && bootstrap_pw="$bootstrap_old" || true
-  else
-    local entered_bootstrap_pw
-    entered_bootstrap_pw="$(prompt_secret 'Database bootstrap/admin password (blank = try RW user; used only for schema initialization)')"
-    [[ -n "$entered_bootstrap_pw" ]] && bootstrap_pw="$(env_quote "$entered_bootstrap_pw")" || [[ -n "$bootstrap_old" ]] && bootstrap_pw="$bootstrap_old" || true
-  fi
   if [[ -n "${ATLAS_LOCAL_ADMIN_PASSWORD:-}" ]]; then
     local_admin_pw="$ATLAS_LOCAL_ADMIN_PASSWORD"
   elif (( NON_INTERACTIVE )); then
@@ -541,7 +533,6 @@ apply_bootstrap_secret_content() {
     printf 'ATLAS_PUBLIC_HOSTNAME=%s\n' "$(env_quote "$PUBLIC_HOSTNAME")"
     printf 'ATLAS_DB_NAME=%s\n' "$(env_quote "$DB_NAME")"
     printf 'ATLAS_DB_BOOTSTRAP_USER=%s\n' "$(env_quote "$bootstrap_user")"
-    if [[ -n "$bootstrap_pw" ]]; then printf 'ATLAS_DB_BOOTSTRAP_PASSWORD=%s\n' "$bootstrap_pw"; fi
     printf 'ATLAS_DB_RW_HOST=%s\n' "$(env_quote "$DB_RW_HOST")"
     printf 'ATLAS_DB_RW_USER=%s\n' "$(env_quote "$DB_RW_USER")"
     printf 'ATLAS_DB_RW_PASSWORD=%s\n' "$rw_pw"
@@ -634,18 +625,35 @@ manage_bootstrap_secret() {
   apply_bootstrap_secret_content "$existing"
 }
 
-clear_bootstrap_admin_password() {
-  local secret="${APP_NAME}-bootstrap" existing tmp result
-  existing="$(get_existing_bootstrap_env)"
-  [[ -n "$(env_raw_value "$existing" ATLAS_DB_BOOTSTRAP_PASSWORD)" ]] || return 0
-  tmp="$(mktemp)"; chmod 600 "$tmp"
-  printf '%s\n' "$existing" | grep -v '^ATLAS_DB_BOOTSTRAP_PASSWORD=' > "$tmp"
-  result="$(kubectl -n "$NAMESPACE" create secret generic "$secret" --from-file=atlas-install.env="$tmp" --dry-run=client -o yaml | kubectl apply -f -)"
-  rm -f "$tmp"
+manage_db_admin_secret() {
+  local secret="${APP_NAME}-db-admin" existing_pw="" existing_user="" pw="" user="${ATLAS_DB_BOOTSTRAP_USER:-$DB_BOOTSTRAP_USER}" result
+  if kubectl -n "$NAMESPACE" get secret "$secret" >/dev/null 2>&1; then
+    existing_pw="$(kubectl -n "$NAMESPACE" get secret "$secret" -o jsonpath='{.data.ATLAS_DB_BOOTSTRAP_PASSWORD}' 2>/dev/null | base64 -d 2>/dev/null || true)"
+    existing_user="$(kubectl -n "$NAMESPACE" get secret "$secret" -o jsonpath='{.data.ATLAS_DB_BOOTSTRAP_USER}' 2>/dev/null | base64 -d 2>/dev/null || true)"
+    [[ -n "$existing_user" ]] && user="$existing_user"
+  fi
+  if [[ -n "${ATLAS_DB_BOOTSTRAP_PASSWORD:-}" ]]; then
+    pw="$ATLAS_DB_BOOTSTRAP_PASSWORD"
+  elif (( NON_INTERACTIVE )); then
+    pw="$existing_pw"
+  else
+    local entered
+    entered="$(prompt_secret 'Database schema-migration/admin password (blank keeps existing; recommended for automatic migrations after restores)')"
+    pw="${entered:-$existing_pw}"
+  fi
+  if [[ -z "$pw" ]]; then
+    log "No persistent database schema-migration password configured; startup migrations will fall back to the RW account."
+    return 0
+  fi
+  if [[ "$existing_pw" != "$pw" || "$existing_user" != "$user" ]]; then DB_ADMIN_SECRET_CHANGED=1; fi
+  result="$(kubectl -n "$NAMESPACE" create secret generic "$secret" \
+    --from-literal=ATLAS_DB_BOOTSTRAP_USER="$user" \
+    --from-literal=ATLAS_DB_BOOTSTRAP_PASSWORD="$pw" \
+    --dry-run=client -o yaml | kubectl apply -f -)"
   log "$result"
-  log "Removed one-time database bootstrap password from Kubernetes Secret after successful rollout."
+  log "Persistent database schema-migration credential stored in Kubernetes Secret ${NAMESPACE}/${secret}."
+  log "For encryption at rest, enable Kubernetes API-server/etcd Secret encryption in the cluster."
 }
-
 validate_tls_pair() {
   local cert="$1" key="$2" cert_pub key_pub
   [[ -r "$cert" ]] || die "certificate not readable: $cert"
@@ -845,7 +853,7 @@ CPU_LIMIT="$(prompt 'CPU limit' "$CPU_LIMIT")"
 MEMORY_LIMIT="$(prompt 'Memory limit' "$MEMORY_LIMIT")"
 DB_HOST="$(prompt 'Database server/IP (RW, RO and broker)' "$DB_HOST")"
 validate_db_host "$DB_HOST"
-DB_BOOTSTRAP_USER="$(prompt 'Database bootstrap/admin user (used only when schema must be created)' "$DB_BOOTSTRAP_USER")"
+DB_BOOTSTRAP_USER="$(prompt 'Database schema-migration/admin user (used for startup migrations after restores)' "$DB_BOOTSTRAP_USER")"
 DB_RW_HOST="$DB_HOST"; DB_RO_HOST="$DB_HOST"; DB_BROKER_HOST="$DB_HOST"
 if (( ! NON_INTERACTIVE )); then
   if yesno "Use TLS/SSL for database connections?" "$([[ "$DB_SSL" == yes ]] && echo y || echo n)"; then
@@ -937,6 +945,7 @@ if [[ "$MANAGE_SECRETS" == yes ]]; then
   need_cmd base64
   need_cmd openssl
   manage_bootstrap_secret
+  manage_db_admin_secret
   manage_tls_secret
 fi
 
@@ -946,9 +955,11 @@ if [[ "$APPLY_MANIFESTS" == yes ]]; then
   log "Kubernetes manifests applied with Kustomize."
 fi
 
-if (( BOOTSTRAP_SECRET_CHANGED || TLS_SECRET_CHANGED )) && kubectl -n "$NAMESPACE" get deployment "$APP_NAME" >/dev/null 2>&1; then
+if (( BOOTSTRAP_SECRET_CHANGED || TLS_SECRET_CHANGED || DB_ADMIN_SECRET_CHANGED )) && kubectl -n "$NAMESPACE" get deployment "$APP_NAME" >/dev/null 2>&1; then
   if (( BOOTSTRAP_SECRET_CHANGED && TLS_SECRET_CHANGED )); then
     log "Bootstrap configuration and TLS material changed; restarting deployment."
+  elif (( DB_ADMIN_SECRET_CHANGED )); then
+    log "Database schema-migration credential changed; restarting deployment so startup migrations use the current Secret."
   elif (( BOOTSTRAP_SECRET_CHANGED )); then
     log "Bootstrap configuration changed; restarting deployment so the managed atlas-install.env is refreshed."
   else
@@ -960,9 +971,9 @@ fi
 if [[ "$APPLY_MANIFESTS" == yes ]] && kubectl -n "$NAMESPACE" get deployment "$APP_NAME" >/dev/null 2>&1; then
   log "Waiting for deployment rollout to complete."
   if kubectl -n "$NAMESPACE" rollout status deployment "$APP_NAME" --timeout=300s; then
-    clear_bootstrap_admin_password
+    log "Deployment rollout completed successfully. Persistent schema-migration Secret retained for future restore/startup migrations."
   else
-    log "WARNING: rollout did not become ready; keeping bootstrap admin password in Secret for retry/diagnostics."
+    log "WARNING: rollout did not become ready; database schema-migration Secret is retained for retry/diagnostics."
   fi
 fi
 
