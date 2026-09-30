@@ -299,6 +299,13 @@ grep -Fq 'orientationchange' "$APP_DIR/css/menubar.php" || { printf 'Mobile draw
 grep -Fq 'atlas_select_cert_candidate' "$APP_DIR/local_auth.php" || { printf 'X.509 duplicate candidate selector missing.\n' >&2; fail=1; }
 grep -Fq 'legacy CA-unbound duplicate must never bypass' "$APP_DIR/local_auth.php" || { printf 'CA duplicate anti-bypass rule missing.\n' >&2; fail=1; }
 
+printf '== r36 mobile collapsible/touch navigation regressions ==\n'
+grep -Fq 'collapseAllSections' "$APP_DIR/css/menubar.php" || { printf 'Mobile menu default-collapse helper missing.\n' >&2; fail=1; }
+grep -Fq 'aria-controls=' "$APP_DIR/css/menubar.php" || { printf 'Sidebar section ARIA relationship missing.\n' >&2; fail=1; }
+grep -Fq 'min-height:48px!important' "$APP_DIR/css/modern.css" || { printf 'Mobile section heading touch target is too small.\n' >&2; fail=1; }
+grep -Fq 'min-height:44px!important' "$APP_DIR/css/modern.css" || { printf 'Mobile menu link touch target is too small.\n' >&2; fail=1; }
+grep -Fq 'touch-action:manipulation' "$APP_DIR/css/modern.css" || { printf 'Touch interaction optimization missing.\n' >&2; fail=1; }
+
 exit "$fail"
 
 # Container must never require a privileged HTTP listener.

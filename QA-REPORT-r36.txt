@@ -1,0 +1,14 @@
+ATLAS Installation Server 3.0.0-r36 QA
+
+Scope
+- Mobile drawer sections collapsed by default.
+- Touch-friendly section headings and menu links.
+- Explicit accessible collapse state/relationships.
+- No changes to r35 X.509/CA behavior.
+
+Validation
+- PHP syntax/static CI: PASS.
+- r33 DN canonicalization suite: PASS.
+- r35 X.509 duplicate/CA regression checks: PASS.
+- r36 mobile navigation regression checks: PASS.
+- Wizard SHA-256 sidecar regenerated and verified by CI.

@@ -768,3 +768,58 @@ body.atlas-list-page .atlas-table-scroll{overflow:auto!important}
   .atlas-dashboard-hero{height:auto;grid-template-columns:1fr 1.3fr;gap:10px}.atlas-dashboard-intro{padding:10px 2px}.atlas-dashboard-earth{min-height:120px}.atlas-dashboard-wordmark{font-size:46px!important}.atlas-kpi-grid{grid-template-columns:1fr 1fr}.atlas-dashboard-row.three,.atlas-dashboard-row.two{grid-template-columns:1fr}.atlas-dashboard-row.three>.atlas-dashboard-panel:last-child{grid-column:auto}.atlas-resource-panel{grid-template-columns:1fr}
   .atlas-shell-footer{left:0;grid-template-columns:145px 1fr 110px;padding:0 7px}.atlas-shell-footer-brand img{width:85px}.atlas-shell-footer-brand span{display:none}.atlas-identity-footer{max-width:280px!important}.atlas-identity-body{right:10px;bottom:47px;width:calc(100vw - 20px)}
 }
+
+/* r36 - touch-friendly collapsible mobile navigation.
+   Mobile groups start collapsed, headings and links use full-width 44+px tap
+   targets, and touch-action removes delayed/ambiguous taps on phone browsers. */
+@media (max-width:900px), (max-width:1180px) and (hover:none) and (pointer:coarse) {
+  .atlas-sidebar-home{
+    min-height:48px!important;
+    height:48px!important;
+    padding:0 14px!important;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:rgba(255,255,255,.12);
+  }
+  .atlas-sidebar-section{padding:2px 0!important}
+  .atlas-sidebar-heading{
+    min-height:48px!important;
+    height:auto!important;
+    padding:10px 14px!important;
+    font-size:15px!important;
+    line-height:1.2!important;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:rgba(255,255,255,.12);
+    position:relative;
+    z-index:1;
+  }
+  .atlas-sidebar-heading .atlas-sidebar-caret{font-size:16px!important}
+  .atlas-sidebar-links{
+    padding:2px 8px 8px 42px!important;
+    gap:2px!important;
+  }
+  .atlas-sidebar-links a{
+    display:flex!important;
+    align-items:center!important;
+    width:100%!important;
+    min-height:44px!important;
+    box-sizing:border-box!important;
+    padding:9px 10px!important;
+    border-radius:5px!important;
+    font-size:14px!important;
+    line-height:1.25!important;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:rgba(255,255,255,.12);
+    position:relative;
+    z-index:2;
+  }
+  .atlas-sidebar-links a:hover,
+  .atlas-sidebar-links a:focus,
+  .atlas-sidebar-links a:active,
+  .atlas-sidebar-links a.is-active{
+    background:rgba(255,255,255,.08)!important;
+    color:#fff!important;
+    outline:none;
+  }
+  .atlas-sidebar-section.is-collapsed .atlas-sidebar-links{display:none!important}
+}
+

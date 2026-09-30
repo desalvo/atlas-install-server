@@ -35,12 +35,12 @@ function menubar($path=".") {
     <?php echo atlas_sidebar_icon('home'); ?><span><?php echo atlas_h(atlas_t('home')); ?></span>
   </a>
   <div class="atlas-sidebar-scroll">
-  <?php foreach($sections as $section): ?>
+  <?php foreach($sections as $section): $sectionId='atlas-sidebar-links-'.$section[0]; ?>
     <section class="atlas-sidebar-section" data-section="<?php echo atlas_h($section[0]); ?>">
-      <button type="button" class="atlas-sidebar-heading" aria-expanded="true">
-        <?php echo atlas_sidebar_icon($section[0]); ?><span><?php echo atlas_h(atlas_t($section[1])); ?></span><span class="atlas-sidebar-caret">⌃</span>
+      <button type="button" class="atlas-sidebar-heading" aria-expanded="true" aria-controls="<?php echo atlas_h($sectionId); ?>">
+        <?php echo atlas_sidebar_icon($section[0]); ?><span><?php echo atlas_h(atlas_t($section[1])); ?></span><span class="atlas-sidebar-caret" aria-hidden="true">⌃</span>
       </button>
-      <div class="atlas-sidebar-links">
+      <div id="<?php echo atlas_h($sectionId); ?>" class="atlas-sidebar-links">
         <?php foreach($section[2] as $item):
           $label=(str_contains((string)$item[0],' ') || str_contains((string)$item[0],'Matrice') || str_contains((string)$item[0],'Gestione') || str_contains((string)$item[0],'Task ') || str_contains((string)$item[0],'Running') || str_contains((string)$item[0],'Scheduled')) ? (string)$item[0] : atlas_t((string)$item[0]);
           $href=$path.$item[1];
@@ -64,18 +64,42 @@ function menubar($path=".") {
       if(!window.matchMedia)return window.innerWidth<=900;
       return window.matchMedia('(max-width:900px), (max-width:1180px) and (hover:none) and (pointer:coarse)').matches;
     }
+    var mobileMode=false;
+    function setSectionCollapsed(sec,collapsed){
+      if(!sec)return;
+      var btn=sec.querySelector('.atlas-sidebar-heading');
+      sec.classList.toggle('is-collapsed',!!collapsed);
+      if(btn)btn.setAttribute('aria-expanded',collapsed?'false':'true');
+    }
+    function collapseAllSections(){
+      bar.querySelectorAll('.atlas-sidebar-section').forEach(function(sec){setSectionCollapsed(sec,true);});
+    }
     function setOpen(open){
-      open=!!open && mobile();
+      var isMobile=mobile();
+      open=!!open && isMobile;
       bar.classList.toggle('atlas-mobile-open',open);
       toggle.setAttribute('aria-expanded',open?'true':'false');
-      if(mobile()) bar.setAttribute('aria-hidden',open?'false':'true'); else bar.removeAttribute('aria-hidden');
+      if(isMobile) bar.setAttribute('aria-hidden',open?'false':'true'); else bar.removeAttribute('aria-hidden');
       if(backdrop){backdrop.hidden=!open;backdrop.classList.toggle('is-open',open);}
       document.documentElement.classList.toggle('atlas-menu-open',open);
+      if(isMobile && !open) collapseAllSections();
     }
-    function syncMode(){ setOpen(false); }
+    function syncMode(){
+      var nowMobile=mobile();
+      if(nowMobile && !mobileMode) collapseAllSections();
+      if(!nowMobile && mobileMode) bar.querySelectorAll('.atlas-sidebar-section').forEach(function(sec){setSectionCollapsed(sec,false);});
+      mobileMode=nowMobile;
+      setOpen(false);
+    }
     toggle.addEventListener('click',function(e){e.preventDefault();setOpen(!bar.classList.contains('atlas-mobile-open'));});
     if(backdrop)backdrop.addEventListener('click',function(){setOpen(false);});
-    bar.querySelectorAll('.atlas-sidebar-heading').forEach(function(btn){btn.addEventListener('click',function(){var sec=btn.closest('.atlas-sidebar-section'),open=!sec.classList.contains('is-collapsed');sec.classList.toggle('is-collapsed',open);btn.setAttribute('aria-expanded',open?'false':'true');});});
+    bar.querySelectorAll('.atlas-sidebar-heading').forEach(function(btn){
+      btn.addEventListener('click',function(e){
+        e.preventDefault();
+        var sec=btn.closest('.atlas-sidebar-section');
+        setSectionCollapsed(sec,!sec.classList.contains('is-collapsed'));
+      });
+    });
     bar.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){if(mobile())setOpen(false);});});
     document.addEventListener('keydown',function(e){if(e.key==='Escape')setOpen(false);});
     window.addEventListener('resize',syncMode);

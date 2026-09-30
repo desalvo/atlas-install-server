@@ -1,3 +1,10 @@
+## 3.0.0 r36
+
+- Mobile/cellphone sidebar sections are now collapsed by default whenever the responsive drawer is used, while desktop keeps the documented expanded layout.
+- Increased mobile menu section headings to 48 px and contained links to at least 44 px high, with full-width touch targets and explicit touch-action handling for reliable taps on iOS/Android browsers.
+- Added explicit ARIA relationships/states between every navigation heading and its collapsible link group; closing the drawer resets groups to their collapsed default state.
+- Added r36 regression checks for collapsed-by-default mobile behavior and touch target sizing while retaining all r35 X.509 fixes.
+
 ## 3.0.0 r35
 
 - Fixed mobile navigation on phones in both portrait and landscape: a closed drawer is now fully hidden/non-interactive and touch-landscape viewports above 900 CSS px use the mobile shell.
