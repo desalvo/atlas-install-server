@@ -1,0 +1,16 @@
+ATLAS Installation Server 3.0.0-r37 QA
+
+Scope
+- Fix portrait mobile section toggles on Safari/iOS-style dynamic viewport resizing.
+- Preserve expanded section state across height-only resize events.
+- Reset navigation only on real responsive-mode or orientation transitions.
+- No changes to r35 X.509/CA behavior or r36 touch target sizing.
+
+Validation
+- Full effective static CI suite: PASS.
+- PHP syntax check: PASS (129 PHP files).
+- r33 DN canonicalization suite: PASS.
+- r35 X.509 duplicate/CA regression checks: PASS via static CI.
+- r36 touch navigation regression checks: PASS via static CI.
+- r37 portrait resize-state regression checks: PASS.
+- Wizard SHA-256 sidecar: PASS.

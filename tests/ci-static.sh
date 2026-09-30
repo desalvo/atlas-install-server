@@ -306,6 +306,15 @@ grep -Fq 'min-height:48px!important' "$APP_DIR/css/modern.css" || { printf 'Mobi
 grep -Fq 'min-height:44px!important' "$APP_DIR/css/modern.css" || { printf 'Mobile menu link touch target is too small.\n' >&2; fail=1; }
 grep -Fq 'touch-action:manipulation' "$APP_DIR/css/modern.css" || { printf 'Touch interaction optimization missing.\n' >&2; fail=1; }
 
+printf '== r37 portrait resize-state regressions ==\n'
+grep -Fq 'var mobileMode=null' "$APP_DIR/css/menubar.php" || { printf 'Responsive mode initialization does not distinguish first evaluation.\n' >&2; fail=1; }
+grep -Fq 'var modeChanged=(mobileMode===null || nowMobile!==mobileMode)' "$APP_DIR/css/menubar.php" || { printf 'Responsive mode transition guard missing.\n' >&2; fail=1; }
+grep -Fq 'if(!modeChanged)return' "$APP_DIR/css/menubar.php" || { printf 'Height-only resize can still reset mobile section state.\n' >&2; fail=1; }
+grep -Fq 'resetAfterOrientationChange' "$APP_DIR/css/menubar.php" || { printf 'Real orientation reset handler missing.\n' >&2; fail=1; }
+if sed -n '/function syncMode(){/,/^    }/p' "$APP_DIR/css/menubar.php" | grep -Fq 'setOpen(false)' && ! sed -n '/function syncMode(){/,/^    }/p' "$APP_DIR/css/menubar.php" | grep -Fq 'if(!modeChanged)return'; then
+  printf 'resize synchronization still unconditionally closes the mobile drawer.\n' >&2; fail=1
+fi
+
 exit "$fail"
 
 # Container must never require a privileged HTTP listener.

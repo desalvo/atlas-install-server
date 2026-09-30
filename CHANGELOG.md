@@ -1,3 +1,10 @@
+## 3.0.0 r37
+
+- Fixed iOS/mobile portrait sidebar sections that appeared not to open because browser-chrome height changes emitted `resize` events and immediately re-collapsed the menu.
+- Responsive synchronization now resets navigation only when the application actually crosses the desktop/mobile breakpoint; height-only resizes preserve the open drawer and expanded section state.
+- Real orientation changes still close the drawer and restore the intended default section state, while desktop/mobile transitions retain the documented behavior.
+- Added r37 regression checks that prevent ordinary `resize` handling from closing/re-collapsing the mobile navigation.
+
 ## 3.0.0 r36
 
 - Mobile/cellphone sidebar sections are now collapsed by default whenever the responsive drawer is used, while desktop keeps the documented expanded layout.

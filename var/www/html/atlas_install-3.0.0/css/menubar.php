@@ -64,7 +64,11 @@ function menubar($path=".") {
       if(!window.matchMedia)return window.innerWidth<=900;
       return window.matchMedia('(max-width:900px), (max-width:1180px) and (hover:none) and (pointer:coarse)').matches;
     }
-    var mobileMode=false;
+    // null means the responsive mode has not been evaluated yet.  Do not
+    // use a plain boolean here: iOS Safari emits resize events when its
+    // browser chrome expands/collapses, especially in portrait mode.  Those
+    // height-only resizes must not be mistaken for a desktop/mobile change.
+    var mobileMode=null;
     function setSectionCollapsed(sec,collapsed){
       if(!sec)return;
       var btn=sec.querySelector('.atlas-sidebar-heading');
@@ -86,10 +90,26 @@ function menubar($path=".") {
     }
     function syncMode(){
       var nowMobile=mobile();
-      if(nowMobile && !mobileMode) collapseAllSections();
-      if(!nowMobile && mobileMode) bar.querySelectorAll('.atlas-sidebar-section').forEach(function(sec){setSectionCollapsed(sec,false);});
+      var modeChanged=(mobileMode===null || nowMobile!==mobileMode);
+      if(!modeChanged)return;
+      if(nowMobile) collapseAllSections();
+      else bar.querySelectorAll('.atlas-sidebar-section').forEach(function(sec){setSectionCollapsed(sec,false);});
       mobileMode=nowMobile;
       setOpen(false);
+    }
+    function resetAfterOrientationChange(){
+      // Orientation changes are genuine layout transitions, unlike the
+      // portrait Safari height-only resizes caused by the address/tool bars.
+      var nowMobile=mobile();
+      if(nowMobile){
+        mobileMode=nowMobile;
+        setOpen(false);
+        collapseAllSections();
+      }else{
+        mobileMode=nowMobile;
+        setOpen(false);
+        bar.querySelectorAll('.atlas-sidebar-section').forEach(function(sec){setSectionCollapsed(sec,false);});
+      }
     }
     toggle.addEventListener('click',function(e){e.preventDefault();setOpen(!bar.classList.contains('atlas-mobile-open'));});
     if(backdrop)backdrop.addEventListener('click',function(){setOpen(false);});
@@ -103,7 +123,7 @@ function menubar($path=".") {
     bar.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){if(mobile())setOpen(false);});});
     document.addEventListener('keydown',function(e){if(e.key==='Escape')setOpen(false);});
     window.addEventListener('resize',syncMode);
-    window.addEventListener('orientationchange',syncMode);
+    window.addEventListener('orientationchange',function(){window.setTimeout(resetAfterOrientationChange,0);});
     syncMode();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAtlasSidebar);else initAtlasSidebar();
